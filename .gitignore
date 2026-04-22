@@ -1,6 +1,9 @@
 # Ignore all files inside TeamWorkspace
 # Assets/1.TeamWorkspace/*
+
+Assets/1.TeamWorkspace/Amee
 Assets/1.TeamWorkspace/Sopha
+
 
 # This .gitignore file should be placed at the root of your Unity project directory
 #
