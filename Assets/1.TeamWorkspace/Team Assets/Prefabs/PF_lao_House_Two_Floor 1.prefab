@@ -372,7 +372,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5367782813780899194}
   m_Layer: 0
-  m_Name: SM_lao_House_Two_Floor 1
+  m_Name: PF_lao_House_Two_Floor 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
