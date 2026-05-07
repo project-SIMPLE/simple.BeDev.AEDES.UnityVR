@@ -102,6 +102,7 @@ GameObject:
   - component: {fileID: 6985742109046900296}
   - component: {fileID: 5922738399864603124}
   - component: {fileID: 2700088276517578577}
+  - component: {fileID: 9096901153254390115}
   m_Layer: 0
   m_Name: PF_Jar
   m_TagString: Untagged
@@ -120,7 +121,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.7, y: 0.7, z: 0.7}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 2983507557543280207}
   m_Father: {fileID: 0}
@@ -204,3 +205,16 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4711208715938537054, guid: 3adf3f83c1448c643a30873318a9d407, type: 3}
+--- !u!114 &9096901153254390115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7376524743313560442}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c9bbbe624a40d048bfb1e292b961801, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WaterContainer
+  WaterOBJ: {fileID: 6039267951378779652}
