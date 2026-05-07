@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: c542bc9f919d96241a4238b17cc33a80
+guid: 1f5017e4730cdd743aa807bc5688555c
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
@@ -31,9 +31,9 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: Armature.001|Action_swim
-      takeName: Armature.001|Action_swim
-      internalID: -3542273496475592419
+      name: Armature.003|Action_swim
+      takeName: Armature.003|Action_swim
+      internalID: -2365613009427453377
       firstFrame: 0
       lastFrame: 40
       wrapMode: 0
@@ -60,9 +60,9 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: Armature.001|Action_swim.001
-      takeName: Armature.001|Action_swim.001
-      internalID: 4883465583155919455
+      name: Armature.003|Action_swim.001
+      takeName: Armature.003|Action_swim.001
+      internalID: -7085499908830819640
       firstFrame: 0
       lastFrame: 40
       wrapMode: 0
@@ -89,9 +89,96 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: Armature.001|Action_swim.002
-      takeName: Armature.001|Action_swim.002
-      internalID: 6282799188983335003
+      name: Armature.003|Action_swim.003
+      takeName: Armature.003|Action_swim.003
+      internalID: -1653211949189520141
+      firstFrame: 0
+      lastFrame: 40
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Armature.003|Armature.001|Action_swim
+      takeName: Armature.003|Armature.001|Action_swim
+      internalID: -7977967560506571994
+      firstFrame: 0
+      lastFrame: 40
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Armature.003|Armature.001|Action_swim.001
+      takeName: Armature.003|Armature.001|Action_swim.001
+      internalID: -46498274045758385
+      firstFrame: 0
+      lastFrame: 40
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Armature.003|Armature.001|Action_swim.002
+      takeName: Armature.003|Armature.001|Action_swim.002
+      internalID: 2814199126602752926
       firstFrame: 0
       lastFrame: 40
       wrapMode: 0
