@@ -5,11 +5,13 @@ public class MovingCar : MonoBehaviour
 {
     public float BaseSpeed,Speed;
     MeshRenderer mesh;
+    AudioSource sound;
     public bool isleft;
     private void Awake()
     {
         mesh = GetComponent<MeshRenderer>();
-        StartCoroutine(Resetting(Random.Range(0, 3)));
+        sound = GetComponent<AudioSource>();
+        StartCoroutine(Resetting(Random.Range(0, 7)));
     }
     private void Update()
     {
@@ -19,7 +21,7 @@ public class MovingCar : MonoBehaviour
             if(transform.position.z > 22)
             {
                 isleft = false;
-                StartCoroutine(Resetting(Random.Range(0, 3)));
+                StartCoroutine(Resetting(Random.Range(0, 7)));
             }
         }
         else if(!isleft)
@@ -27,7 +29,7 @@ public class MovingCar : MonoBehaviour
             if (transform.position.z < -22)
             {
                 isleft = true;
-                StartCoroutine(Resetting(Random.Range(0,3)));
+                StartCoroutine(Resetting(Random.Range(0,7)));
             }
         }
     }
@@ -47,10 +49,12 @@ public class MovingCar : MonoBehaviour
     public IEnumerator Resetting(float time)
     {
         mesh.enabled = false;
+        sound.enabled = false;
         Speed = 0;
         yield return new WaitForSeconds(time);
         Setposition();
         Speed = BaseSpeed;
         mesh.enabled = true;
+        sound.enabled = true;
     }
 }
