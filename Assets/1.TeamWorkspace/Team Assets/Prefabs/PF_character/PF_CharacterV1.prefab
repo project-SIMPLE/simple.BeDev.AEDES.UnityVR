@@ -991,6 +991,7 @@ GameObject:
   m_Component:
   - component: {fileID: 445234367411344394}
   - component: {fileID: 4330682505011073165}
+  - component: {fileID: -1147606447609567078}
   m_Layer: 0
   m_Name: PF_CharacterV1
   m_TagString: Untagged
@@ -1039,6 +1040,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &-1147606447609567078
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5270409977889807214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85a44297935582545b9a814559405a7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Human
 --- !u!1 &5275792400378127142
 GameObject:
   m_ObjectHideFlags: 0
