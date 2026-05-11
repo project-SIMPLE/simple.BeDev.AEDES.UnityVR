@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2272674927131203922}
   - component: {fileID: 8028319654500497593}
   m_Layer: 0
-  m_Name: SM_Calling_Light1
+  m_Name: PF_Calling_Light1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
