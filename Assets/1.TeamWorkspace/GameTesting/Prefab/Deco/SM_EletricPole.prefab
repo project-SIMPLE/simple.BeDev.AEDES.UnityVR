@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2385896860471059322}
   - component: {fileID: 8778149854730347679}
   - component: {fileID: 451244631346119704}
+  - component: {fileID: 4484739250213357962}
   m_Layer: 0
   m_Name: SM_EletricPole
   m_TagString: Untagged
@@ -90,3 +91,24 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &4484739250213357962
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3967444089180884448}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.2, y: 7.035533, z: 0.2}
+  m_Center: {x: 0, y: 3.5199065, z: 0}

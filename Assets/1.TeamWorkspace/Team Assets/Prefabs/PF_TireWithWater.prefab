@@ -103,6 +103,7 @@ GameObject:
   - component: {fileID: 6507478517484110126}
   - component: {fileID: 3830661947699326526}
   - component: {fileID: 7187674528715032232}
+  - component: {fileID: 4971576150492358720}
   m_Layer: 0
   m_Name: PF_TireWithWater
   m_TagString: Untagged
@@ -198,3 +199,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WaterContainer
   WaterOBJ: {fileID: 1309821611307046910}
   isFill: 0
+  Score: 0
+--- !u!135 &4971576150492358720
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6610576867503992908}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.21
+  m_Center: {x: -0.00000011920929, y: 0.13063118, z: 0}

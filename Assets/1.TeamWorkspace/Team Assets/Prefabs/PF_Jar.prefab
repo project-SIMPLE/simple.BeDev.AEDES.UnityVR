@@ -101,8 +101,8 @@ GameObject:
   - component: {fileID: 3119840709328142555}
   - component: {fileID: 6985742109046900296}
   - component: {fileID: 5922738399864603124}
-  - component: {fileID: 2700088276517578577}
   - component: {fileID: 9096901153254390115}
+  - component: {fileID: 5915132000673020208}
   m_Layer: 0
   m_Name: PF_Jar
   m_TagString: Untagged
@@ -183,28 +183,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &2700088276517578577
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7376524743313560442}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 4711208715938537054, guid: 3adf3f83c1448c643a30873318a9d407, type: 3}
 --- !u!114 &9096901153254390115
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -218,3 +196,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WaterContainer
   WaterOBJ: {fileID: 6039267951378779652}
+  isFill: 0
+  Score: 0
+--- !u!135 &5915132000673020208
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7376524743313560442}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.65335745
+  m_Center: {x: -0.01309061, y: 0.58160883, z: 0.008202492}

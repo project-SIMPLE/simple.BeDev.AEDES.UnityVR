@@ -37,12 +37,12 @@ public class MovingCar : MonoBehaviour
     {
         if (isleft)
         {
-            transform.position = new Vector3(5f, 0f, -21.5f);
+            transform.position = new Vector3(5f, -0.3407006f, -21.5f);
             transform.rotation = Quaternion.Euler(0f, -90, 0f);
         }
         else
         {
-            transform.position = new Vector3(.65f, 0f, 21.5f);
+            transform.position = new Vector3(.65f, -0.3407006f, 21.5f);
             transform.rotation = Quaternion.Euler(0f, 90, 0f);
         }
     }

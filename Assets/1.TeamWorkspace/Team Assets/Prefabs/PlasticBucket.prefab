@@ -102,6 +102,7 @@ GameObject:
   - component: {fileID: 8158658771275238063}
   - component: {fileID: 4703420679229465404}
   - component: {fileID: 8115964370208315078}
+  - component: {fileID: 8967898026667153566}
   m_Layer: 0
   m_Name: PlasticBucket
   m_TagString: Untagged
@@ -197,3 +198,24 @@ MonoBehaviour:
   WaterOBJ: {fileID: 5958001880465379099}
   isFill: 0
   Score: 50
+--- !u!135 &8967898026667153566
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8831067856015597924}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.18014291
+  m_Center: {x: 0.000000014901161, y: 0.16435911, z: -0.04306777}
