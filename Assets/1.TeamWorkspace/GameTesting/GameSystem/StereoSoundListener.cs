@@ -1,3 +1,4 @@
+using NUnit.Framework.Interfaces;
 using UnityEngine;
 
 public class StereoSoundListener : MonoBehaviour
@@ -12,10 +13,18 @@ public class StereoSoundListener : MonoBehaviour
     {
         foreach (AudioSource source in Source)
         {
-            float dir = Vector3.Dot(transform.right, (source.transform.position - transform.position).normalized);
-            source.panStereo = dir*=-1;
             float dis = Vector3.Distance(transform.position, source.transform.position);
-            source.volume = Mathf.InverseLerp(HearimgDistance, 0, dis);
+            if (dis < HearimgDistance)
+            {
+                source.enabled = true;
+                source.volume = Mathf.InverseLerp(HearimgDistance, 0, dis);
+                float dir = Vector3.Dot(transform.right, (source.transform.position - transform.position).normalized);
+                source.panStereo = dir *= -1;
+            }
+            else if (dis >= HearimgDistance)
+            {
+                source.enabled = false;
+            }
         }
     }
 }

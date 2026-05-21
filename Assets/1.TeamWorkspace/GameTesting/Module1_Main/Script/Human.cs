@@ -47,7 +47,6 @@ public class Human : MonoBehaviour
     public void settarget()
     {
         int r = Random.Range(0, 1);
-        print(r);
         if (r == 0)
         {
             CurrentTarget++;
