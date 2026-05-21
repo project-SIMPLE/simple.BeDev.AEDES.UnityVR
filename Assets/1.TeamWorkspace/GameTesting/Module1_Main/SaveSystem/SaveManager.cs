@@ -1,5 +1,6 @@
 using System.IO;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SaveManager : MonoBehaviour
 {
@@ -8,24 +9,15 @@ public class SaveManager : MonoBehaviour
     private void Awake()
     {
         instance = this;
+        if (SceneManager.GetActiveScene().buildIndex == 0|| SceneManager.GetActiveScene().buildIndex == 1)
+        {
+            deleteSave();
+        }
+        a = LoadPlayerData();
     }
 
     private void Start()
     {
-        a = LoadPlayerData();
-        if(a != null)
-        {
-            GameManager.instance.score = a.Score;
-        }
-        if(SaveManager.instance!= null)
-        {
-            print("AAAAAAAAAAAAAAAAAAAAAAAAAA");
-        }
-        else
-        {
-            print("ALSKIHJYGYJTFJY<GHHIOl");
-
-        }
     }
     public static void SavePlayerData(PlayerSavedData data)
     {

@@ -888,52 +888,53 @@ public class SimulationManager : MonoBehaviour
         {
             prop.loadPrefab(parameters.precision);
         }
-        GameObject obj = Instantiate(prop.prefabObj);
-        float scale = ((float)prop.size) / parameters.precision;
-        obj.transform.localScale = new Vector3(scale, scale, scale);
-        obj.SetActive(true);
-
-        if (prop.hasCollider)
         {
-            if (obj.TryGetComponent<LODGroup>(out var lod))
+            GameObject obj = Instantiate(prop.prefabObj);
+            float scale = ((float)prop.size) / parameters.precision;
+            obj.transform.localScale = new Vector3(scale, scale, scale);
+            obj.SetActive(true);
+
+            if (prop.hasCollider)
             {
-                foreach (LOD l in lod.GetLODs())
+                if (obj.TryGetComponent<LODGroup>(out var lod))
                 {
-                    GameObject b = l.renderers[0].gameObject;
-                    Collider c = b.GetComponent<Collider>();
-                    if (c != null && c.bounds.extents.x == 0) 
+                    foreach (LOD l in lod.GetLODs())
+                    {
+                        GameObject b = l.renderers[0].gameObject;
+                        Collider c = b.GetComponent<Collider>();
+                        if (c != null && c.bounds.extents.x == 0)
+                            c = null;
+
+                        if (c == null)
+                        {
+                            BoxCollider bc = b.AddComponent<BoxCollider>();
+                        }
+                        // b.tag = obj.tag;
+                        // b.name = obj.name;
+                        //bc.isTrigger = prop.isTrigger;
+                    }
+
+                }
+                else
+                {
+                    Collider c = obj.GetComponent<Collider>();
+                    if (c != null && c.bounds.extents.x == 0)
                         c = null;
-                
                     if (c == null)
                     {
-                        BoxCollider bc = b.AddComponent<BoxCollider>();
+                        BoxCollider bc = obj.AddComponent<BoxCollider>();
                     }
-                    // b.tag = obj.tag;
-                    // b.name = obj.name;
-                    //bc.isTrigger = prop.isTrigger;
-                }
 
-            }
-            else
-            {
-                Collider c = obj.GetComponent<Collider>();
-               if (c != null && c.bounds.extents.x == 0) 
-                    c = null;
-                if (c == null)
-                {
-                    BoxCollider bc = obj.AddComponent<BoxCollider>();
+                    // bc.isTrigger = prop.isTrigger;
                 }
-
-                // bc.isTrigger = prop.isTrigger;
             }
+            List<object> pL = new List<object>();
+            pL.Add(obj); pL.Add(prop);
+            if (!initGame) geometryMap.Add(name, pL);
+            instantiateGO(obj, name, prop);
+            return obj;
         }
-        List<object> pL = new List<object>();
-        pL.Add(obj); pL.Add(prop);
-        if (!initGame) geometryMap.Add(name, pL);
-        instantiateGO(obj, name, prop);
-        return obj;
-    }
-
+}
 
 
     private void UpdateAgentsList()

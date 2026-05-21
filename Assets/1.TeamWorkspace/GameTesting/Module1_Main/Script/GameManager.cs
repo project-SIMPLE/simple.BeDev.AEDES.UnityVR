@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
     public GameObject DangerUI,DeathUI,TimeOutUI,questUI;
     public GameObject Rain;
     public PlayerMain player;
+    public GameObject[] Human;
     public bool IsRain;
     private void Awake()
     {
@@ -28,9 +29,7 @@ public class GameManager : MonoBehaviour
         if (SaveManager.instance != null)
         {
             score = SaveManager.instance.a.Score;
-            print(SaveManager.instance.a.Score);
-            setscore(score);
-            setscore(score);
+            scoretext.text = "Score: " + score.ToString();
         }
         
     }
