@@ -8,13 +8,13 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Scenes by Simple/Unity  VR Template/SampleScene.unity
     guid: 55daccc09a3b69647bbab145b54a3ab3
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/Scenes by Simple/Menu/Startup Menu.unity
     guid: fba6476e9c9b14afe9a8c87e93375ad1
   - enabled: 1
     path: Assets/Scenes/Scenes by Simple/Menu/IP Menu.unity
     guid: a6898870ea3a74b8eaf4ae0815720f93
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/Scenes by Simple/Menu/End of Game Menu.unity
     guid: 931173f81a7164b55a0e2f094ac25ae8
   - enabled: 0
@@ -51,7 +51,7 @@ EditorBuildSettings:
     path: Assets/1.TeamWorkspace/GameTesting/Scene/Module1.unity
     guid: ec50f16f89219eb4d91cc4d03cf18bde
   - enabled: 1
-    path: Assets/1.TeamWorkspace/GameTesting/Scene/Module_1_MainScene.unity
+    path: Assets/1.TeamWorkspace/GameTesting/Scene/Main Scene.unity
     guid: 69e69fcaf6fe326439ca73d9fc683741
   - enabled: 0
     path: Assets/Scenes/Scenes by Simple/Code Examples/Receive Water Data.unity

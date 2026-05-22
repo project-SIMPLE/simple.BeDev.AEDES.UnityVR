@@ -18,7 +18,7 @@ public class MovingCar : MonoBehaviour
         transform.Translate(Speed * Time.deltaTime, 0, 0);
         if (isleft)
         {
-            if(transform.position.z > 22)
+            if(transform.position.z > 5)
             {
                 isleft = false;
                 StartCoroutine(Resetting(Random.Range(0, 7)));
@@ -26,7 +26,7 @@ public class MovingCar : MonoBehaviour
         }
         else if(!isleft)
         {
-            if (transform.position.z < -22)
+            if (transform.position.z < -52)
             {
                 isleft = true;
                 StartCoroutine(Resetting(Random.Range(0,7)));
@@ -37,12 +37,12 @@ public class MovingCar : MonoBehaviour
     {
         if (isleft)
         {
-            transform.position = new Vector3(5f, -0.3407006f, -21.5f);
+            transform.position = new Vector3(23.5f, -0.3407006f, -51f);
             transform.rotation = Quaternion.Euler(0f, -90, 0f);
         }
         else
         {
-            transform.position = new Vector3(.65f, -0.3407006f, 21.5f);
+            transform.position = new Vector3(27.7f, -0.3407006f, 4f);
             transform.rotation = Quaternion.Euler(0f, 90, 0f);
         }
     }

@@ -8,7 +8,6 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
     public int score;
-    public int time_M,time_S;
     public int time,Maxtime;
     public TextMeshProUGUI scoretext,TimeUI;
     public GameObject DangerUI,DeathUI,TimeOutUI,questUI;
@@ -18,9 +17,6 @@ public class GameManager : MonoBehaviour
     public bool IsRain;
     private void Awake()
     {
-        Maxtime = (time_M) * 60 + time_S;
-        time = Maxtime;
-        InvokeRepeating("Settime",0,1);
         instance = this;
     }
 
@@ -30,8 +26,14 @@ public class GameManager : MonoBehaviour
         {
             score = SaveManager.instance.a.Score;
             scoretext.text = "Score: " + score.ToString();
+            time = SaveManager.instance.a.time;
         }
-        
+        else
+        {
+            time = 300;
+        }
+        Maxtime = time;
+        InvokeRepeating("Settime", 0, 1);
     }
     private void Update()
     {
@@ -40,6 +42,8 @@ public class GameManager : MonoBehaviour
     public void Settime()
     {
         time -= 1;
+        SaveManager.instance.a.time = time;
+        SaveManager.SavePlayerData(SaveManager.instance.a);
         if (time % 60 <= 9)
         {
             TimeUI.text = (time / 60).ToString() + ":0" + (time % 60).ToString();
@@ -69,7 +73,14 @@ public class GameManager : MonoBehaviour
         score += sc;
         scoretext.text = "Score: "+ score.ToString();
         if (SaveManager.instance != null){
-            SaveManager.instance.a.Score = score;
+            if(SaveManager.instance.a!=null)
+            {
+                SaveManager.instance.a.Score = score;
+            }
+            else
+            {
+
+            }
             SaveManager.SavePlayerData(SaveManager.instance.a);
         }
     }

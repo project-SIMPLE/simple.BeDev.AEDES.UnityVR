@@ -20,7 +20,7 @@ public class QuestSystem : MonoBehaviour
     }
     public void checkprogess()
     {
-        target[0] = gm.player.Max_Nec <= gm.player.Current_Nec;
+        target[0] = gm.player.Max_Nec <= gm.player.Current_Nec&&gm.player.ishungry;
         target[1] = gm.player.isMate;
         target[2] = gm.player.Max_Blood <= gm.player.Current_Blood;
         target[3] = gm.player.EggLayed == 4;
@@ -34,10 +34,6 @@ public class QuestSystem : MonoBehaviour
             if (!target[i])
             {
                 Quest_Text[i].text = "<color=\"red\">" + QuestList[i] + "</color>";
-                if (i == 2 && b)
-                {
-                    b = false;
-                }
                 if (i == 0 && n)
                 {
                     n = false;
@@ -45,6 +41,10 @@ public class QuestSystem : MonoBehaviour
                 if (i == 1 && m)
                 {
                     m = false;
+                }
+                if (i == 2 && b)
+                {
+                    b = false;
                 }
                 if (i == 3 && l)
                 {
@@ -54,20 +54,21 @@ public class QuestSystem : MonoBehaviour
             if (target[i])
             {
                 Quest_Text[i].text = "<color=\"green\">" + QuestList[i] + "</color>";
-                if(i == 2 && !b)
-                {
-                    GameManager.instance.setscore(25);
-                    b = true;
-                }
                 if (i == 0 && !n)
                 {
                     GameManager.instance.setscore(25);
+                    gm.player.ishungry = false;
                     n = true;
                 }
                 if (i == 1 && !m)
                 {
                     GameManager.instance.setscore(25);
                     m = true;
+                }
+                if (i == 2 && !b)
+                {
+                    GameManager.instance.setscore(25);
+                    b = true;
                 }
                 if (i == 3 && !l)
                 {

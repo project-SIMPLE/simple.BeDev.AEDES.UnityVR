@@ -24,6 +24,7 @@ public class PlayerMain : MonoBehaviour
     public bool R_primaryValue,L_primaryValue, R_secondary, L_secondary, R_gripValue,L_gripValue, R_triggerValue, L_triggerValue,IsMoveL,IsMoveR;
     public bool termalmode,canmove;
     public bool isMate,Death,RestartAble;
+    public bool ishungry;
 
     public int EggLayed;
 
@@ -46,7 +47,7 @@ public class PlayerMain : MonoBehaviour
     {
         
         checkinput();
-        if (!Death||GameManager.instance.time>0)
+        if (!Death&&GameManager.instance.time>0&&!RestartAble)
         {
             termalcam.SetActive(R_triggerValue);
             Move(L_moveInput);
@@ -73,6 +74,11 @@ public class PlayerMain : MonoBehaviour
         else
         {
             GameManager.instance.GameOver();
+        }
+
+        if (Current_Nec < Max_Nec / 2)
+        {
+            ishungry = true;
         }
     }
 
@@ -151,7 +157,7 @@ public class PlayerMain : MonoBehaviour
         {
             if(R_primaryValue || L_primaryValue || R_secondary || L_secondary || R_gripValue || L_gripValue || R_triggerValue || L_triggerValue || IsMoveL || IsMoveR)
             {
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                SceneManager.LoadScene(2);
             }
         }
     }

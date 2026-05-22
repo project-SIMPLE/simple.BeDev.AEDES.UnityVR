@@ -20,7 +20,21 @@ public class EndofGameController : MonoBehaviour
 
     public void ResetBtn()
     {
-        SceneManager.LoadScene("Startup Menu");
+        if (SaveManager.instance != null)
+        {
+            if (SaveManager.instance.a.time <= 0)
+            {
+                SceneManager.LoadScene("Startup Menu");
+            }
+            else
+            {
+                SceneManager.LoadScene("Main Scene");
+            }
+        }
+        else
+        {
+            SceneManager.LoadScene("Startup Menu");
+        }
     }
 
 
