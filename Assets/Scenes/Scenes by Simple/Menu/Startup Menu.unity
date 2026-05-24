@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: 34b43d94c855d49e491abad836c56a32, type: 2}
+  m_SkyboxMaterial: {fileID: 0}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -1401,8 +1401,8 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1714263728}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 9.01}
   m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1414,11 +1414,11 @@ RectTransform:
   - {fileID: 293085217}
   - {fileID: 509171618}
   - {fileID: 91813243}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 2015528818}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 2}
+  m_AnchoredPosition: {x: 0, y: -0.3614397}
   m_SizeDelta: {x: 650, y: 800}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1714263733
@@ -1748,7 +1748,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 1611025125359585538, guid: 2c59fa02513994303ad959d140b545eb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1714263732}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 3293911808307972064, guid: 2c59fa02513994303ad959d140b545eb, type: 3}
       insertIndex: -1
@@ -1880,11 +1883,15 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!4 &2015528818 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1611025125359585538, guid: 2c59fa02513994303ad959d140b545eb, type: 3}
+  m_PrefabInstance: {fileID: 1879432032}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 494251613}
-  - {fileID: 1714263732}
   - {fileID: 1879432032}
   - {fileID: 763302299}

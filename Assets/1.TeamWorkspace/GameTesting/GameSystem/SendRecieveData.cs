@@ -16,7 +16,7 @@ public class SendRecieveData : SimulationManager
                {"id", ConnectionManager.Instance.GetConnectionId()},
                {"mes", mes},
                {"score_val", GameManager.instance.score.ToString()},
-               {"name_val", "NIGG"}
+               {"name_val", ConnectionManager.Instance.GetConnectionId()}
             };
             Debug.Log("sent to GAMA: " + mes);
             Debug.Log($"Sending to GAMA - ID: {args["id"]}, Score: {args["score_val"]}");
