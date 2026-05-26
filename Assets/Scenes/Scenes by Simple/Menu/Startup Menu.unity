@@ -1341,6 +1341,8 @@ GameObject:
   - component: {fileID: 1714263733}
   - component: {fileID: 1714263734}
   - component: {fileID: 1714263735}
+  - component: {fileID: 1714263736}
+  - component: {fileID: 1714263737}
   m_Layer: 5
   m_Name: Menu Canvas
   m_TagString: Untagged
@@ -1433,7 +1435,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d77a387d611b405c87b525c53176b4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  host: 10.85.133.92
+  host: 10.13.50.92
   portWithMiddleware: 8080
   portWithoutMiddleware: 1000
 --- !u!114 &1714263734
@@ -1472,6 +1474,36 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &1714263736
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1714263728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c0670a1b302cff45bfdc2249af9542e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SendRecieveData
+  primaryRightHandButton: {fileID: 0}
+  player: {fileID: 494251611}
+  Ground: {fileID: 0}
+--- !u!114 &1714263737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1714263728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11357f5bde3094cf28bf436a28ed0082, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ConnectionManager
+  DefaultIP: 10.13.50.92
+  DefaultPort: 8080
+  fixedProperties: 1
 --- !u!1001 &1842888797
 PrefabInstance:
   m_ObjectHideFlags: 0

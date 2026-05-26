@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 public class SendRecieveData : SimulationManager
 {
     GAMAMessages message = null;
@@ -24,13 +25,17 @@ public class SendRecieveData : SimulationManager
         }
         if (message != null)
         {
-            Debug.Log("received from GAMA: cycle " + message.cycle);
+            if (message.status == "Start")
+            {
+                Debug.Log("received from GAMA: status " + message.status);
+                GetComponent<MenuController>().StartBtn();
+            }
             message = null;
         }
     }
     public class GAMAMessages
     {
-        public int cycle;
+        public int cycle;public string status;
         public static GAMAMessages CreateFromJSON(string jsonString)
         {
             return JsonUtility.FromJson<GAMAMessages>(jsonString);

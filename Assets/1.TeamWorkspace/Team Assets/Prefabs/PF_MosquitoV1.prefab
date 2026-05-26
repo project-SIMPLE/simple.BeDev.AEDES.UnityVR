@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 5466866516677390054}
   - component: {fileID: 8976497624074968037}
   - component: {fileID: 5060464034381578924}
+  - component: {fileID: -6963337843867940386}
+  - component: {fileID: 706619522953102488}
   m_Layer: 0
   m_Name: PF_MosquitoV1
   m_TagString: Untagged
@@ -126,3 +128,33 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.8923106
   m_Center: {x: 0.00000008940697, y: 0.56288725, z: -0.04061106}
+--- !u!114 &-6963337843867940386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3707042159678720997}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b41e164b10da24295716e3657fbda2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractableObject
+--- !u!114 &706619522953102488
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3707042159678720997}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineMode: 1
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 10
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []

@@ -4679,7 +4679,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2794378512566543274, guid: 09bba727647092746bc2a04c2e46c4ec, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.3407006
+      value: -14.02
       objectReference: {fileID: 0}
     - target: {fileID: 2794378512566543274, guid: 09bba727647092746bc2a04c2e46c4ec, type: 3}
       propertyPath: m_LocalPosition.z
@@ -7630,6 +7630,10 @@ PrefabInstance:
     - target: {fileID: 7187674528715032232, guid: dbd7256292921934ca5b7a6769527591, type: 3}
       propertyPath: Score
       value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 7187674528715032232, guid: dbd7256292921934ca5b7a6769527591, type: 3}
+      propertyPath: isFill
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 7272248328268632360, guid: dbd7256292921934ca5b7a6769527591, type: 3}
@@ -13041,6 +13045,10 @@ PrefabInstance:
       propertyPath: Score
       value: 50
       objectReference: {fileID: 0}
+    - target: {fileID: 7187674528715032232, guid: dbd7256292921934ca5b7a6769527591, type: 3}
+      propertyPath: isFill
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 7272248328268632360, guid: dbd7256292921934ca5b7a6769527591, type: 3}
     m_RemovedGameObjects: []
@@ -13897,7 +13905,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2794378512566543274, guid: 09bba727647092746bc2a04c2e46c4ec, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.3407006
+      value: -4.57
       objectReference: {fileID: 0}
     - target: {fileID: 2794378512566543274, guid: 09bba727647092746bc2a04c2e46c4ec, type: 3}
       propertyPath: m_LocalPosition.z
@@ -17959,7 +17967,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11357f5bde3094cf28bf436a28ed0082, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ConnectionManager
-  DefaultIP: 
+  DefaultIP: 10.13.50.92
   DefaultPort: 8080
   fixedProperties: 1
 --- !u!114 &1380034237
@@ -19860,6 +19868,10 @@ PrefabInstance:
     - target: {fileID: 9096901153254390115, guid: 56df000b2c3087b448db7963fd9f2578, type: 3}
       propertyPath: Score
       value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 9096901153254390115, guid: 56df000b2c3087b448db7963fd9f2578, type: 3}
+      propertyPath: isFill
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -22095,6 +22107,10 @@ PrefabInstance:
     - target: {fileID: 9096901153254390115, guid: 56df000b2c3087b448db7963fd9f2578, type: 3}
       propertyPath: Score
       value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 9096901153254390115, guid: 56df000b2c3087b448db7963fd9f2578, type: 3}
+      propertyPath: isFill
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -24463,6 +24479,10 @@ PrefabInstance:
       propertyPath: Score
       value: 40
       objectReference: {fileID: 0}
+    - target: {fileID: 8115964370208315078, guid: b4626cd6089bbfa41a12442e228be28f, type: 3}
+      propertyPath: isFill
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8831067856015597924, guid: b4626cd6089bbfa41a12442e228be28f, type: 3}
       propertyPath: m_Name
       value: PlasticBucket
@@ -26806,6 +26826,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1976981696}
+  - component: {fileID: 1976981697}
   m_Layer: 0
   m_Name: Environment
   m_TagString: Untagged
@@ -26840,6 +26861,27 @@ Transform:
   - {fileID: 984025782}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &1976981697
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1976981695}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 40, y: 1, z: 41.09}
+  m_Center: {x: 0, y: 4.88, z: 0}
 --- !u!1001 &1977784729
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -29428,6 +29470,10 @@ PrefabInstance:
     - target: {fileID: 7187674528715032232, guid: dbd7256292921934ca5b7a6769527591, type: 3}
       propertyPath: Score
       value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 7187674528715032232, guid: dbd7256292921934ca5b7a6769527591, type: 3}
+      propertyPath: isFill
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 7272248328268632360, guid: dbd7256292921934ca5b7a6769527591, type: 3}

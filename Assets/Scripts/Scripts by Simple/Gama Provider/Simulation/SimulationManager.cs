@@ -794,10 +794,11 @@ public class SimulationManager : MonoBehaviour
 
 
 
-      //  Vector3 v = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y - yOffsetCamera, Camera.main.transform.position.z);
-        Vector3 v = hasSimulator ? new Vector3(Camera.main.transform.localPosition.x + XROrigin.localPosition.x, Camera.main.transform.localPosition.y + XROrigin.localPosition.y,Camera.main.transform.localPosition.z + XROrigin.localPosition.z)
- : new Vector3(XROrigin.localPosition.x, XROrigin.localPosition.y, XROrigin.localPosition.z);
-
+        //  Vector3 v = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y - yOffsetCamera, Camera.main.transform.position.z);
+        // change from transform.localposition to transform.transform.position
+        Vector3 v = hasSimulator ? new Vector3(Camera.main.transform.position.x + XROrigin.position.x, Camera.main.transform.position.y + XROrigin.position.y,Camera.main.transform.position.z + XROrigin.position.z)
+ : new Vector3(XROrigin.position.x, XROrigin.position.y, XROrigin.position.z);
+        
         List<int> p = converter.toGAMACRS3D(v);
         Dictionary<string, string> args = new Dictionary<string, string> {
             {"id",ConnectionManager.Instance.GetConnectionId()  },
