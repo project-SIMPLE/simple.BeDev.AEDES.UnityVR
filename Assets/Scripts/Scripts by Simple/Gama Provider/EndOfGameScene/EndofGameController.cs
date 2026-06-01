@@ -24,6 +24,7 @@ public class EndofGameController : MonoBehaviour
         {
             if (SaveManager.instance.a.time <= 0)
             {
+                Destroy(SaveManager.instance);
                 SceneManager.LoadScene("Startup Menu");
             }
             else
@@ -33,6 +34,7 @@ public class EndofGameController : MonoBehaviour
         }
         else
         {
+            Destroy(SaveManager.instance);
             SceneManager.LoadScene("Startup Menu");
         }
     }

@@ -33,6 +33,7 @@ public class GameManager : MonoBehaviour
             time = 300;
         }
         Maxtime = time;
+        CancelInvoke("Settime");
         InvokeRepeating("Settime", 0, 1);
     }
     private void Update()
@@ -88,7 +89,7 @@ public class GameManager : MonoBehaviour
     {
         player.Death = true;
         DeathUI.SetActive(true);
-        CancelInvoke("Settime");
+        //CancelInvoke("Settime");
         Invoke("RestartAble",1);
     }
     public void TimeOut()
