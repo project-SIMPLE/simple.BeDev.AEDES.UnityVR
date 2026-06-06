@@ -1204,7 +1204,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5289182684458692542, guid: e5db301629853dd4a99835fa70099d79, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5289182684458692542, guid: e5db301629853dd4a99835fa70099d79, type: 3}
       propertyPath: m_Colors.m_NormalColor.b
@@ -1443,7 +1443,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d77a387d611b405c87b525c53176b4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  host: 192.168.68.50
+  host: 192.168.68.1
   portWithMiddleware: 8080
   portWithoutMiddleware: 1000
 --- !u!114 &1714263734
@@ -1509,7 +1509,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11357f5bde3094cf28bf436a28ed0082, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ConnectionManager
-  DefaultIP: 192.168.68.50
+  DefaultIP: 192.168.68.1
   DefaultPort: 8080
   fixedProperties: 1
 --- !u!1001 &1842888797
@@ -1526,7 +1526,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3356991306335605903, guid: e5db301629853dd4a99835fa70099d79, type: 3}
       propertyPath: m_Text
-      value: START
+      value: 'Wait
+
+'
       objectReference: {fileID: 0}
     - target: {fileID: 3356991306335605903, guid: e5db301629853dd4a99835fa70099d79, type: 3}
       propertyPath: m_Color.b

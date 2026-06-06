@@ -21,7 +21,7 @@ public class SendRecieveData : SimulationManager
                {"id", ConnectionManager.Instance.GetConnectionId()},
                {"mes", mes},
                {"score_val", GameManager.instance.score.ToString()},
-               {"end_game", "0"},
+              // {"end_game", "33"},
                {"name_val", ConnectionManager.Instance.GetConnectionId()}
             };
                     Debug.Log("sent to GAMA: " + mes);
@@ -38,7 +38,7 @@ public class SendRecieveData : SimulationManager
                {"id", ConnectionManager.Instance.GetConnectionId()},
                {"mes", mes},
                {"score_val", GameManager.instance.score.ToString()},
-               {"end_game", "1"},
+              // {"end_game", "33"},
                {"name_val", ConnectionManager.Instance.GetConnectionId()}
             };
                     Debug.Log("sent to GAMA: " + mes);
@@ -56,7 +56,7 @@ public class SendRecieveData : SimulationManager
                {"id", ConnectionManager.Instance.GetConnectionId()},
                {"mes", mes},
                {"score_val", GameManager.instance.score.ToString()},
-               {"end_game", "1"},
+              // {"end_game", "33"},
                {"name_val", ConnectionManager.Instance.GetConnectionId()}
             };
                 Debug.Log("sent to GAMA: " + mes);

@@ -33,6 +33,8 @@ public class PlayerMain : MonoBehaviour
     public Vector2 L_moveInput, R_moveInput;
     public SendReceiveMessageExample sr;
 
+    public List<WaterContainer> WC ;
+
     private void Awake()
     {
         canmove = true;
@@ -43,6 +45,10 @@ public class PlayerMain : MonoBehaviour
         NectarBar.maxValue = Max_Nec;
         Current_Nec = Max_Nec/2;
         NectarBar.value = Current_Nec;
+    }
+    private void Start()
+    {
+        Invoke("BornFromWater",0.05f);
     }
 
     void Update()
@@ -154,6 +160,20 @@ public class PlayerMain : MonoBehaviour
                 }
             }
         }
+    }
+    public void BornFromWater() 
+    {
+        foreach(WaterContainer w in GameManager.instance.waterContainers)
+        {
+            if (w.isFill)
+            {
+                WC.Add(w);
+            }
+        }
+        Vector3 pos = WC[Random.Range(0, WC.Count-1)].transform.position;
+        pos.y += .45f;
+        transform.position = pos;
+        WC = null;
     }
     public bool checkreturn,asd, returnValue;
     public bool onclick(bool Bool)

@@ -14,10 +14,12 @@ public class GameManager : MonoBehaviour
     public GameObject Rain;
     public PlayerMain player;
     public GameObject[] Human;
+    public WaterContainer[] waterContainers;
     public bool IsRain;
     private void Awake()
     {
         instance = this;
+        waterContainers = FindObjectsOfType<WaterContainer>();
     }
 
     private void Start()
