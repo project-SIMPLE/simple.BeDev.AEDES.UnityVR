@@ -4,6 +4,8 @@ public class DengerSource : MonoBehaviour
 {
     public float AttactCD;
     private float attackcouttime;
+    public bool isHunt,inRange;
+    public float flyspeed;
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.GetComponent<PlayerMain>())
@@ -22,6 +24,15 @@ public class DengerSource : MonoBehaviour
                 print("PlayerDeath");
                 GameManager.instance.GameOver();
             }
+            Vector3 lookpos = other.gameObject.transform.position;
+            lookpos.y = transform.position.y;
+            transform.LookAt(lookpos);
+            if (isHunt && Vector3.Distance(transform.position,other.transform.position)>0.5f)
+            {
+                Vector3 tar = other.transform.position;
+                transform.position = Vector3.MoveTowards(transform.position,tar,flyspeed*Time.deltaTime);
+                inRange = true;
+            }
         }
     }
     private void OnTriggerExit(Collider other)
@@ -30,6 +41,7 @@ public class DengerSource : MonoBehaviour
         {
             attackcouttime = 0;
             GameManager.instance.DangerUI.SetActive(false);
+            inRange = false;
         }
     }
 }
