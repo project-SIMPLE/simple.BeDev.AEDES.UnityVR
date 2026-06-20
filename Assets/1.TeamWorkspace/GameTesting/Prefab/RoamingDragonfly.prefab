@@ -465,7 +465,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 2.5
+  m_Radius: 2
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &7095633931715295874
 MonoBehaviour:
@@ -483,6 +483,7 @@ MonoBehaviour:
   isHunt: 1
   inRange: 0
   flyspeed: 5
+  DeathMessage: Got eaten by dragonfly
   TargetPosition:
   - {fileID: 2709127024963082051}
   - {fileID: 4221573949452008701}

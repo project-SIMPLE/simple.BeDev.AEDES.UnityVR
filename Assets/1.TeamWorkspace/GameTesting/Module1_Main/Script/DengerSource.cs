@@ -6,6 +6,7 @@ public class DengerSource : MonoBehaviour
     private float attackcouttime;
     public bool isHunt,inRange;
     public float flyspeed;
+    public string DeathMessage;
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.GetComponent<PlayerMain>())
@@ -22,7 +23,7 @@ public class DengerSource : MonoBehaviour
             if (attackcouttime >= AttactCD)
             {
                 print("PlayerDeath");
-                GameManager.instance.GameOver();
+                GameManager.instance.GameOver(DeathMessage);
             }
             Vector3 lookpos = other.gameObject.transform.position;
             lookpos.y = transform.position.y;

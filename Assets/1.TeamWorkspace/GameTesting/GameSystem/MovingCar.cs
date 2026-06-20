@@ -7,6 +7,7 @@ public class MovingCar : MonoBehaviour
     MeshRenderer mesh;
     AudioSource sound;
     public bool isleft;
+    public string DeathMessage;
     private void Awake()
     {
         mesh = GetComponent<MeshRenderer>();
@@ -56,5 +57,12 @@ public class MovingCar : MonoBehaviour
         Speed = BaseSpeed;
         mesh.enabled = true;
         sound.enabled = true;
+    }
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.GetComponent<PlayerMain>())
+        {
+            GameManager.instance.GameOver(DeathMessage);
+        }
     }
 }

@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour
     public static GameManager instance;
     public int score;
     public int time,Maxtime;
-    public TextMeshProUGUI scoretext,TimeUI;
+    public TextMeshProUGUI scoretext,TimeUI,DeathText;
     public GameObject DangerUI,DeathUI,TimeOutUI,questUI;
     public GameObject Rain;
     public PlayerMain player;
@@ -87,12 +87,13 @@ public class GameManager : MonoBehaviour
             SaveManager.SavePlayerData(SaveManager.instance.a);
         }
     }
-    public void GameOver()
+    public void GameOver(string DeathMessage)
     {
         player.Death = true;
         DeathUI.SetActive(true);
         //CancelInvoke("Settime");
         Invoke("RestartAble",1);
+        DeathText.text = DeathMessage;
     }
     public void TimeOut()
     {

@@ -30,6 +30,8 @@ public class PlayerMain : MonoBehaviour
 
     public int EggLayed;
 
+    public string DeathMessage;
+
     public Vector2 L_moveInput, R_moveInput;
     public SendReceiveMessageExample sr;
 
@@ -82,7 +84,7 @@ public class PlayerMain : MonoBehaviour
         }
         else
         {
-            GameManager.instance.GameOver();
+            GameManager.instance.GameOver(DeathMessage);
         }
 
         if (Current_Nec < Max_Nec / 2)
