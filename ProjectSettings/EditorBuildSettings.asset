@@ -51,7 +51,7 @@ EditorBuildSettings:
     path: Assets/1.TeamWorkspace/GameTesting/Scene/Module1.unity
     guid: ec50f16f89219eb4d91cc4d03cf18bde
   - enabled: 1
-    path: Assets/1.TeamWorkspace/GameTesting/Scene/Module_1_MainScene.unity
+    path: Assets/1.TeamWorkspace/GameTesting/Scene/Main Scene.unity
     guid: 69e69fcaf6fe326439ca73d9fc683741
   - enabled: 0
     path: Assets/Scenes/Scenes by Simple/Code Examples/Receive Water Data.unity

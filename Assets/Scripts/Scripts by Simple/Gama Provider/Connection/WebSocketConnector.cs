@@ -31,7 +31,7 @@ public abstract class WebSocketConnector : MonoBehaviour
     async void Start()
     {
         // port = PlayerPrefs.GetString("PORT"); 
-        host = PlayerPrefs.GetString("IP");
+        DefaultIP = PlayerPrefs.GetString("IP");
         port = DefaultPort;
 
         if (DesktopMode)

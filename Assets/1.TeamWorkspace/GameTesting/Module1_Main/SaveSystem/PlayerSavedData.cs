@@ -4,5 +4,5 @@ using UnityEngine;
 [Serializable]
 public class PlayerSavedData
 {
-    public int Score;
+    public int Score = 0,time = 0;
 }

@@ -14,6 +14,8 @@ public class PlayerMain : MonoBehaviour
 
     public Rigidbody rb;
 
+    public ParticleSystem LayEggparti, MateParti, DrinkBloodParti, DrinknectarParti;
+
     public GameObject mainCamera, CamRot;
     public GameObject termalcam,ui;
 
@@ -24,11 +26,14 @@ public class PlayerMain : MonoBehaviour
     public bool R_primaryValue,L_primaryValue, R_secondary, L_secondary, R_gripValue,L_gripValue, R_triggerValue, L_triggerValue,IsMoveL,IsMoveR;
     public bool termalmode,canmove;
     public bool isMate,Death,RestartAble;
+    public bool ishungry,testClick;
 
     public int EggLayed;
 
     public Vector2 L_moveInput, R_moveInput;
     public SendReceiveMessageExample sr;
+
+    public List<WaterContainer> WC ;
 
     private void Awake()
     {
@@ -41,12 +46,15 @@ public class PlayerMain : MonoBehaviour
         Current_Nec = Max_Nec/2;
         NectarBar.value = Current_Nec;
     }
+    private void Start()
+    {
+        Invoke("BornFromWater",0.05f);
+    }
 
     void Update()
     {
-        
         checkinput();
-        if (!Death||GameManager.instance.time>0)
+        if (!Death&&GameManager.instance.time>0&&!RestartAble)
         {
             termalcam.SetActive(R_triggerValue);
             Move(L_moveInput);
@@ -57,10 +65,12 @@ public class PlayerMain : MonoBehaviour
             NectarUPdate();
         }
     }
-
     private void FixedUpdate()
     {
-
+        if (onclick(R_primaryValue))
+        {
+            print("AAAaaaa");
+        }
         //ui.transform.eulerAngles = new Vector3(0, mainCamera.transform.eulerAngles.y, 0);
     }
     public void NectarUPdate()
@@ -74,34 +84,13 @@ public class PlayerMain : MonoBehaviour
         {
             GameManager.instance.GameOver();
         }
+
+        if (Current_Nec < Max_Nec / 2)
+        {
+            ishungry = true;
+        }
     }
 
-    private void OnTriggerStay(Collider other)
-    {
-        if (other.gameObject.GetComponent<WaterContainer>())
-        {
-            if (Current_Blood >= Max_Blood&&isMate)
-            {
-                if (R_primaryValue)
-                {
-                    Current_Blood = 0;
-                    BloodBar.value = Current_Blood;
-                    EggLayed++;
-                    GameManager.instance.setscore(other.gameObject.GetComponent<WaterContainer>().Score);
-                }
-            }
-        }
-        if (other.gameObject.GetComponent<Wild_Mosquitos>())
-        {
-            if (other.gameObject.GetComponent<Wild_Mosquitos>().Gender == Wild_Mosquitos.genderlist.male && !isMate)
-            {
-                if (R_primaryValue)
-                {
-                    isMate = true;
-                }
-            }
-        }
-    }
 
     public void checkinput()
     {
@@ -151,13 +140,68 @@ public class PlayerMain : MonoBehaviour
         {
             if(R_primaryValue || L_primaryValue || R_secondary || L_secondary || R_gripValue || L_gripValue || R_triggerValue || L_triggerValue || IsMoveL || IsMoveR)
             {
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                //SceneManager.LoadScene(2);
+                if (SaveManager.instance != null)
+                {
+                    if (SaveManager.instance.a.time <= 0)
+                    {
+                        Destroy(SaveManager.instance);
+                        SceneManager.LoadScene("Startup Menu");
+                    }
+                    else
+                    {
+                        SceneManager.LoadScene("Main Scene");
+                    }
+                }
+                else
+                {
+                    Destroy(SaveManager.instance);
+                    SceneManager.LoadScene("Startup Menu");
+                }
             }
         }
     }
+    public void BornFromWater() 
+    {
+        foreach(WaterContainer w in GameManager.instance.waterContainers)
+        {
+            if (w.isFill)
+            {
+                WC.Add(w);
+            }
+        }
+        Vector3 pos = WC[Random.Range(0, WC.Count-1)].transform.position;
+        pos.y += .45f;
+        transform.position = pos;
+        WC = null;
+    }
+    public bool checkreturn,asd, returnValue;
+    public bool onclick(bool Bool)
+    {
+        if (Bool && checkreturn)
+        {
+            returnValue = true;
+            checkreturn = false;
+        }
+        else if (Bool && !checkreturn)
+        {
+            returnValue = false;
+            checkreturn = false;
+        }
+        else if (!Bool)
+        {
+            returnValue = false;
+            checkreturn = true;
+        }
+        return returnValue;
 
+    }
     public void Move(Vector2 direction)
     {
+        if (!R_primaryValue)
+        {
+            canmove = true;
+        }
         if (canmove)
         {
             Vector3 forward = mainCamera.transform.forward;
