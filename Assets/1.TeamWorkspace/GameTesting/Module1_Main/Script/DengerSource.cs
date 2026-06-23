@@ -12,7 +12,10 @@ public class DengerSource : MonoBehaviour
         if (other.gameObject.GetComponent<PlayerMain>())
         {
             attackcouttime = 0;
-            GameManager.instance.DangerUI.SetActive(true);
+            if (!other.gameObject.GetComponent<PlayerMain>().RestartAble)
+            {
+                GameManager.instance.DangerUI.SetActive(true);
+            }
         }
     }
     private void OnTriggerStay(Collider other)
@@ -34,6 +37,10 @@ public class DengerSource : MonoBehaviour
                 transform.position = Vector3.MoveTowards(transform.position,tar,flyspeed*Time.deltaTime);
                 inRange = true;
             }
+        }
+        if (other.gameObject.GetComponent<PlayerMain>().RestartAble)
+        {
+            GameManager.instance.DangerUI.SetActive(false);
         }
     }
     private void OnTriggerExit(Collider other)

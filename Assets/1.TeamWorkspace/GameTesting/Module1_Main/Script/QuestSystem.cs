@@ -4,10 +4,12 @@ using UnityEngine;
 public class QuestSystem : MonoBehaviour
 {
     private string[] QuestList = new string[] { "DrinkNectar", "Mating", "DrinkBlood", "LayEgg" };
-    private bool[] target;
+    public bool[] target;
     public TextMeshProUGUI[] Quest_Text;
     public GameManager gm;
     bool n,m,b,l;
+    public GameObject BloodWarning;
+    public GameObject NecWarning;
     private void Start()
     {
         gm = GameManager.instance;
@@ -20,7 +22,7 @@ public class QuestSystem : MonoBehaviour
     }
     public void checkprogess()
     {
-        target[0] = gm.player.Max_Nec <= gm.player.Current_Nec&&gm.player.ishungry;
+        target[0] = !gm.player.ishungry;
         target[1] = gm.player.isMate;
         target[2] = gm.player.Max_Blood <= gm.player.Current_Blood;
         target[3] = gm.player.EggLayed == 4;
@@ -37,6 +39,7 @@ public class QuestSystem : MonoBehaviour
                 if (i == 0 && n)
                 {
                     n = false;
+
                 }
                 if (i == 1 && m)
                 {
@@ -57,8 +60,8 @@ public class QuestSystem : MonoBehaviour
                 if (i == 0 && !n)
                 {
                     GameManager.instance.setscore(25);
-                    gm.player.ishungry = false;
                     n = true;
+
                 }
                 if (i == 1 && !m)
                 {
@@ -76,6 +79,8 @@ public class QuestSystem : MonoBehaviour
                     l = true;
                 }
             }
+            BloodWarning.SetActive(!b&&!GameManager.instance.player.RestartAble);
+            NecWarning.SetActive(!n && !GameManager.instance.player.RestartAble);
         }
     }
 }

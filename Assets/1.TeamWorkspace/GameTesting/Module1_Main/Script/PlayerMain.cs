@@ -73,7 +73,6 @@ public class PlayerMain : MonoBehaviour
         {
             print("AAAaaaa");
         }
-        //ui.transform.eulerAngles = new Vector3(0, mainCamera.transform.eulerAngles.y, 0);
     }
     public void NectarUPdate()
     {
@@ -237,6 +236,10 @@ public class PlayerMain : MonoBehaviour
             Current_Nec += Time.deltaTime;
             NectarBar.value = Current_Nec;
             canmove = !R_primaryValue;
+            if(Current_Nec >= Max_Nec)
+            {
+                ishungry = false;
+            }
         }
     }
 

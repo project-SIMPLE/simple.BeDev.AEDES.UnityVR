@@ -45,8 +45,11 @@ public class GameManager : MonoBehaviour
     public void Settime()
     {
         time -= 1;
-        SaveManager.instance.a.time = time;
-        SaveManager.SavePlayerData(SaveManager.instance.a);
+        if(SaveManager.instance!= null)
+        {
+            SaveManager.instance.a.time = time;
+            SaveManager.SavePlayerData(SaveManager.instance.a);
+        }
         if (time % 60 <= 9)
         {
             TimeUI.text = (time / 60).ToString() + ":0" + (time % 60).ToString();
