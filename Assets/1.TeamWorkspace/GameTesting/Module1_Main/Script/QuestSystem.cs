@@ -1,9 +1,9 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 
 public class QuestSystem : MonoBehaviour
 {
-    private string[] QuestList = new string[] { "DrinkNectar", "Mating", "DrinkBlood", "LayEgg" };
+    public string[] QuestList;
     public bool[] target;
     public TextMeshProUGUI[] Quest_Text;
     public GameManager gm;
@@ -14,7 +14,11 @@ public class QuestSystem : MonoBehaviour
     {
         gm = GameManager.instance;
         target = new bool[QuestList.Length];
-        SetQuest();
+        for (int i = 0; i < QuestList.Length; i++)
+        {
+            QuestList[i] = Quest_Text[i].text;
+        }
+            SetQuest();
     }
     private void Update()
     {

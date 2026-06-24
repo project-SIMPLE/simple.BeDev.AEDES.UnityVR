@@ -20,27 +20,29 @@ public class DengerSource : MonoBehaviour
     }
     private void OnTriggerStay(Collider other)
     {
-        if (other.gameObject.GetComponent<PlayerMain>())
+        if(other.gameObject.GetComponent<PlayerMain>())
         {
-            attackcouttime += Time.deltaTime;
-            if (attackcouttime >= AttactCD)
+            if (other.gameObject.GetComponent<PlayerMain>())
             {
-                print("PlayerDeath");
-                GameManager.instance.GameOver(DeathMessage);
+                attackcouttime += Time.deltaTime;
+                if (attackcouttime >= AttactCD)
+                {
+                    GameManager.instance.GameOver(DeathMessage);
+                }
+                Vector3 lookpos = other.gameObject.transform.position;
+                lookpos.y = transform.position.y;
+                transform.LookAt(lookpos);
+                if (isHunt && Vector3.Distance(transform.position, other.transform.position) > 0.5f)
+                {
+                    Vector3 tar = other.transform.position;
+                    transform.position = Vector3.MoveTowards(transform.position, tar, flyspeed * Time.deltaTime);
+                    inRange = true;
+                }
             }
-            Vector3 lookpos = other.gameObject.transform.position;
-            lookpos.y = transform.position.y;
-            transform.LookAt(lookpos);
-            if (isHunt && Vector3.Distance(transform.position,other.transform.position)>0.5f)
+            if (other.gameObject.GetComponent<PlayerMain>().RestartAble)
             {
-                Vector3 tar = other.transform.position;
-                transform.position = Vector3.MoveTowards(transform.position,tar,flyspeed*Time.deltaTime);
-                inRange = true;
+                GameManager.instance.DangerUI.SetActive(false);
             }
-        }
-        if (other.gameObject.GetComponent<PlayerMain>().RestartAble)
-        {
-            GameManager.instance.DangerUI.SetActive(false);
         }
     }
     private void OnTriggerExit(Collider other)

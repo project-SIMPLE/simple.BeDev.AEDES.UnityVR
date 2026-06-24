@@ -55,6 +55,10 @@ public class PlayerMain : MonoBehaviour
 
     void Update()
     {
+        if(Camera.main.transform.position!= Vector3.zero)
+        {
+            Camera.main.transform.position = Vector3.zero;
+        }
         checkinput();
         if (!Death&&GameManager.instance.time>0&&!RestartAble)
         {
@@ -71,7 +75,7 @@ public class PlayerMain : MonoBehaviour
     {
         if (onclick(R_primaryValue))
         {
-            print("AAAaaaa");
+
         }
     }
     public void NectarUPdate()
@@ -147,7 +151,7 @@ public class PlayerMain : MonoBehaviour
                     if (SaveManager.instance.a.time <= 0)
                     {
                         Destroy(SaveManager.instance);
-                        SceneManager.LoadScene("Startup Menu");
+                        SceneManager.LoadScene("Startup Menu_New");
                     }
                     else
                     {
@@ -157,9 +161,13 @@ public class PlayerMain : MonoBehaviour
                 else
                 {
                     Destroy(SaveManager.instance);
-                    SceneManager.LoadScene("Startup Menu");
+                    SceneManager.LoadScene("Startup Menu_New");
                 }
             }
+        }
+        if (R_primaryValue && L_primaryValue &&  R_triggerValue && L_triggerValue)
+        {
+            SceneManager.LoadScene("Startup Menu_New");
         }
     }
     public void BornFromWater() 

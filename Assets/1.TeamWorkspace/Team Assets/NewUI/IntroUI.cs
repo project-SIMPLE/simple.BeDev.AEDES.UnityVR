@@ -16,6 +16,8 @@ public class IntroUI : MonoBehaviour
     public bool checkreturn, asd, returnValue;
 
     public GameObject Menucanvas;
+
+
     private void Start()
     {
 
@@ -27,7 +29,8 @@ public class IntroUI : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        if (onclick(R_primaryValue) )
+        onclick(R_primaryValue);
+        if (returnValue)
         {
             if (Menucanvas.transform.position.z > -0.5)
             {
@@ -64,7 +67,6 @@ public class IntroUI : MonoBehaviour
             checkreturn = true;
         }
         return returnValue;
-
     }
     public void checkinput()
     {
@@ -102,6 +104,7 @@ public class IntroUI : MonoBehaviour
         {
 
         }
+
     }
     private void InitializeInputDevices()
     {

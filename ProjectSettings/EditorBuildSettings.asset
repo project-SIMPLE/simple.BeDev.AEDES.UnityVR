@@ -9,8 +9,8 @@ EditorBuildSettings:
     path: Assets/Scenes/Scenes by Simple/Unity  VR Template/SampleScene.unity
     guid: 55daccc09a3b69647bbab145b54a3ab3
   - enabled: 1
-    path: Assets/Scenes/Scenes by Simple/Menu/Startup Menu.unity
-    guid: fba6476e9c9b14afe9a8c87e93375ad1
+    path: Assets/1.TeamWorkspace/GameTesting/Scene/Startup Menu_New.unity
+    guid: 85c292e6454855f4d9b3982692cf76e3
   - enabled: 1
     path: Assets/Scenes/Scenes by Simple/Menu/IP Menu.unity
     guid: a6898870ea3a74b8eaf4ae0815720f93
@@ -56,6 +56,9 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Scenes by Simple/Code Examples/Receive Water Data.unity
     guid: e432add6f06a341039153cf5e865ad9d
+  - enabled: 0
+    path: Assets/Scenes/Scenes by Simple/Menu/Startup Menu.unity
+    guid: fba6476e9c9b14afe9a8c87e93375ad1
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: bfa1182bd221b4ca89619141f66f1260, type: 2}
     Unity.XR.WindowsMR.Settings: {fileID: 11400000, guid: dc5a169419fa04987b057f65238cf3ba, type: 2}

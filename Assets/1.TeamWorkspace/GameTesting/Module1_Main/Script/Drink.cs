@@ -61,7 +61,6 @@ public class Drink : MonoBehaviour
         }
         if (collision.gameObject.tag == "Flower")
         {
-            print("AAAAAA");
             if (player.R_primaryValue && player.Current_Nec < player.Max_Nec)
             {
                 if (player.returnValue)
