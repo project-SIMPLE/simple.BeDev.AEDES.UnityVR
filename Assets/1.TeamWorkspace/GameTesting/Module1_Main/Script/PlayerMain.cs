@@ -66,7 +66,7 @@ public class PlayerMain : MonoBehaviour
             Move(L_moveInput);
             if (L_gripValue)
             {
-                GameManager.instance.questUI.SetActive(L_gripValue);
+                GameManager.instance.questUI.SetActive(L_triggerValue);
             }
             NectarUPdate();
         }

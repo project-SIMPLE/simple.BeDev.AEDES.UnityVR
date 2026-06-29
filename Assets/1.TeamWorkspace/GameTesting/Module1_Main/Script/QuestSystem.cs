@@ -63,23 +63,28 @@ public class QuestSystem : MonoBehaviour
                 Quest_Text[i].text = "<color=\"green\">" + QuestList[i] + "</color>";
                 if (i == 0 && !n)
                 {
-                    GameManager.instance.setscore(25);
+                    GameManager.instance.DrickNectarScore += 50;
+                    GameManager.instance.setscore(50);
+
                     n = true;
 
                 }
                 if (i == 1 && !m)
                 {
-                    GameManager.instance.setscore(25);
+                    GameManager.instance.MatingScore += 100;
+                    GameManager.instance.setscore(100);
+
                     m = true;
                 }
                 if (i == 2 && !b)
                 {
-                    GameManager.instance.setscore(25);
+                    GameManager.instance.DrinkBloodScore += 50;
+                    GameManager.instance.setscore(50);
+
                     b = true;
                 }
                 if (i == 3 && !l)
                 {
-                    GameManager.instance.setscore(25);
                     l = true;
                 }
             }

@@ -22,7 +22,9 @@ public class Drink : MonoBehaviour
                     player.Current_Blood = 0;
                     player.BloodBar.value = player.Current_Blood;
                     player.EggLayed++;
+                    GameManager.instance.LayEggScore += collision.gameObject.GetComponent<WaterContainer>().Score;
                     GameManager.instance.setscore(collision.gameObject.GetComponent<WaterContainer>().Score);
+
                 }
             }
         }
