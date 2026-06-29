@@ -55,14 +55,14 @@ public class PlayerMain : MonoBehaviour
 
     void Update()
     {
-        if(Camera.main.transform.position!= Vector3.zero)
+        if(Camera.main.transform.localPosition!= Vector3.zero)
         {
-            Camera.main.transform.position = Vector3.zero;
+            Camera.main.transform.localPosition = Vector3.zero;
         }
         checkinput();
         if (!Death&&GameManager.instance.time>0&&!RestartAble)
         {
-            termalcam.SetActive(R_triggerValue);
+            //termalcam.SetActive(R_triggerValue);
             Move(L_moveInput);
             if (L_gripValue)
             {
@@ -179,7 +179,10 @@ public class PlayerMain : MonoBehaviour
                 WC.Add(w);
             }
         }
-        Vector3 pos = WC[Random.Range(0, WC.Count-1)].transform.position;
+
+        int ran = Random.Range(0, WC.Count - 1);
+        print(ran);
+        Vector3 pos = WC[ran].transform.position;
         pos.y += .45f;
         transform.position = pos;
         WC = null;
