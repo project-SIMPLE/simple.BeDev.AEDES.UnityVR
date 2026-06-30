@@ -75,8 +75,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2569024126026061257}
   - component: {fileID: 1726941409628783338}
-  - component: {fileID: 9020615244780044720}
-  - component: {fileID: 274748781248605780}
   m_Layer: 0
   m_Name: PF_Mosquito_Female
   m_TagString: Untagged
@@ -123,42 +121,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &9020615244780044720
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2922152233279094413}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5233e2b9b1cda344dbbf5d829bf20c6b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Wild_Mosquitos
-  Gender: 1
---- !u!136 &274748781248605780
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2922152233279094413}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 1
-  m_Height: 1
-  m_Direction: 1
-  m_Center: {x: 0, y: 0.75, z: 0}
 --- !u!1 &3559999587617878974
 GameObject:
   m_ObjectHideFlags: 0
@@ -200,6 +162,10 @@ GameObject:
   m_Component:
   - component: {fileID: 5447734820147735577}
   - component: {fileID: 3126633911186235925}
+  - component: {fileID: 8155999824023546303}
+  - component: {fileID: 1705617114000235692}
+  - component: {fileID: 1553833801164944134}
+  - component: {fileID: 3676893821267539735}
   m_Layer: 0
   m_Name: Mosquito_Female.001
   m_TagString: Untagged
@@ -294,6 +260,70 @@ SkinnedMeshRenderer:
     m_Center: {x: 0.56117487, y: 0.12926215, z: 0.014500797}
     m_Extent: {x: 0.56588244, y: 0.6864982, z: 0.8690503}
   m_DirtyAABB: 0
+--- !u!135 &8155999824023546303
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3785206212505569299}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.86905587
+  m_Center: {x: 0.07539774, y: 0.56187624, z: -0.031494495}
+--- !u!114 &1705617114000235692
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3785206212505569299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b41e164b10da24295716e3657fbda2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractableObject
+--- !u!114 &1553833801164944134
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3785206212505569299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5233e2b9b1cda344dbbf5d829bf20c6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Wild_Mosquitos
+  Gender: 1
+--- !u!114 &3676893821267539735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3785206212505569299}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineMode: 1
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 10
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1 &4815851204989272793
 GameObject:
   m_ObjectHideFlags: 0
