@@ -49365,6 +49365,8 @@ MonoBehaviour:
   player: {fileID: 561641603}
   Ground: {fileID: 0}
   img: {fileID: 1845805873}
+  lastReceivedTime: 0
+  isConnected: 0
 --- !u!114 &1380034232
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -50510,7 +50512,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 754b2cd7b980b8748b0285f42691b3a8, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.93
+      value: 2.114
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 754b2cd7b980b8748b0285f42691b3a8, type: 3}
       propertyPath: m_LocalPosition.z
@@ -98223,7 +98225,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WaterContainer
   WaterOBJ: {fileID: 1258620928}
-  isFill: 0
+  isFill: 1
   Score: 10
 --- !u!135 &8937957486457195508
 SphereCollider:
