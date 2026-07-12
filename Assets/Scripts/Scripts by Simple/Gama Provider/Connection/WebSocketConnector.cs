@@ -7,7 +7,7 @@ using NativeWebSocket;
 public abstract class WebSocketConnector : MonoBehaviour
 {
     [SerializeField]
-    protected string DefaultIP = "172.29.47.92";
+    protected string DefaultIP = "172.20.10.2";
     [SerializeField]
     protected string DefaultPort = "8080";
 

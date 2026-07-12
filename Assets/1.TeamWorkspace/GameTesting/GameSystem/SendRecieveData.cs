@@ -1,16 +1,35 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using UnityEngine.UIElements;
 public class SendRecieveData : SimulationManager
 {
+        public UnityEngine.UI.Image img;
     GAMAMessages message = null;
     protected override void ManageOtherMessages(string content)
     {
         message = GAMAMessages.CreateFromJSON(content);
+        print(message.cycle+"AAAA");
+        lastReceivedTime = Time.time;
+        if (!isConnected)
+        {
+            isConnected = true;
+            img.color = Color.green;
+        }
     }
+    public float lastReceivedTime;
+    public bool isConnected = false;
     protected override void OtherUpdate()
     {
-        if(SceneManager.GetActiveScene().buildIndex!=0)
+
+        if (isConnected && (Time.time - lastReceivedTime > 0.5f))
+        {
+            isConnected = false;
+            img.color = Color.red;
+        }
+        if (SceneManager.GetActiveScene().buildIndex!=0)
         {
             if (GameManager.instance.time <= 1)
             {
@@ -25,6 +44,7 @@ public class SendRecieveData : SimulationManager
                {"Bscore_val", GameManager.instance.DrinkBloodScore.ToString()},
                {"Mscore_val", GameManager.instance.MatingScore.ToString()},
                {"Lscore_val", GameManager.instance.LayEggScore.ToString()},
+               {"end_game", 0.ToString()},
                {"name_val", ConnectionManager.Instance.GetConnectionId()}
             };
                     Debug.Log("sent to GAMA: " + mes);
@@ -45,6 +65,7 @@ public class SendRecieveData : SimulationManager
                {"Bscore_val", GameManager.instance.DrinkBloodScore.ToString()},
                {"Mscore_val", GameManager.instance.MatingScore.ToString()},
                {"Lscore_val", GameManager.instance.LayEggScore.ToString()},
+                              {"end_game",69.ToString()},
                {"name_val", ConnectionManager.Instance.GetConnectionId()}
             };
                     Debug.Log("sent to GAMA: " + mes);
@@ -73,15 +94,21 @@ public class SendRecieveData : SimulationManager
                 ConnectionManager.Instance.SendExecutableAsk("receive_message", args);
             }
         }
-        if (message != null)
+        print("LLLL"+message.status);
+        if (GetComponent<MenuController>() != null)
         {
-            if (message.status == "Start")
+            if (message != null)
             {
-                Debug.Log("received from GAMA: status " + message.status);
-                GetComponent<MenuController>().StartBtn();
+                if (message.status == "Start")
+                {
+
+                    Debug.Log("received from GAMA: status " + message.status);
+                    GetComponent<MenuController>().StartBtn();
+                }
+                message = null;
             }
-            message = null;
         }
+
     }
     public class GAMAMessages
     {
@@ -90,5 +117,6 @@ public class SendRecieveData : SimulationManager
         {
             return JsonUtility.FromJson<GAMAMessages>(jsonString);
         }
+        
     }
 }

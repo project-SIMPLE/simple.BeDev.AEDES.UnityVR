@@ -50,7 +50,14 @@ public class PlayerMain : MonoBehaviour
     }
     private void Start()
     {
-        Invoke("BornFromWater",0.5f);
+        foreach (WaterContainer w in GameManager.instance.waterContainers)
+        {
+            if (w.isFill)
+            {
+                WC.Add(w);
+            }
+        }
+        Invoke("BornFromWater",0.25f);
     }
 
     void Update()
@@ -60,6 +67,10 @@ public class PlayerMain : MonoBehaviour
             Camera.main.transform.localPosition = Vector3.zero;
         }
         checkinput();
+        if (R_primaryValue && L_primaryValue && R_triggerValue && L_triggerValue)
+        {
+            BornFromWater();
+        }
         if (!Death&&GameManager.instance.time>0&&!RestartAble)
         {
             termalcam.SetActive(R_triggerValue);
@@ -168,35 +179,17 @@ public class PlayerMain : MonoBehaviour
                 }
             }
         }
-        if (R_primaryValue && L_primaryValue &&  R_triggerValue && L_triggerValue)
-        {
-                if (SaveManager.instance != null)
-                {
-                    SceneManager.LoadScene("Main Scene");
-                }
-                else
-                {
-                    Destroy(SaveManager.instance);
-                    SceneManager.LoadScene("Startup Menu_New");
-                }
-        }
+
     }
     public void BornFromWater() 
     {
-        foreach(WaterContainer w in GameManager.instance.waterContainers)
-        {
-            if (w.isFill)
-            {
-                WC.Add(w);
-            }
-        }
+
 
         int ran = Random.Range(0, WC.Count - 1);
         print(ran);
         Vector3 pos = WC[ran].transform.position;
         pos.y += .45f;
         transform.position = pos;
-        WC = null;
     }
     public bool checkreturn,asd, returnValue;
     public bool onclick(bool Bool)
