@@ -21,7 +21,10 @@ public class SendRecieveData : SimulationManager
                {"id", ConnectionManager.Instance.GetConnectionId()},
                {"mes", mes},
                {"score_val", GameManager.instance.score.ToString()},
-              // {"end_game", "33"},
+               {"Nscore_val", GameManager.instance.DrinkNectarScore.ToString()},
+               {"Bscore_val", GameManager.instance.DrinkBloodScore.ToString()},
+               {"Mscore_val", GameManager.instance.MatingScore.ToString()},
+               {"Lscore_val", GameManager.instance.LayEggScore.ToString()},
                {"name_val", ConnectionManager.Instance.GetConnectionId()}
             };
                     Debug.Log("sent to GAMA: " + mes);
@@ -38,7 +41,10 @@ public class SendRecieveData : SimulationManager
                {"id", ConnectionManager.Instance.GetConnectionId()},
                {"mes", mes},
                {"score_val", GameManager.instance.score.ToString()},
-              // {"end_game", "33"},
+               {"Nscore_val", GameManager.instance.DrinkNectarScore.ToString()},
+               {"Bscore_val", GameManager.instance.DrinkBloodScore.ToString()},
+               {"Mscore_val", GameManager.instance.MatingScore.ToString()},
+               {"Lscore_val", GameManager.instance.LayEggScore.ToString()},
                {"name_val", ConnectionManager.Instance.GetConnectionId()}
             };
                     Debug.Log("sent to GAMA: " + mes);
@@ -56,7 +62,10 @@ public class SendRecieveData : SimulationManager
                {"id", ConnectionManager.Instance.GetConnectionId()},
                {"mes", mes},
                {"score_val", GameManager.instance.score.ToString()},
-              // {"end_game", "33"},
+               {"Nscore_val", GameManager.instance.DrinkNectarScore.ToString()},
+               {"Bscore_val", GameManager.instance.DrinkBloodScore.ToString()},
+               {"Mscore_val", GameManager.instance.MatingScore.ToString()},
+               {"Lscore_val", GameManager.instance.LayEggScore.ToString()},
                {"name_val", ConnectionManager.Instance.GetConnectionId()}
             };
                 Debug.Log("sent to GAMA: " + mes);

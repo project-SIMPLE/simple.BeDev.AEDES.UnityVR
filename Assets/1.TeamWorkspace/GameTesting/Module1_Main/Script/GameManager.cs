@@ -9,9 +9,9 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
     public int score;
-    public int LayEggScore, MatingScore,DrinkBloodScore,DrickNectarScore;
+    public int LayEggScore, MatingScore,DrinkBloodScore,DrinkNectarScore;
     public int time,Maxtime;
-    public TextMeshProUGUI ScoreUI, LayEggUI, MatingUI, DrinkBloodUI, DrickNectarUI;
+    public TextMeshProUGUI ScoreUI, LayEggUI, MatingUI, DrinkBloodUI, DrinkNectarUI;
     public TextMeshProUGUI scoretext,TimeUI,DeathText;
     public GameObject DangerUI,DeathUI,TimeOutUI,questUI;
     public GameObject Rain;
@@ -32,7 +32,7 @@ public class GameManager : MonoBehaviour
             score = SaveManager.instance.a.Score;
             LayEggScore = SaveManager.instance.a.LayEggScore;
             MatingScore = SaveManager.instance.a.MatingScore;
-            DrickNectarScore = SaveManager.instance.a.DrickNectarScore;
+            DrinkNectarScore = SaveManager.instance.a.DrinkNectarScore;
             DrinkBloodScore = SaveManager.instance.a.DrinkBloodScore;
             scoretext.text = "Score: " + score.ToString();
             time = SaveManager.instance.a.time;
@@ -91,7 +91,7 @@ public class GameManager : MonoBehaviour
                 SaveManager.instance.a.Score = score;
                 SaveManager.instance.a.LayEggScore = LayEggScore;
                 SaveManager.instance.a.MatingScore = MatingScore;
-                SaveManager.instance.a.DrickNectarScore = DrickNectarScore;
+                SaveManager.instance.a.DrinkNectarScore = DrinkNectarScore;
                 SaveManager.instance.a.DrinkBloodScore = DrinkBloodScore;
             }
             else
@@ -116,7 +116,7 @@ public class GameManager : MonoBehaviour
         LayEggUI.text = LayEggScore.ToString();
         MatingUI.text = MatingScore.ToString();
         DrinkBloodUI.text = DrinkBloodScore.ToString();
-        DrickNectarUI.text = DrickNectarScore.ToString();
+        DrinkNectarUI.text = DrinkNectarScore.ToString();
         Invoke("RestartAble", 1);
     }
     public void RestartAble()

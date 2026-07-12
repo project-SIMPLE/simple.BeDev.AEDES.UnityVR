@@ -63,7 +63,7 @@ public class QuestSystem : MonoBehaviour
                 Quest_Text[i].text = "<color=\"green\">" + QuestList[i] + "</color>";
                 if (i == 0 && !n)
                 {
-                    GameManager.instance.DrickNectarScore += 50;
+                    GameManager.instance.DrinkNectarScore += 50;
                     GameManager.instance.setscore(50);
 
                     n = true;

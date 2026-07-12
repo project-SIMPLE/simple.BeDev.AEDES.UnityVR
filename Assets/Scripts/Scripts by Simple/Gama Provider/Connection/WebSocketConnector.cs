@@ -7,7 +7,7 @@ using NativeWebSocket;
 public abstract class WebSocketConnector : MonoBehaviour
 {
     [SerializeField]
-    protected string DefaultIP = "localhost";
+    protected string DefaultIP = "172.29.47.92";
     [SerializeField]
     protected string DefaultPort = "8080";
 
@@ -31,12 +31,12 @@ public abstract class WebSocketConnector : MonoBehaviour
     async void Start()
     {
         // port = PlayerPrefs.GetString("PORT"); 
-        DefaultIP = PlayerPrefs.GetString("IP");
+        host = PlayerPrefs.GetString("IP");
         port = DefaultPort;
 
         if (DesktopMode)
         {
-            host = "localhost";
+            host = "172.29.47.92";
             port = "8080";
             
         } else if (fixedProperties)

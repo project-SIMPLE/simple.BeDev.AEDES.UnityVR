@@ -50,7 +50,7 @@ public class PlayerMain : MonoBehaviour
     }
     private void Start()
     {
-        Invoke("BornFromWater",0.05f);
+        Invoke("BornFromWater",0.5f);
     }
 
     void Update()
@@ -62,14 +62,17 @@ public class PlayerMain : MonoBehaviour
         checkinput();
         if (!Death&&GameManager.instance.time>0&&!RestartAble)
         {
-            //termalcam.SetActive(R_triggerValue);
+            termalcam.SetActive(R_triggerValue);
             Move(L_moveInput);
-            if (L_gripValue)
+     
+            if (L_gripValue )
             {
+           
                 GameManager.instance.questUI.SetActive(L_triggerValue);
             }
             NectarUPdate();
         }
+     
     }
     private void FixedUpdate()
     {
@@ -167,7 +170,15 @@ public class PlayerMain : MonoBehaviour
         }
         if (R_primaryValue && L_primaryValue &&  R_triggerValue && L_triggerValue)
         {
-            SceneManager.LoadScene("Startup Menu_New");
+                if (SaveManager.instance != null)
+                {
+                    SceneManager.LoadScene("Main Scene");
+                }
+                else
+                {
+                    Destroy(SaveManager.instance);
+                    SceneManager.LoadScene("Startup Menu_New");
+                }
         }
     }
     public void BornFromWater() 
