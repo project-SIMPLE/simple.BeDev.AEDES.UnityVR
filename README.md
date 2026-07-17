@@ -35,7 +35,7 @@ The project contains different scenes:
     - IP Menu: Allows to change the IP used to connect to the computer running the middleware/GAMA
     - End of Game Menu : Displays information to the player and allows to restart the game.
  - Demo: present a complete experience of game with interactions with GAMA.
-    - Single Player Game: a simple game connected with GAMA where the player can move, select cars and motorbikes to remobe then, grab a tree, select a building bloc to define it as a hotspot (to attract cars and motorbikes).
+    - Single Player Game: a simple game connected with GAMA where the player can move, select cars and motorbikes to remove then, grab a tree, select a building bloc to define it as a hotspot (to attract cars and motorbikes).
     - Multi-Player Game: a multi-player game where each player has to collect treasures. The player that collect the highest number of treasures is the winner. The synchronization between the players is done through GAMA.
 
 In addtion, two scene templates are provided to create new games:
