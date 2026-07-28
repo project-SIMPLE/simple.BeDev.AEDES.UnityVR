@@ -21,6 +21,29 @@ public class SendRecieveData : SimulationManager
     }
     public float lastReceivedTime;
     public bool isConnected = false;
+
+    public void SendScore(int State)
+    {
+        if (IsGameState(GameState.GAME) && UnityEngine.Random.Range(0.0f, 0.003f) < 0.002f)
+        {
+            string mes = "A message from Unity at time: " + Time.time;
+            Dictionary<string, string> args = new Dictionary<string, string> {
+               {"id", ConnectionManager.Instance.GetConnectionId()},
+               {"mes", mes},
+               {"score_val", GameManager.instance.score.ToString()},
+               {"Nscore_val", GameManager.instance.DrinkNectarScore.ToString()},
+               {"Bscore_val", GameManager.instance.DrinkBloodScore.ToString()},
+               {"Mscore_val", GameManager.instance.MatingScore.ToString()},
+               {"Lscore_val", GameManager.instance.LayEggScore.ToString()},
+               {"end_game", State.ToString()},
+               {"name_val", ConnectionManager.Instance.GetConnectionId()}
+            };
+            Debug.Log("sent to GAMA: " + mes);
+            Debug.Log($"Sending to GAMA - ID: {args["id"]}, Score: {args["score_val"]}");
+            ConnectionManager.Instance.SendExecutableAsk("receive_message", args);
+        }
+    }
+
     protected override void OtherUpdate()
     {
 
@@ -33,66 +56,16 @@ public class SendRecieveData : SimulationManager
         {
             if (GameManager.instance.time <= 1)
             {
-                if (IsGameState(GameState.GAME) && UnityEngine.Random.Range(0.0f, 0.003f) < 0.002f)
-                {
-                    string mes = "A message from Unity at time: " + Time.time;
-                    Dictionary<string, string> args = new Dictionary<string, string> {
-               {"id", ConnectionManager.Instance.GetConnectionId()},
-               {"mes", mes},
-               {"score_val", GameManager.instance.score.ToString()},
-               {"Nscore_val", GameManager.instance.DrinkNectarScore.ToString()},
-               {"Bscore_val", GameManager.instance.DrinkBloodScore.ToString()},
-               {"Mscore_val", GameManager.instance.MatingScore.ToString()},
-               {"Lscore_val", GameManager.instance.LayEggScore.ToString()},
-               {"end_game", 0.ToString()},
-               {"name_val", ConnectionManager.Instance.GetConnectionId()}
-            };
-                    Debug.Log("sent to GAMA: " + mes);
-                    Debug.Log($"Sending to GAMA - ID: {args["id"]}, Score: {args["score_val"]}");
-                    ConnectionManager.Instance.SendExecutableAsk("receive_message", args);
-                }
+                SendScore(0);
             }
             else if (GameManager.instance.time > 1)
             {
-                if (IsGameState(GameState.GAME) && UnityEngine.Random.Range(0.0f, 0.003f) < 0.002f)
-                {
-                    string mes = "A message from Unity at time: " + Time.time;
-                    Dictionary<string, string> args = new Dictionary<string, string> {
-               {"id", ConnectionManager.Instance.GetConnectionId()},
-               {"mes", mes},
-               {"score_val", GameManager.instance.score.ToString()},
-               {"Nscore_val", GameManager.instance.DrinkNectarScore.ToString()},
-               {"Bscore_val", GameManager.instance.DrinkBloodScore.ToString()},
-               {"Mscore_val", GameManager.instance.MatingScore.ToString()},
-               {"Lscore_val", GameManager.instance.LayEggScore.ToString()},
-                              {"end_game",69.ToString()},
-               {"name_val", ConnectionManager.Instance.GetConnectionId()}
-            };
-                    Debug.Log("sent to GAMA: " + mes);
-                    Debug.Log($"Sending to GAMA - ID: {args["id"]}, Score: {args["score_val"]}");
-                    ConnectionManager.Instance.SendExecutableAsk("receive_message", args);
-                }
+                SendScore(69);
             }
         }
         else if(SceneManager.GetActiveScene().buildIndex==0)
         {
-            if (IsGameState(GameState.GAME) && UnityEngine.Random.Range(0.0f, 0.003f) < 0.002f)
-            {
-                string mes = "A message from Unity at time: " + Time.time;
-                Dictionary<string, string> args = new Dictionary<string, string> {
-               {"id", ConnectionManager.Instance.GetConnectionId()},
-               {"mes", mes},
-               {"score_val", GameManager.instance.score.ToString()},
-               {"Nscore_val", GameManager.instance.DrinkNectarScore.ToString()},
-               {"Bscore_val", GameManager.instance.DrinkBloodScore.ToString()},
-               {"Mscore_val", GameManager.instance.MatingScore.ToString()},
-               {"Lscore_val", GameManager.instance.LayEggScore.ToString()},
-               {"name_val", ConnectionManager.Instance.GetConnectionId()}
-            };
-                Debug.Log("sent to GAMA: " + mes);
-                Debug.Log($"Sending to GAMA - ID: {args["id"]}, Score: {args["score_val"]}");
-                ConnectionManager.Instance.SendExecutableAsk("receive_message", args);
-            }
+            SendScore(1);
         }
         print("LLLL"+message.status);
         if (GetComponent<MenuController>() != null)
