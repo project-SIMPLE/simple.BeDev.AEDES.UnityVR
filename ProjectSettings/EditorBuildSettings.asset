@@ -50,9 +50,12 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/1.TeamWorkspace/GameTesting/Scene/Module1.unity
     guid: ec50f16f89219eb4d91cc4d03cf18bde
-  - enabled: 1
+  - enabled: 0
     path: Assets/1.TeamWorkspace/GameTesting/Scene/Module_1_MainScene.unity
     guid: 69e69fcaf6fe326439ca73d9fc683741
+  - enabled: 1
+    path: Assets/1.TeamWorkspace/Phettae/Scene/Module_2_MainScene.unity
+    guid: 35c87c2dd13eadf4ba7464dde81e7162
   - enabled: 0
     path: Assets/Scenes/Scenes by Simple/Code Examples/Receive Water Data.unity
     guid: e432add6f06a341039153cf5e865ad9d

@@ -16,6 +16,10 @@ TagManager:
   - move
   - Flower
   - Jar_Hat
+  - Right
+  - FishBall
+  - Mosquito
+  - Trash
   layers:
   - Default
   - TransparentFX
@@ -24,9 +28,9 @@ TagManager:
   - Water
   - UI
   - Termal
-  - 
-  - 
-  - 
+  - Camera
+  - Ground
+  - Wall
   - 
   - 
   - 
