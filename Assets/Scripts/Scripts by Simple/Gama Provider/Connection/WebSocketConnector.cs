@@ -7,7 +7,7 @@ using NativeWebSocket;
 public abstract class WebSocketConnector : MonoBehaviour
 {
     [SerializeField]
-    protected string DefaultIP = "172.20.10.2";
+    protected string DefaultIP = "192.168.68.50";
     [SerializeField]
     protected string DefaultPort = "8080";
 
@@ -36,7 +36,7 @@ public abstract class WebSocketConnector : MonoBehaviour
 
         if (DesktopMode)
         {
-            host = "172.29.47.92";
+            host = "192.168.68.50";
             port = "8080";
             
         } else if (fixedProperties)

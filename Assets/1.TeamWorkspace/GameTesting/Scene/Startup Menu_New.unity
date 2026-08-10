@@ -2034,7 +2034,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d77a387d611b405c87b525c53176b4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  host: 172.20.10.2
+  host: 192.168.68.50
   portWithMiddleware: 8080
   portWithoutMiddleware: 1000
 --- !u!114 &1714263734
@@ -2103,7 +2103,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11357f5bde3094cf28bf436a28ed0082, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ConnectionManager
-  DefaultIP: 172.20.10.2
+  DefaultIP: 192.168.68.50
   DefaultPort: 8080
   fixedProperties: 1
 --- !u!1001 &1842888797
