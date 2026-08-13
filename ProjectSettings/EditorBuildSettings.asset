@@ -17,6 +17,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Scenes by Simple/Menu/End of Game Menu.unity
     guid: 931173f81a7164b55a0e2f094ac25ae8
+  - enabled: 1
+    path: Assets/M3/Scenes/Start.unity
+    guid: 615d1864ea2e89744ab8857e2c8342a8
+  - enabled: 1
+    path: Assets/M3/Scenes/SampleScene.unity
+    guid: f4ec6a3428a859e4dbf58e464fef2cb4
   - enabled: 0
     path: Assets/Scenes/Scenes by Simple/Single Player Game/Main Scene.unity
     guid: b80659548ae4545198000fdeab10c3f2

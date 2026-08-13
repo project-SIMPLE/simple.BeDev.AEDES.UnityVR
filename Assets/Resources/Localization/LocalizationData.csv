@@ -1,4 +1,5 @@
-﻿Key             , English, Vietnamese, French
-mainMenu.start  , Start  , Bắt đầu   , Commencer
-mainMenu.end    , End    , Kết thúc  , Fin
-mainMenu.options, Options, Tùy chọn  , Options
+,English,Laos
+mainMenu.start,Start,ເລິ່ມ
+mainMenu.end,End,ຈົບ
+mainMenu.options,Options,ຕົວເລືອກ
+human.Data.bodytemperature,BodyTemp,ອຸນຫະພູມ
