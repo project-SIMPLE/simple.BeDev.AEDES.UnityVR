@@ -20,8 +20,11 @@ TagManager:
   - FishBall
   - Mosquito
   - Trash
+<<<<<<< HEAD
   - Hand
   - Swatter
+=======
+>>>>>>> 656c86d (?)
   layers:
   - Default
   - TransparentFX
