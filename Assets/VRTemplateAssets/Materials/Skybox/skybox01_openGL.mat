@@ -30,10 +30,14 @@ Material:
     m_Ints: []
     m_Floats:
 <<<<<<< HEAD
+<<<<<<< HEAD
     - _Exposure: 1.2121325
 =======
     - _Exposure: 1.2127151
 >>>>>>> 656c86d (?)
+=======
+    - _Exposure: 1.2127151
+>>>>>>> e7f4b3a (no message)
     - _Rotation: 132.3
     m_Colors:
     - _Tint: {r: 0.735849, g: 0.735849, b: 0.735849, a: 0.5}
