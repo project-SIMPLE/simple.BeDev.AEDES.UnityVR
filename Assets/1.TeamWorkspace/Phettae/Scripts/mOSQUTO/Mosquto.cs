@@ -80,6 +80,9 @@ public class Mosquito : MonoBehaviour
     }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> fea8276 (no message)
 
     private void OnTriggerEnter(Collider other)
     {
@@ -89,6 +92,7 @@ public class Mosquito : MonoBehaviour
         }
     }
 
+<<<<<<< HEAD
 =======
    
     
@@ -97,4 +101,6 @@ public class Mosquito : MonoBehaviour
    
     
 >>>>>>> 54c0e92 (update module2)
+=======
+>>>>>>> fea8276 (no message)
 }

@@ -2,6 +2,9 @@
 %TAG !u! tag:unity3d.com,2011:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> fea8276 (no message)
 --- !u!1 &3672314465236086976
 GameObject:
   m_ObjectHideFlags: 0
@@ -33,10 +36,13 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1881694933412696439}
   m_LocalEulerAnglesHint: {x: 180, y: 0, z: 0}
+<<<<<<< HEAD
 =======
 >>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
+=======
+>>>>>>> fea8276 (no message)
 --- !u!1 &6999679600895977830
 GameObject:
   m_ObjectHideFlags: 0
@@ -56,6 +62,7 @@ GameObject:
   m_Name: SM_ElectricRacket
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   m_TagString: Swatter
 =======
   m_TagString: Untagged
@@ -63,6 +70,9 @@ GameObject:
 =======
   m_TagString: Untagged
 >>>>>>> 54c0e92 (update module2)
+=======
+  m_TagString: Swatter
+>>>>>>> fea8276 (no message)
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -77,6 +87,7 @@ Transform:
   serializedVersion: 2
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   m_LocalRotation: {x: 0.70710677, y: 0, z: 0, w: 0.70710677}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.6696244, y: 0.6696244, z: 0.66962445}
@@ -89,16 +100,24 @@ Transform:
 =======
 >>>>>>> 54c0e92 (update module2)
   m_LocalRotation: {x: 0.7071068, y: 0.7071068, z: -0, w: 0}
+=======
+  m_LocalRotation: {x: 0.70710677, y: 0, z: 0, w: 0.70710677}
+>>>>>>> fea8276 (no message)
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.4480528, y: 0.4480528, z: 0.44805285}
+  m_LocalScale: {x: 0.6696244, y: 0.6696244, z: 0.66962445}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 8761481869990732978}
   m_Father: {fileID: 0}
+<<<<<<< HEAD
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 90}
 <<<<<<< HEAD
 >>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
+=======
+  m_LocalEulerAnglesHint: {x: 90, y: 90, z: 90}
+>>>>>>> fea8276 (no message)
 --- !u!33 &4442037424412916634
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -177,6 +196,7 @@ BoxCollider:
   serializedVersion: 3
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   m_Size: {x: 0.31293848, y: 0.04933237, z: 0.79}
   m_Center: {x: 0, y: -0.0033094138, z: -0.39}
 =======
@@ -187,6 +207,10 @@ BoxCollider:
   m_Size: {x: 0.31293848, y: 0.04933237, z: 0.8306647}
   m_Center: {x: 0, y: -0.0033094138, z: -0.41042778}
 >>>>>>> 54c0e92 (update module2)
+=======
+  m_Size: {x: 0.31293848, y: 0.04933237, z: 0.79}
+  m_Center: {x: 0, y: -0.0033094138, z: -0.39}
+>>>>>>> fea8276 (no message)
 --- !u!54 &2563322632904012284
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -211,6 +235,7 @@ Rigidbody:
   m_ImplicitTensor: 1
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   m_UseGravity: 0
 =======
   m_UseGravity: 1
@@ -218,6 +243,9 @@ Rigidbody:
 =======
   m_UseGravity: 1
 >>>>>>> 54c0e92 (update module2)
+=======
+  m_UseGravity: 0
+>>>>>>> fea8276 (no message)
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
@@ -236,12 +264,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SwatterHand
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   scoreValue: 2
   isHandActive: 0
 =======
 >>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
+=======
+  scoreValue: 2
+  isHandActive: 0
+>>>>>>> fea8276 (no message)
 --- !u!114 &7868614786288168353
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -291,6 +324,9 @@ MonoBehaviour:
     m_PersistentCalls:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> fea8276 (no message)
       m_Calls:
       - m_Target: {fileID: 7279117686706916180}
         m_TargetAssemblyTypeName: SwatterHand, Assembly-CSharp
@@ -304,6 +340,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+<<<<<<< HEAD
   m_SelectExited:
     m_PersistentCalls:
       m_Calls:
@@ -330,6 +367,23 @@ MonoBehaviour:
 >>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
+=======
+  m_SelectExited:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7279117686706916180}
+        m_TargetAssemblyTypeName: SwatterHand, Assembly-CSharp
+        m_MethodName: DestroySelf
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+>>>>>>> fea8276 (no message)
   m_FirstFocusEntered:
     m_PersistentCalls:
       m_Calls: []
@@ -355,6 +409,7 @@ MonoBehaviour:
   m_ParentInteractableObject: {fileID: 0}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   m_AttachTransform: {fileID: 8761481869990732978}
 =======
   m_AttachTransform: {fileID: 0}
@@ -362,6 +417,9 @@ MonoBehaviour:
 =======
   m_AttachTransform: {fileID: 0}
 >>>>>>> 54c0e92 (update module2)
+=======
+  m_AttachTransform: {fileID: 8761481869990732978}
+>>>>>>> fea8276 (no message)
   m_SecondaryAttachTransform: {fileID: 0}
   m_UseDynamicAttach: 0
   m_MatchAttachPosition: 1
