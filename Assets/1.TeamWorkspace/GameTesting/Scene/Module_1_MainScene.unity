@@ -798,7 +798,11 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
+<<<<<<< HEAD
   - {fileID: 2100000, guid: 6178b2c91212903489cb4c8fb5f718f5, type: 2}
+=======
+  - {fileID: -8461402771510706953, guid: b50bc63a5c991704d9f31e5dedfcfa5f, type: 3}
+>>>>>>> 40d09d4 (baked lighting + skybox package)
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1754,14 +1758,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1251539557}
     m_Modifications:
+<<<<<<< HEAD
     - target: {fileID: 1159145727198442334, guid: 908f7032114933a47b79326aa4169a8b, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
+=======
+>>>>>>> 40d09d4 (baked lighting + skybox package)
     - target: {fileID: 1208958970968473576, guid: 908f7032114933a47b79326aa4169a8b, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
+<<<<<<< HEAD
     - target: {fileID: 1344950915243808333, guid: 908f7032114933a47b79326aa4169a8b, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -1770,6 +1778,8 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
+=======
+>>>>>>> 40d09d4 (baked lighting + skybox package)
     - target: {fileID: 2031480834360620440, guid: 908f7032114933a47b79326aa4169a8b, type: 3}
       propertyPath: m_LocalRotation.w
       value: 0.61902547
@@ -1846,10 +1856,13 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
+<<<<<<< HEAD
     - target: {fileID: 3909885262022830155, guid: 908f7032114933a47b79326aa4169a8b, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
+=======
+>>>>>>> 40d09d4 (baked lighting + skybox package)
     - target: {fileID: 4658853443732760444, guid: 908f7032114933a47b79326aa4169a8b, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
@@ -1890,10 +1903,13 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
+<<<<<<< HEAD
     - target: {fileID: 6604369380478568105, guid: 908f7032114933a47b79326aa4169a8b, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
+=======
+>>>>>>> 40d09d4 (baked lighting + skybox package)
     - target: {fileID: 7597643424678397866, guid: 908f7032114933a47b79326aa4169a8b, type: 3}
       propertyPath: m_Convex
       value: 0
@@ -1902,10 +1918,13 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
+<<<<<<< HEAD
     - target: {fileID: 8023741622699306455, guid: 908f7032114933a47b79326aa4169a8b, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
+=======
+>>>>>>> 40d09d4 (baked lighting + skybox package)
     - target: {fileID: 8384279801202838530, guid: 908f7032114933a47b79326aa4169a8b, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
@@ -2549,7 +2568,11 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
+<<<<<<< HEAD
   m_BoundingSphereOverride: {x: 4.5915e-41, y: 9.404966e-39, z: 2.7106638e-20, w: 3.489854e-39}
+=======
+  m_BoundingSphereOverride: {x: 7.61e-43, y: -4.0180832e-38, z: 7.61e-43, w: -2.460319e-38}
+>>>>>>> 40d09d4 (baked lighting + skybox package)
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ForceVisible: 0
@@ -7865,6 +7888,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PF_Car (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 3371695626317597266, guid: 1215755f83a9fa94bbdbfc50992b4f86, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
     - target: {fileID: 8764632534614279155, guid: 1215755f83a9fa94bbdbfc50992b4f86, type: 3}
       propertyPath: m_LocalPosition.x
       value: -9.582153
@@ -9298,10 +9325,13 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
+<<<<<<< HEAD
     - target: {fileID: 7752839010043112590, guid: e4b0d659ebb80cc4d9f48d4c96fa109b, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
+=======
+>>>>>>> 40d09d4 (baked lighting + skybox package)
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -17729,6 +17759,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_Poubelle_001
       objectReference: {fileID: 0}
+    - target: {fileID: 1992512918855067790, guid: 80945f7b6ac98814fbc5a0cbffb178e7, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
     - target: {fileID: 5727337096807076911, guid: 80945f7b6ac98814fbc5a0cbffb178e7, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1.912
@@ -21003,10 +21037,13 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
+<<<<<<< HEAD
     - target: {fileID: 7752839010043112590, guid: e4b0d659ebb80cc4d9f48d4c96fa109b, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
+=======
+>>>>>>> 40d09d4 (baked lighting + skybox package)
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -21487,10 +21524,13 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
+<<<<<<< HEAD
     - target: {fileID: 7752839010043112590, guid: e4b0d659ebb80cc4d9f48d4c96fa109b, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
+=======
+>>>>>>> 40d09d4 (baked lighting + skybox package)
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -21686,10 +21726,13 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
+<<<<<<< HEAD
     - target: {fileID: 4171621863374726037, guid: b08f169dc6dae7944851f10e81cc2766, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
+=======
+>>>>>>> 40d09d4 (baked lighting + skybox package)
     - target: {fileID: 4488024307215241627, guid: b08f169dc6dae7944851f10e81cc2766, type: 3}
       propertyPath: m_LocalPosition.x
       value: -18.428
@@ -25846,10 +25889,13 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+<<<<<<< HEAD
     - target: {fileID: 4703420679229465404, guid: b4626cd6089bbfa41a12442e228be28f, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
+=======
+>>>>>>> 40d09d4 (baked lighting + skybox package)
     - target: {fileID: 5958001880465379099, guid: b4626cd6089bbfa41a12442e228be28f, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
@@ -27050,10 +27096,13 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
+<<<<<<< HEAD
     - target: {fileID: 1153263491967830018, guid: 48272d5c7e537744bb27ce5335c4b9a4, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
+=======
+>>>>>>> 40d09d4 (baked lighting + skybox package)
     - target: {fileID: 2710878984268920796, guid: 48272d5c7e537744bb27ce5335c4b9a4, type: 3}
       propertyPath: m_Name
       value: PF_TV
@@ -27130,10 +27179,13 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
+<<<<<<< HEAD
     - target: {fileID: 6420399560399786346, guid: 48272d5c7e537744bb27ce5335c4b9a4, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
+=======
+>>>>>>> 40d09d4 (baked lighting + skybox package)
     - target: {fileID: 7732829161197999495, guid: 48272d5c7e537744bb27ce5335c4b9a4, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
@@ -27359,10 +27411,13 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
+<<<<<<< HEAD
     - target: {fileID: 7752839010043112590, guid: e4b0d659ebb80cc4d9f48d4c96fa109b, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
+=======
+>>>>>>> 40d09d4 (baked lighting + skybox package)
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -28681,10 +28736,13 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
+<<<<<<< HEAD
     - target: {fileID: 7752839010043112590, guid: e4b0d659ebb80cc4d9f48d4c96fa109b, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
+=======
+>>>>>>> 40d09d4 (baked lighting + skybox package)
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -28760,7 +28818,11 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
+<<<<<<< HEAD
   - {fileID: 2100000, guid: 6178b2c91212903489cb4c8fb5f718f5, type: 2}
+=======
+  - {fileID: -8461402771510706953, guid: b50bc63a5c991704d9f31e5dedfcfa5f, type: 3}
+>>>>>>> 40d09d4 (baked lighting + skybox package)
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -29293,10 +29355,13 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
+<<<<<<< HEAD
     - target: {fileID: 4935601885201328364, guid: 66071622306f4a84396778ce7b7ec123, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
+=======
+>>>>>>> 40d09d4 (baked lighting + skybox package)
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -30032,10 +30097,13 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
+<<<<<<< HEAD
     - target: {fileID: 1344751426558663436, guid: 8317a6db60e19c640a1cd1b0c2ac6ec8, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
+=======
+>>>>>>> 40d09d4 (baked lighting + skybox package)
     - target: {fileID: 1655784811081038807, guid: 8317a6db60e19c640a1cd1b0c2ac6ec8, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
@@ -30048,14 +30116,18 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
+<<<<<<< HEAD
     - target: {fileID: 4736706724928043272, guid: 8317a6db60e19c640a1cd1b0c2ac6ec8, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
+=======
+>>>>>>> 40d09d4 (baked lighting + skybox package)
     - target: {fileID: 5759142038801972241, guid: 8317a6db60e19c640a1cd1b0c2ac6ec8, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
+<<<<<<< HEAD
     - target: {fileID: 6818861018619769575, guid: 8317a6db60e19c640a1cd1b0c2ac6ec8, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -30068,6 +30140,8 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
+=======
+>>>>>>> 40d09d4 (baked lighting + skybox package)
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -30145,10 +30219,13 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
+<<<<<<< HEAD
     - target: {fileID: 7752839010043112590, guid: e4b0d659ebb80cc4d9f48d4c96fa109b, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
+=======
+>>>>>>> 40d09d4 (baked lighting + skybox package)
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -30813,10 +30890,13 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
+<<<<<<< HEAD
     - target: {fileID: 7752839010043112590, guid: e4b0d659ebb80cc4d9f48d4c96fa109b, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
+=======
+>>>>>>> 40d09d4 (baked lighting + skybox package)
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -31549,10 +31629,13 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+<<<<<<< HEAD
     - target: {fileID: 5922738399864603124, guid: 56df000b2c3087b448db7963fd9f2578, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
+=======
+>>>>>>> 40d09d4 (baked lighting + skybox package)
     - target: {fileID: 6039267951378779652, guid: 56df000b2c3087b448db7963fd9f2578, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
