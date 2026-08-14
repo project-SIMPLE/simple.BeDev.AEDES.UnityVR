@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<< HEAD
 guid: 5f104f96adacc5a4c89f96f2a2f57d3e
+=======
+guid: 2e2f5f79894a3d24fbec3fe941ef1bf4
+>>>>>>> 70a1a86 (Add CoconutTree, Texture and Material)
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}
