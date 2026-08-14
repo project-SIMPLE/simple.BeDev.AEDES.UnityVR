@@ -79,6 +79,7 @@ public class Mosquito : MonoBehaviour
         ).normalized;
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     private void OnTriggerEnter(Collider other)
     {
@@ -88,6 +89,10 @@ public class Mosquito : MonoBehaviour
         }
     }
 
+=======
+   
+    
+>>>>>>> 54c0e92 (update module2)
 =======
    
     

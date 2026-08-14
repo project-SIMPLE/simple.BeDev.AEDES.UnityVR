@@ -260,7 +260,11 @@ SphereCollider:
     m_Bits: 0
   m_LayerOverridePriority: 0
 <<<<<<< HEAD
+<<<<<<< HEAD
   m_IsTrigger: 1
+=======
+  m_IsTrigger: 0
+>>>>>>> 54c0e92 (update module2)
 =======
   m_IsTrigger: 0
 >>>>>>> 54c0e92 (update module2)

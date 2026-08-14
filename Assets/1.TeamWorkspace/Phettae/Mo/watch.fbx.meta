@@ -4,6 +4,7 @@ ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
 <<<<<<< HEAD
+<<<<<<< HEAD
   externalObjects:
   - first:
       type: UnityEngine:Material
@@ -22,6 +23,11 @@ ModelImporter:
     second: {fileID: 2100000, guid: 99b23a31e392ce645a0354bb82cc126b, type: 2}
   materials:
     materialImportMode: 1
+=======
+  externalObjects: {}
+  materials:
+    materialImportMode: 2
+>>>>>>> 54c0e92 (update module2)
 =======
   externalObjects: {}
   materials:

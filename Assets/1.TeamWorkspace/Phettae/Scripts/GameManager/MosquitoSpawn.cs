@@ -21,7 +21,11 @@ public class MosquitoSpawn : MonoBehaviour
     public void SpawnMosqitoInMap()
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
         //print("isWorking");
+=======
+        print("isWorking");
+>>>>>>> 54c0e92 (update module2)
 =======
         print("isWorking");
 >>>>>>> 54c0e92 (update module2)
@@ -34,7 +38,11 @@ public class MosquitoSpawn : MonoBehaviour
                 Instantiate(mosquitoPrefab, spawnPoint[randomIndex].transform.position, Quaternion.identity);
                 currentMosquitoInMap = GameObject.FindGameObjectsWithTag("Mosquito").Length;
 <<<<<<< HEAD
+<<<<<<< HEAD
                 //print("isWork");
+=======
+                print("isWork");
+>>>>>>> 54c0e92 (update module2)
 =======
                 print("isWork");
 >>>>>>> 54c0e92 (update module2)
