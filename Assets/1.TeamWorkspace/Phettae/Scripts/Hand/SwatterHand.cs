@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class SwatterHand : MonoBehaviour
 {
+<<<<<<< HEAD
     public int scoreValue = 2;
     public bool isHandActive = false;
 
@@ -36,4 +37,7 @@ public class SwatterHand : MonoBehaviour
     {
         Destroy(gameObject);
     }
+=======
+    
+>>>>>>> 54c0e92 (update module2)
 }
