@@ -21,10 +21,13 @@ TagManager:
   - Mosquito
   - Trash
 <<<<<<< HEAD
+<<<<<<< HEAD
   - Hand
   - Swatter
 =======
 >>>>>>> 656c86d (?)
+=======
+>>>>>>> e7f4b3a (no message)
   layers:
   - Default
   - TransparentFX

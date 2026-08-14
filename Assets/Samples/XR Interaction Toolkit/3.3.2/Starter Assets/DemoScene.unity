@@ -423,10 +423,14 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1565887663814566041, guid: 3e07eccb5e6f459d886de95044adb1d9, type: 3}
       insertIndex: -1
 <<<<<<< HEAD:Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/DemoScene.unity
+<<<<<<< HEAD:Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/DemoScene.unity
       addedObject: {fileID: 413882344}
 =======
       addedObject: {fileID: 420042992}
 >>>>>>> 656c86d (?):Assets/Samples/XR Interaction Toolkit/3.3.0/Starter Assets/DemoScene.unity
+=======
+      addedObject: {fileID: 420042992}
+>>>>>>> e7f4b3a (no message):Assets/Samples/XR Interaction Toolkit/3.3.0/Starter Assets/DemoScene.unity
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3e07eccb5e6f459d886de95044adb1d9, type: 3}
 --- !u!4 &208985961 stripped
@@ -4329,6 +4333,7 @@ Transform:
   m_Father: {fileID: 439588100}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
 <<<<<<< HEAD:Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/DemoScene.unity
+<<<<<<< HEAD:Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/DemoScene.unity
 --- !u!114 &1815318738
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4359,12 +4364,17 @@ MonoBehaviour:
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
 =======
+=======
+>>>>>>> e7f4b3a (no message):Assets/Samples/XR Interaction Toolkit/3.3.0/Starter Assets/DemoScene.unity
 --- !u!1 &1854115568 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1767192433, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
   m_PrefabInstance: {fileID: 9014170783777442263}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< HEAD:Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/DemoScene.unity
 >>>>>>> 656c86d (?):Assets/Samples/XR Interaction Toolkit/3.3.0/Starter Assets/DemoScene.unity
+=======
+>>>>>>> e7f4b3a (no message):Assets/Samples/XR Interaction Toolkit/3.3.0/Starter Assets/DemoScene.unity
 --- !u!1 &1917198433
 GameObject:
   m_ObjectHideFlags: 0
@@ -7274,6 +7284,7 @@ PrefabInstance:
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6c8af5c8012f01440af6cb2bc3eb987c, type: 3}
 <<<<<<< HEAD:Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/DemoScene.unity
+<<<<<<< HEAD:Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/DemoScene.unity
 --- !u!1 &2285893100219490789
 GameObject:
   m_ObjectHideFlags: 0
@@ -7292,12 +7303,17 @@ GameObject:
   m_StaticEditorFlags: 0
   m_IsActive: 1
 =======
+=======
+>>>>>>> e7f4b3a (no message):Assets/Samples/XR Interaction Toolkit/3.3.0/Starter Assets/DemoScene.unity
 --- !u!4 &2181405618988545912 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8429981633443581382, guid: 6c8af5c8012f01440af6cb2bc3eb987c, type: 3}
   m_PrefabInstance: {fileID: 2181405618988545911}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< HEAD:Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/DemoScene.unity
 >>>>>>> 656c86d (?):Assets/Samples/XR Interaction Toolkit/3.3.0/Starter Assets/DemoScene.unity
+=======
+>>>>>>> e7f4b3a (no message):Assets/Samples/XR Interaction Toolkit/3.3.0/Starter Assets/DemoScene.unity
 --- !u!135 &2314411796325179377
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -11881,15 +11897,21 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1767192434, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       insertIndex: -1
 <<<<<<< HEAD:Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/DemoScene.unity
+<<<<<<< HEAD:Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/DemoScene.unity
       addedObject: {fileID: 1757842449}
     m_AddedComponents: []
 =======
+=======
+>>>>>>> e7f4b3a (no message):Assets/Samples/XR Interaction Toolkit/3.3.0/Starter Assets/DemoScene.unity
       addedObject: {fileID: 2181405618988545912}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 1767192433, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 9014170783777442269}
+<<<<<<< HEAD:Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/DemoScene.unity
 >>>>>>> 656c86d (?):Assets/Samples/XR Interaction Toolkit/3.3.0/Starter Assets/DemoScene.unity
+=======
+>>>>>>> e7f4b3a (no message):Assets/Samples/XR Interaction Toolkit/3.3.0/Starter Assets/DemoScene.unity
   m_SourcePrefab: {fileID: 100100000, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
 --- !u!4 &9014170783777442264 stripped
 Transform:
@@ -11941,16 +11963,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
 <<<<<<< HEAD:Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/DemoScene.unity
+<<<<<<< HEAD:Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/DemoScene.unity
 --- !u!1 &9066750276781100463
 GameObject:
 =======
 --- !u!114 &9014170783777442269
 MonoBehaviour:
 >>>>>>> 656c86d (?):Assets/Samples/XR Interaction Toolkit/3.3.0/Starter Assets/DemoScene.unity
+=======
+--- !u!114 &9014170783777442269
+MonoBehaviour:
+>>>>>>> e7f4b3a (no message):Assets/Samples/XR Interaction Toolkit/3.3.0/Starter Assets/DemoScene.unity
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< HEAD:Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/DemoScene.unity
 <<<<<<< HEAD:Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/DemoScene.unity
   serializedVersion: 6
   m_Component:
@@ -11965,6 +11993,8 @@ MonoBehaviour:
   m_StaticEditorFlags: 0
   m_IsActive: 1
 =======
+=======
+>>>>>>> e7f4b3a (no message):Assets/Samples/XR Interaction Toolkit/3.3.0/Starter Assets/DemoScene.unity
   m_GameObject: {fileID: 1854115568}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -12003,7 +12033,10 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+<<<<<<< HEAD:Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/DemoScene.unity
 >>>>>>> 656c86d (?):Assets/Samples/XR Interaction Toolkit/3.3.0/Starter Assets/DemoScene.unity
+=======
+>>>>>>> e7f4b3a (no message):Assets/Samples/XR Interaction Toolkit/3.3.0/Starter Assets/DemoScene.unity
 --- !u!114 &9108292829394508247
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12039,6 +12072,7 @@ MonoBehaviour:
     m_LineSpacing: 1
   m_Text: Grab Interactable Objects
 <<<<<<< HEAD:Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/DemoScene.unity
+<<<<<<< HEAD:Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/DemoScene.unity
 --- !u!222 &9120440600288887875
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -12049,6 +12083,8 @@ CanvasRenderer:
   m_CullTransparentMesh: 1
 =======
 >>>>>>> 656c86d (?):Assets/Samples/XR Interaction Toolkit/3.3.0/Starter Assets/DemoScene.unity
+=======
+>>>>>>> e7f4b3a (no message):Assets/Samples/XR Interaction Toolkit/3.3.0/Starter Assets/DemoScene.unity
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -12065,7 +12101,10 @@ SceneRoots:
   - {fileID: 876656115}
   - {fileID: 3953970342977539823}
 <<<<<<< HEAD:Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/DemoScene.unity
+<<<<<<< HEAD:Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/DemoScene.unity
   - {fileID: 8642073949028245297}
   - {fileID: 409579338}
 =======
 >>>>>>> 656c86d (?):Assets/Samples/XR Interaction Toolkit/3.3.0/Starter Assets/DemoScene.unity
+=======
+>>>>>>> e7f4b3a (no message):Assets/Samples/XR Interaction Toolkit/3.3.0/Starter Assets/DemoScene.unity
