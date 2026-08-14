@@ -1,11 +1,14 @@
 fileFormatVersion: 2
 <<<<<<< HEAD
+<<<<<<< HEAD
 guid: 93e57c39b6cf0b74c9eeac88331282a8
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
   externalObjects: {}
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
 guid: c93ea5c7b332b49499f7134766083dc5
 ModelImporter:
   serializedVersion: 24200
@@ -16,6 +19,9 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: Mosquito_Cream
     second: {fileID: 2800000, guid: 25a91630bcb6f534baf772534f13f8fc, type: 3}
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
   materials:
     materialImportMode: 2

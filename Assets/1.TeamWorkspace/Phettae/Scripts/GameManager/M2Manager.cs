@@ -1,7 +1,10 @@
 ﻿using TMPro;
 using UnityEngine;
 <<<<<<< HEAD
+<<<<<<< HEAD
 using UnityEngine.InputSystem;
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
 using UnityEngine.SceneManagement;
@@ -14,6 +17,7 @@ public class M2Manager : MonoBehaviour
     //public GameObject gameOverPanel;
     public TextMeshProUGUI[] socreText;
     public TextMeshProUGUI timerText;
+<<<<<<< HEAD
 <<<<<<< HEAD
     public GameObject flySwatterPrefabs;
     public GameObject creamPrefabs;
@@ -29,12 +33,17 @@ public class M2Manager : MonoBehaviour
     public InputActionReference aButton;
 
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
     public GameObject gameOver;
     public GameObject flySwatterPrefabs;
     public GameObject creamPrefabs;
     public Transform pointFontPlayer;
     private static readonly int Exposure = Shader.PropertyToID("_Exposure");
 
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
     [Header("Game Setting")]
     public int score = 0; 
@@ -60,7 +69,11 @@ public class M2Manager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+        FlySwatterUi(); 
+>>>>>>> 54c0e92 (update module2)
 =======
         FlySwatterUi(); 
 >>>>>>> 54c0e92 (update module2)
@@ -72,9 +85,12 @@ public class M2Manager : MonoBehaviour
         socreText[0].text = score.ToString();
         isDay = true;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         _cameraPos = Camera.main.transform;
         UpdateScore(score);
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
     }
@@ -85,9 +101,14 @@ public class M2Manager : MonoBehaviour
         StartTimer();
         DayNightSystem();
 <<<<<<< HEAD
+<<<<<<< HEAD
         RestartGame();
 
         if (isDay && timer <= dayDuration)
+=======
+
+        if(isDay && timer <= dayDuration)
+>>>>>>> 54c0e92 (update module2)
 =======
 
         if(isDay && timer <= dayDuration)
@@ -103,7 +124,10 @@ public class M2Manager : MonoBehaviour
     {
         Instantiate(flySwatterPrefabs, pointFontPlayer);
 <<<<<<< HEAD
+<<<<<<< HEAD
         Instantiate(particleSpwn, pointFontPlayer);
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
     }
@@ -112,7 +136,10 @@ public class M2Manager : MonoBehaviour
     {
         Instantiate(creamPrefabs, pointFontPlayer);
 <<<<<<< HEAD
+<<<<<<< HEAD
         Instantiate(particleSpwn, pointFontPlayer);
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
     }
@@ -162,6 +189,7 @@ public class M2Manager : MonoBehaviour
         if (isOver == 0)
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
             if (aButton.action.WasPerformedThisFrame())
             {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
@@ -174,12 +202,17 @@ public class M2Manager : MonoBehaviour
         }
         
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             score = 0;
             timer = 180f;
             isOver = 1;
             gameOver.SetActive(false);
         }
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
     }
     #endregion

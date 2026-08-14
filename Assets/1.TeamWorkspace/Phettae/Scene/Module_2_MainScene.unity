@@ -407,6 +407,7 @@ Transform:
   m_PrefabInstance: {fileID: 20116800}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 --- !u!1001 &24449350
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -472,6 +473,8 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8bb4ae88a0dc54148ae221d905017d5b, type: 3}
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1001 &28879500
@@ -717,7 +720,10 @@ Transform:
   m_PrefabInstance: {fileID: 50117889}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
 --- !u!1 &50151598
 GameObject:
   m_ObjectHideFlags: 0
@@ -855,6 +861,9 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 50151598}
   m_CullTransparentMesh: 1
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1 &54079675
 GameObject:
@@ -969,7 +978,10 @@ Transform:
   m_Father: {fileID: 34922097}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
 --- !u!1 &66361816
 GameObject:
   m_ObjectHideFlags: 0
@@ -1045,6 +1057,9 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 66361816}
   m_CullTransparentMesh: 1
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1001 &66723731
 PrefabInstance:
@@ -1313,12 +1328,18 @@ Transform:
   m_PrefabInstance: {fileID: 69721436}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
 --- !u!4 &72141386 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6035829426926926381, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
   m_PrefabInstance: {fileID: 2507683916883717659}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1001 &77730787
 PrefabInstance:
@@ -1425,10 +1446,13 @@ PrefabInstance:
       value: SM_Jar_Ex (2)
       objectReference: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
     - target: {fileID: 8591366821196000697, guid: 5215927d25a98e94f8856f734bce6367, type: 3}
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
     m_RemovedComponents: []
@@ -1517,11 +1541,14 @@ Transform:
   m_PrefabInstance: {fileID: 82998970}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 --- !u!4 &87676225 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4707269102668552937, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
   m_PrefabInstance: {fileID: 2507683916883717659}
   m_PrefabAsset: {fileID: 0}
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1001 &93773178
@@ -2286,6 +2313,7 @@ Transform:
   m_PrefabInstance: {fileID: 151418041}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 --- !u!1 &162500191
 GameObject:
   m_ObjectHideFlags: 0
@@ -2373,6 +2401,8 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1001 &165259360
@@ -3008,12 +3038,15 @@ Transform:
   m_PrefabInstance: {fileID: 270507682}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 --- !u!4 &277663811 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3554783408140834406, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
   m_PrefabInstance: {fileID: 2507683916883717659}
   m_PrefabAsset: {fileID: 0}
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
 --- !u!1 &277663810
 GameObject:
   m_ObjectHideFlags: 0
@@ -3045,6 +3078,9 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1371796785}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1001 &286583325
 PrefabInstance:
@@ -3261,6 +3297,7 @@ Transform:
   m_PrefabInstance: {fileID: 306827482}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 --- !u!114 &312426580 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6448293216032456248, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
@@ -3272,6 +3309,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1 &318269252
@@ -3379,6 +3418,7 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7822285279944116750, guid: 23852d3b7ac45644491500a22dae48ea, type: 3}
   m_PrefabInstance: {fileID: 321039332}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< HEAD
 <<<<<<< HEAD
 --- !u!1 &326674662
 GameObject:
@@ -3517,6 +3557,8 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1704464286}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1001 &328876990
@@ -3911,7 +3953,10 @@ Transform:
   m_PrefabInstance: {fileID: 383734267}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
 --- !u!1 &391619212 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4610229594841120691, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
@@ -3975,6 +4020,9 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_EnableMultiPick: 0
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1001 &392043531
 PrefabInstance:
@@ -4114,12 +4162,15 @@ Transform:
   m_PrefabInstance: {fileID: 399829141}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 --- !u!1 &401769903 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2723373030106347489, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
   m_PrefabInstance: {fileID: 2507683916883717659}
   m_PrefabAsset: {fileID: 0}
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
 --- !u!1 &401769903
 GameObject:
   m_ObjectHideFlags: 0
@@ -4222,6 +4273,9 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1001 &404140305
 PrefabInstance:
@@ -5159,6 +5213,7 @@ Transform:
   m_PrefabInstance: {fileID: 1708368537}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 --- !u!1 &473960703
 GameObject:
   m_ObjectHideFlags: 0
@@ -5281,6 +5336,8 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1001 &477240841
@@ -5981,7 +6038,11 @@ MonoBehaviour:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 523732646}
 <<<<<<< HEAD
+<<<<<<< HEAD
   m_Enabled: 0
+=======
+  m_Enabled: 1
+>>>>>>> 54c0e92 (update module2)
 =======
   m_Enabled: 1
 >>>>>>> 54c0e92 (update module2)
@@ -9563,7 +9624,10 @@ Transform:
   m_PrefabInstance: {fileID: 738646266}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
 --- !u!1 &754445922 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2759061996054135624, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
@@ -9625,6 +9689,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1001 &770857434
 PrefabInstance:
@@ -9701,7 +9768,10 @@ Transform:
   m_PrefabInstance: {fileID: 770857434}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
 --- !u!1001 &771339302
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9764,6 +9834,9 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8605514761260526161, guid: ccfed36fde0fe534986d4bbe7fd6f670, type: 3}
   m_PrefabInstance: {fileID: 771339302}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1001 &772768849
 PrefabInstance:
@@ -10179,7 +10252,10 @@ Transform:
   m_PrefabInstance: {fileID: 477240841}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
 --- !u!114 &814796894 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4108336989391717290, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
@@ -10191,6 +10267,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1001 &820145312
 PrefabInstance:
@@ -11261,6 +11340,10 @@ Transform:
   - {fileID: 1315928357193425793}
   - {fileID: 7142716138876304028}
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  - {fileID: 771339303}
+>>>>>>> 54c0e92 (update module2)
 =======
   - {fileID: 771339303}
 >>>>>>> 54c0e92 (update module2)
@@ -13520,7 +13603,11 @@ Transform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -2.39, y: -0.72, z: -1.54}
 <<<<<<< HEAD
+<<<<<<< HEAD
   m_LocalScale: {x: 3.1157956, y: 1, z: 50.738}
+=======
+  m_LocalScale: {x: 3.0150914, y: 1, z: 50.738}
+>>>>>>> 54c0e92 (update module2)
 =======
   m_LocalScale: {x: 3.0150914, y: 1, z: 50.738}
 >>>>>>> 54c0e92 (update module2)
@@ -14082,7 +14169,10 @@ Transform:
   m_PrefabInstance: {fileID: 1156105345}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
 --- !u!1 &1165100169
 GameObject:
   m_ObjectHideFlags: 0
@@ -14173,6 +14263,9 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_EnableMultiPick: 0
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1 &1166994930
 GameObject:
@@ -14617,12 +14710,18 @@ PrefabInstance:
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fa8225006a3fcb245abed3262c9681c2, type: 3}
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
 --- !u!224 &1198407159 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2427069918828726083, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
   m_PrefabInstance: {fileID: 2507683916883717659}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1001 &1199115236
 PrefabInstance:
@@ -15376,6 +15475,7 @@ Transform:
   m_PrefabInstance: {fileID: 1237308237}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 --- !u!1 &1242894263 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5279210945528876354, guid: 5b9391684fe24814cb1c540ba71c8e7d, type: 3}
@@ -15403,6 +15503,8 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 8636276686463499889, guid: 5d75954c395cdc345af9693698b81289, type: 3}
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1 &1244186425
@@ -15744,12 +15846,18 @@ MonoBehaviour:
   fishs: {fileID: 318269252}
   scoreValue: 10
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
 --- !u!4 &1268445309 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2246621619139216374, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
   m_PrefabInstance: {fileID: 2507683916883717659}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
 --- !u!4 &1284736077 stripped
 Transform:
@@ -16887,12 +16995,18 @@ Transform:
   m_PrefabInstance: {fileID: 1366750199}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
 --- !u!4 &1371796785 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8642073950651045682, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
   m_PrefabInstance: {fileID: 2507683916883717659}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1001 &1372275923
 PrefabInstance:
@@ -17341,7 +17455,11 @@ Transform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 3.1118, y: -0.86, z: -1.54}
 <<<<<<< HEAD
+<<<<<<< HEAD
   m_LocalScale: {x: 8.667136, y: 1, z: 50.738}
+=======
+  m_LocalScale: {x: 7.82515, y: 1, z: 50.738}
+>>>>>>> 54c0e92 (update module2)
 =======
   m_LocalScale: {x: 7.82515, y: 1, z: 50.738}
 >>>>>>> 54c0e92 (update module2)
@@ -18150,6 +18268,7 @@ Transform:
   m_PrefabInstance: {fileID: 1467111078}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 --- !u!1 &1475551663
 GameObject:
   m_ObjectHideFlags: 0
@@ -18203,6 +18322,8 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.1
   m_Center: {x: 0, y: 0, z: 0}
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1001 &1476639886
@@ -18268,6 +18389,7 @@ Transform:
   m_PrefabInstance: {fileID: 1476639886}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 --- !u!114 &1476690226 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6572388164924674771, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
@@ -18275,6 +18397,8 @@ MonoBehaviour:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
 --- !u!1 &1476690224
 GameObject:
   m_ObjectHideFlags: 0
@@ -18319,6 +18443,9 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1476690224}
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -18326,7 +18453,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
@@ -18415,6 +18545,9 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1476690224}
   m_CullTransparentMesh: 1
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
 --- !u!4 &1478337937 stripped
 Transform:
@@ -18422,12 +18555,18 @@ Transform:
   m_PrefabInstance: {fileID: 1930806036}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
 --- !u!224 &1486011478 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1944288413924189865, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
   m_PrefabInstance: {fileID: 2507683916883717659}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
 --- !u!4 &1490200379 stripped
 Transform:
@@ -20116,6 +20255,7 @@ Transform:
   m_PrefabInstance: {fileID: 1637196779}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 --- !u!114 &1638772602 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 745625910136662975, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
@@ -20127,6 +20267,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1001 &1645720755
@@ -20400,12 +20542,18 @@ Transform:
   m_PrefabInstance: {fileID: 1651246303}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
 --- !u!4 &1653750019 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1414632195509756465, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
   m_PrefabInstance: {fileID: 2507683916883717659}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1001 &1658516844
 PrefabInstance:
@@ -20873,6 +21021,7 @@ PrefabInstance:
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 663796bc93b10d54e992bd939ff28a7a, type: 3}
 <<<<<<< HEAD
+<<<<<<< HEAD
 --- !u!1 &1704309058
 GameObject:
   m_ObjectHideFlags: 0
@@ -20958,6 +21107,8 @@ Camera:
   m_CorrespondingSourceObject: {fileID: 5017235159099467080, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
   m_PrefabInstance: {fileID: 2507683916883717659}
   m_PrefabAsset: {fileID: 0}
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1 &1704511472
@@ -21352,7 +21503,10 @@ Transform:
   m_PrefabInstance: {fileID: 1731881595}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
 --- !u!1 &1733234163
 GameObject:
   m_ObjectHideFlags: 0
@@ -21490,6 +21644,9 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1733234163}
   m_CullTransparentMesh: 1
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1001 &1736873820
 PrefabInstance:
@@ -21960,7 +22117,10 @@ Transform:
   m_PrefabInstance: {fileID: 1758442915}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
 --- !u!1 &1759219545
 GameObject:
   m_ObjectHideFlags: 0
@@ -22047,6 +22207,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
 --- !u!65 &1777781844
 BoxCollider:
@@ -23099,7 +23262,10 @@ Transform:
   m_PrefabInstance: {fileID: 1816041104}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
 --- !u!1 &1817046620
 GameObject:
   m_ObjectHideFlags: 0
@@ -23238,6 +23404,9 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1817046620}
   m_CullTransparentMesh: 1
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1001 &1817271683
 PrefabInstance:
@@ -27201,7 +27370,10 @@ Transform:
   m_PrefabInstance: {fileID: 2135935298}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
 --- !u!1 &2137150173
 GameObject:
   m_ObjectHideFlags: 0
@@ -27280,6 +27452,9 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2137150173}
   m_CullTransparentMesh: 1
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
 --- !u!4 &2138286980 stripped
 Transform:
@@ -27840,7 +28015,10 @@ GameObject:
   - component: {fileID: 3242918485281190078}
   - component: {fileID: 785278247577011316}
 <<<<<<< HEAD
+<<<<<<< HEAD
   - component: {fileID: 3242918485281190079}
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
   m_Layer: 0
@@ -27880,7 +28058,10 @@ GameObject:
   - component: {fileID: 2946290248454072379}
   - component: {fileID: 1083014654539439345}
 <<<<<<< HEAD
+<<<<<<< HEAD
   - component: {fileID: 2946290248454072380}
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
   m_Layer: 0
@@ -27949,6 +28130,7 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
 <<<<<<< HEAD
+<<<<<<< HEAD
     - target: {fileID: 156243701003483672, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.7774714
@@ -27973,6 +28155,8 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Hand
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
     - target: {fileID: 506695401563412393, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -28012,12 +28196,16 @@ PrefabInstance:
     - target: {fileID: 1978320491538931975, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
       objectReference: {fileID: 0}
     - target: {fileID: 2379950430341512700, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
       propertyPath: m_Name
       value: VR_Player_Module_2 (1)
       objectReference: {fileID: 0}
+<<<<<<< HEAD
 <<<<<<< HEAD
     - target: {fileID: 2484428351408294020, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
       propertyPath: m_Cameras.Array.size
@@ -28127,6 +28315,8 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0.231
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
     - target: {fileID: 2751792887770936487, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
       propertyPath: SwatterPrefab
       value: 
@@ -28186,6 +28376,9 @@ PrefabInstance:
     - target: {fileID: 7262396902612077963, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
       propertyPath: m_IsActive
       value: 0
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
       objectReference: {fileID: 0}
     - target: {fileID: 8642073950651045682, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
@@ -28195,7 +28388,11 @@ PrefabInstance:
     - target: {fileID: 8642073950651045682, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
       propertyPath: m_LocalPosition.y
 <<<<<<< HEAD
+<<<<<<< HEAD
       value: 0.207
+=======
+      value: 1.101
+>>>>>>> 54c0e92 (update module2)
 =======
       value: 1.101
 >>>>>>> 54c0e92 (update module2)
@@ -28232,6 +28429,7 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+<<<<<<< HEAD
 <<<<<<< HEAD
     - target: {fileID: 8714406158301441150, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
       propertyPath: m_IsActive
@@ -28273,6 +28471,8 @@ PrefabInstance:
       addedObject: {fileID: 1475551664}
     m_AddedComponents: []
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 6444175768279045664, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
@@ -28300,6 +28500,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2759061996054135624, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
       insertIndex: -1
       addedObject: {fileID: 754445925}
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
   m_SourcePrefab: {fileID: 100100000, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
 --- !u!1 &2515805752521165508 stripped
@@ -28307,6 +28510,7 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 4045866042686151732, guid: 5b9391684fe24814cb1c540ba71c8e7d, type: 3}
   m_PrefabInstance: {fileID: 3271382558883520559}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< HEAD
 <<<<<<< HEAD
 --- !u!1001 &2621774973158499173
 PrefabInstance:
@@ -28371,6 +28575,8 @@ PrefabInstance:
   m_SourcePrefab: {fileID: 100100000, guid: 7621846f596434a4ab8a2b2cacceb3ee, type: 3}
 =======
 >>>>>>> 54c0e92 (update module2)
+=======
+>>>>>>> 54c0e92 (update module2)
 --- !u!33 &2946290248454072379
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -28379,6 +28585,7 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1443219405754481956}
   m_Mesh: {fileID: 4493585093827132993, guid: 8b59a60dfafc1534a9c3dd34d9255800, type: 3}
+<<<<<<< HEAD
 <<<<<<< HEAD
 --- !u!65 &2946290248454072380
 BoxCollider:
@@ -28403,6 +28610,8 @@ BoxCollider:
   m_Center: {x: -1.9081871e-10, y: 0.010642774, z: -0.0010814253}
 =======
 >>>>>>> 54c0e92 (update module2)
+=======
+>>>>>>> 54c0e92 (update module2)
 --- !u!65 &2999996225699762303
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -28419,7 +28628,11 @@ BoxCollider:
     m_Bits: 0
   m_LayerOverridePriority: 0
 <<<<<<< HEAD
+<<<<<<< HEAD
   m_IsTrigger: 1
+=======
+  m_IsTrigger: 0
+>>>>>>> 54c0e92 (update module2)
 =======
   m_IsTrigger: 0
 >>>>>>> 54c0e92 (update module2)
@@ -28428,6 +28641,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.4, y: 0.72, z: 0.42}
   m_Center: {x: -0.08, y: 0.57, z: 0.16}
+<<<<<<< HEAD
 <<<<<<< HEAD
 --- !u!114 &2999996225699762305
 MonoBehaviour:
@@ -28442,6 +28656,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TrashBin
   score: 5
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
 --- !u!33 &3060353920323924041
@@ -28460,6 +28676,7 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1289474354283079073}
   m_Mesh: {fileID: 2534964839176971238, guid: 8cad13044a6f0dd4a8a544bfa772a0ab, type: 3}
+<<<<<<< HEAD
 <<<<<<< HEAD
 --- !u!65 &3242918485281190079
 BoxCollider:
@@ -28482,6 +28699,8 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.16682804, y: 0.31380567, z: 0.16648279}
   m_Center: {x: 0.00032430887, y: 0.016963938, z: -0.00007368625}
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1001 &3271382558883520559
@@ -28544,12 +28763,15 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 2999996225699762303}
 <<<<<<< HEAD
+<<<<<<< HEAD
     - targetCorrespondingSourceObject: {fileID: 4045866042686151732, guid: 5b9391684fe24814cb1c540ba71c8e7d, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2999996225699762305}
     - targetCorrespondingSourceObject: {fileID: 5279210945528876354, guid: 5b9391684fe24814cb1c540ba71c8e7d, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1242894267}
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
   m_SourcePrefab: {fileID: 100100000, guid: 5b9391684fe24814cb1c540ba71c8e7d, type: 3}
@@ -28566,10 +28788,13 @@ PrefabInstance:
       value: PF_VaseWithFlowers
       objectReference: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
     - target: {fileID: 4806989240119071230, guid: ccfed36fde0fe534986d4bbe7fd6f670, type: 3}
       propertyPath: waterSplashEffect
       value: 
       objectReference: {fileID: 1969966235721149313, guid: 42064935d3654ce4ebc3b1e65b3aa2bd, type: 3}
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
     - target: {fileID: 8605514761260526161, guid: ccfed36fde0fe534986d4bbe7fd6f670, type: 3}
@@ -29241,7 +29466,10 @@ GameObject:
   - component: {fileID: 7018641798011597201}
   - component: {fileID: 5081132190945789275}
 <<<<<<< HEAD
+<<<<<<< HEAD
   - component: {fileID: 7018641798011597202}
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
   m_Layer: 0
@@ -29268,6 +29496,7 @@ MeshFilter:
   m_GameObject: {fileID: 6738285262130898062}
   m_Mesh: {fileID: 2534964839176971238, guid: 8cad13044a6f0dd4a8a544bfa772a0ab, type: 3}
 <<<<<<< HEAD
+<<<<<<< HEAD
 --- !u!65 &7018641798011597202
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -29289,6 +29518,8 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.16682804, y: 0.31380564, z: 0.16648278}
   m_Center: {x: 0.00032430887, y: 0.016963936, z: -0.00007368624}
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
 --- !u!4 &7072773447542678524
@@ -29338,7 +29569,10 @@ GameObject:
   - component: {fileID: 6873250159467377020}
   - component: {fileID: 8684707904963724726}
 <<<<<<< HEAD
+<<<<<<< HEAD
   - component: {fileID: 8684707904963724727}
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
   m_Layer: 0
@@ -29410,7 +29644,10 @@ GameObject:
   - component: {fileID: 6106482444878479013}
   - component: {fileID: 8312063985938795119}
 <<<<<<< HEAD
+<<<<<<< HEAD
   - component: {fileID: 8312063985938795120}
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
   m_Layer: 0
@@ -29447,7 +29684,10 @@ GameObject:
   - component: {fileID: 6163266728690691161}
   - component: {fileID: 8245146603011659923}
 <<<<<<< HEAD
+<<<<<<< HEAD
   - component: {fileID: 8245146603011659924}
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
   m_Layer: 0
@@ -29486,6 +29726,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::M2Manager
   socreText:
 <<<<<<< HEAD
+<<<<<<< HEAD
   - {fileID: 1638772602}
   - {fileID: 1476690226}
   timerText: {fileID: 312426580}
@@ -29496,12 +29737,17 @@ MonoBehaviour:
   gameOver: {fileID: 401769903}
   aButton: {fileID: 5561125842531183599, guid: c348712bda248c246b8c49b3db54643f, type: 3}
 =======
+=======
+>>>>>>> 54c0e92 (update module2)
   - {fileID: 1817046622}
   - {fileID: 1476690226}
   timerText: {fileID: 814796894}
   gameOver: {fileID: 401769903}
   flySwatterPrefabs: {fileID: 6999679600895977830, guid: 8bb4ae88a0dc54148ae221d905017d5b, type: 3}
   pointFontPlayer: {fileID: 277663811}
+<<<<<<< HEAD
+>>>>>>> 54c0e92 (update module2)
+=======
 >>>>>>> 54c0e92 (update module2)
   score: 0
   timer: 120
@@ -29617,6 +29863,7 @@ MeshRenderer:
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 --- !u!65 &8245146603011659924
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -29638,6 +29885,8 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.110165834, y: 0.044025987, z: 0.14599368}
   m_Center: {x: 0, y: 0.010642775, z: -0.0010814257}
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
 --- !u!23 &8312063985938795119
@@ -29691,6 +29940,7 @@ MeshRenderer:
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 --- !u!65 &8312063985938795120
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -29712,6 +29962,8 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.18197365, y: 0.425443, z: 0.18197364}
   m_Center: {x: -0.00021687095, y: 0.037110887, z: -0.000029990819}
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
 --- !u!4 &8367334013916724459
@@ -29778,6 +30030,7 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
     - target: {fileID: 3210701593085705634, guid: 9b007989d037cd944b3f61b8f7f4c525, type: 3}
       propertyPath: m_Size.x
       value: 0.01
@@ -29794,6 +30047,8 @@ PrefabInstance:
       propertyPath: m_Center.z
       value: 0.003
       objectReference: {fileID: 0}
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
     - target: {fileID: 8114175898432531114, guid: 9b007989d037cd944b3f61b8f7f4c525, type: 3}
@@ -29905,6 +30160,7 @@ MeshRenderer:
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 --- !u!65 &8684707904963724727
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -29926,6 +30182,8 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.18197364, y: 0.4254429, z: 0.18197359}
   m_Center: {x: -0.0002168715, y: 0.037109926, z: -0.000029988587}
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
 --- !u!1 &8937957486457195506
@@ -30157,7 +30415,10 @@ GameObject:
   - component: {fileID: 4877792439936725838}
   - component: {fileID: 7229844380156381060}
 <<<<<<< HEAD
+<<<<<<< HEAD
   - component: {fileID: 9175360043686356562}
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
   m_Layer: 0
@@ -30167,6 +30428,7 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+<<<<<<< HEAD
 <<<<<<< HEAD
 --- !u!65 &9175360043686356562
 BoxCollider:
@@ -30191,6 +30453,8 @@ BoxCollider:
   m_Center: {x: -0.00021687371, y: 0.037109934, z: -0.000029032737}
 =======
 >>>>>>> 54c0e92 (update module2)
+=======
+>>>>>>> 54c0e92 (update module2)
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -30201,7 +30465,10 @@ SceneRoots:
   - {fileID: 993446360}
   - {fileID: 523732649}
 <<<<<<< HEAD
+<<<<<<< HEAD
   - {fileID: 162500194}
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
   - {fileID: 1244186426}
@@ -30224,8 +30491,11 @@ SceneRoots:
   - {fileID: 7072773447542678524}
   - {fileID: 2255327921923319710}
 <<<<<<< HEAD
+<<<<<<< HEAD
   - {fileID: 2621774973158499173}
   - {fileID: 24449350}
   - {fileID: 473960708}
+=======
+>>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
