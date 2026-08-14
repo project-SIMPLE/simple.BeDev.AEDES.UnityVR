@@ -2,11 +2,15 @@
 using UnityEngine;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 using UnityEngine.InputSystem;
 =======
 >>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
+=======
+using UnityEngine.InputSystem;
+>>>>>>> fea8276 (no message)
 using UnityEngine.SceneManagement;
 
 public class M2Manager : MonoBehaviour
@@ -17,6 +21,7 @@ public class M2Manager : MonoBehaviour
     //public GameObject gameOverPanel;
     public TextMeshProUGUI[] socreText;
     public TextMeshProUGUI timerText;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     public GameObject flySwatterPrefabs;
@@ -36,15 +41,28 @@ public class M2Manager : MonoBehaviour
 =======
 >>>>>>> 54c0e92 (update module2)
     public GameObject gameOver;
+=======
+>>>>>>> fea8276 (no message)
     public GameObject flySwatterPrefabs;
     public GameObject creamPrefabs;
     public Transform pointFontPlayer;
+    public GameObject particleSpwn;
+    private Transform _cameraPos;
     private static readonly int Exposure = Shader.PropertyToID("_Exposure");
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
+=======
+    [Header("Reference Canvas")]
+    public GameObject gameOver;
+
+    [Header("Input System")]
+    public InputActionReference aButton;
+
+>>>>>>> fea8276 (no message)
     [Header("Game Setting")]
     public int score = 0; 
     public float timer = 180f;
@@ -70,6 +88,7 @@ public class M2Manager : MonoBehaviour
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
         FlySwatterUi(); 
@@ -77,6 +96,9 @@ public class M2Manager : MonoBehaviour
 =======
         FlySwatterUi(); 
 >>>>>>> 54c0e92 (update module2)
+=======
+
+>>>>>>> fea8276 (no message)
     }
 
     void Start()
@@ -86,6 +108,7 @@ public class M2Manager : MonoBehaviour
         isDay = true;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         _cameraPos = Camera.main.transform;
         UpdateScore(score);
@@ -93,6 +116,11 @@ public class M2Manager : MonoBehaviour
 >>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
+=======
+
+        _cameraPos = Camera.main.transform;
+        UpdateScore(score);
+>>>>>>> fea8276 (no message)
     }
 
 
@@ -100,6 +128,7 @@ public class M2Manager : MonoBehaviour
     {
         StartTimer();
         DayNightSystem();
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         RestartGame();
@@ -113,6 +142,11 @@ public class M2Manager : MonoBehaviour
 
         if(isDay && timer <= dayDuration)
 >>>>>>> 54c0e92 (update module2)
+=======
+        RestartGame();
+
+        if (isDay && timer <= dayDuration)
+>>>>>>> fea8276 (no message)
         {
             isDay = false;
             isNight = true;
@@ -125,11 +159,15 @@ public class M2Manager : MonoBehaviour
         Instantiate(flySwatterPrefabs, pointFontPlayer);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         Instantiate(particleSpwn, pointFontPlayer);
 =======
 >>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
+=======
+        Instantiate(particleSpwn, pointFontPlayer);
+>>>>>>> fea8276 (no message)
     }
 
     public void CreamUi()
@@ -137,11 +175,15 @@ public class M2Manager : MonoBehaviour
         Instantiate(creamPrefabs, pointFontPlayer);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         Instantiate(particleSpwn, pointFontPlayer);
 =======
 >>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
+=======
+        Instantiate(particleSpwn, pointFontPlayer);
+>>>>>>> fea8276 (no message)
     }
 
     public void UpdateScore(int value)
@@ -190,6 +232,9 @@ public class M2Manager : MonoBehaviour
         {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> fea8276 (no message)
             if (aButton.action.WasPerformedThisFrame())
             {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
@@ -199,6 +244,7 @@ public class M2Manager : MonoBehaviour
                 gameOver.SetActive(false);
                 Debug.Log("Game Restarted");
             }
+<<<<<<< HEAD
         }
         
 =======
@@ -214,6 +260,10 @@ public class M2Manager : MonoBehaviour
 >>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
+=======
+        }
+        
+>>>>>>> fea8276 (no message)
     }
     #endregion
 }

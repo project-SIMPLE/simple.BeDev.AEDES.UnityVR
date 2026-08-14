@@ -5,6 +5,9 @@ ModelImporter:
   internalIDToNameTable: []
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> fea8276 (no message)
   externalObjects:
   - first:
       type: UnityEngine:Material
@@ -21,6 +24,7 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: Material.003
     second: {fileID: 2100000, guid: 99b23a31e392ce645a0354bb82cc126b, type: 2}
+<<<<<<< HEAD
   materials:
     materialImportMode: 1
 =======
@@ -33,6 +37,10 @@ ModelImporter:
   materials:
     materialImportMode: 2
 >>>>>>> 54c0e92 (update module2)
+=======
+  materials:
+    materialImportMode: 1
+>>>>>>> fea8276 (no message)
     materialName: 0
     materialSearch: 1
     materialLocation: 1

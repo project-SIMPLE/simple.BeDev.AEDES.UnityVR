@@ -22,12 +22,17 @@ TagManager:
   - Trash
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   - Hand
   - Swatter
 =======
 >>>>>>> 656c86d (?)
 =======
 >>>>>>> e7f4b3a (no message)
+=======
+  - Hand
+  - Swatter
+>>>>>>> fea8276 (no message)
   layers:
   - Default
   - TransparentFX

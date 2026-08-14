@@ -50,6 +50,7 @@ public class UIHand : MonoBehaviour
     }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> 54c0e92 (update module2)
@@ -66,4 +67,6 @@ public class UIHand : MonoBehaviour
 >>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
+=======
+>>>>>>> fea8276 (no message)
 }

@@ -1,6 +1,7 @@
 fileFormatVersion: 2
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 guid: 93e57c39b6cf0b74c9eeac88331282a8
 ModelImporter:
   serializedVersion: 24200
@@ -23,6 +24,13 @@ ModelImporter:
 >>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
+=======
+guid: 93e57c39b6cf0b74c9eeac88331282a8
+ModelImporter:
+  serializedVersion: 24200
+  internalIDToNameTable: []
+  externalObjects: {}
+>>>>>>> fea8276 (no message)
   materials:
     materialImportMode: 2
     materialName: 0

@@ -2,6 +2,9 @@
 %TAG !u! tag:unity3d.com,2011:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> fea8276 (no message)
 --- !u!1 &449316069738160162
 GameObject:
   m_ObjectHideFlags: 0
@@ -253,10 +256,13 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+<<<<<<< HEAD
 =======
 >>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
+=======
+>>>>>>> fea8276 (no message)
 --- !u!1 &1977489640747543236
 GameObject:
   m_ObjectHideFlags: 0
@@ -484,11 +490,15 @@ Transform:
   - {fileID: 1414632195509756465}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   - {fileID: 3554783408140834406}
 =======
 >>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
+=======
+  - {fileID: 3554783408140834406}
+>>>>>>> fea8276 (no message)
   m_Father: {fileID: 8642073950651045682}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2285893099669645798
@@ -603,11 +613,15 @@ Transform:
   m_Children:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   - {fileID: 8260433725975761454}
 =======
 >>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
+=======
+  - {fileID: 8260433725975761454}
+>>>>>>> fea8276 (no message)
   - {fileID: 6094425308023339557}
   - {fileID: 7496474635250220531}
   m_Father: {fileID: 0}
@@ -682,6 +696,9 @@ CharacterController:
   m_Center: {x: 0, y: 0, z: 0}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> fea8276 (no message)
 --- !u!1 &2404097110189950699
 GameObject:
   m_ObjectHideFlags: 0
@@ -1104,10 +1121,13 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+<<<<<<< HEAD
 =======
 >>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
+=======
+>>>>>>> fea8276 (no message)
 --- !u!1 &3065053824423433509
 GameObject:
   m_ObjectHideFlags: 0
@@ -1222,11 +1242,15 @@ Transform:
   - {fileID: 828483090801589173}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   - {fileID: 7607524041816758345}
 =======
 >>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
+=======
+  - {fileID: 7607524041816758345}
+>>>>>>> fea8276 (no message)
   m_Father: {fileID: 6094425308023339557}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8607546000741472604
@@ -1300,6 +1324,9 @@ MonoBehaviour:
     m_Flags: 0
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> fea8276 (no message)
 --- !u!1 &3730494539210778327
 GameObject:
   m_ObjectHideFlags: 0
@@ -1740,10 +1767,13 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+<<<<<<< HEAD
 =======
 >>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
+=======
+>>>>>>> fea8276 (no message)
 --- !u!1 &4375820258382732345
 GameObject:
   m_ObjectHideFlags: 0
@@ -1778,6 +1808,7 @@ Transform:
   - {fileID: 4707269102668552937}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   - {fileID: 475694847142573942}
 =======
   - {fileID: 4821765088204800757}
@@ -1785,6 +1816,9 @@ Transform:
 =======
   - {fileID: 4821765088204800757}
 >>>>>>> 54c0e92 (update module2)
+=======
+  - {fileID: 475694847142573942}
+>>>>>>> fea8276 (no message)
   m_Father: {fileID: 6094425308023339557}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8297888703614984711
@@ -1858,6 +1892,9 @@ MonoBehaviour:
     m_Flags: 0
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> fea8276 (no message)
 --- !u!1 &4797288554947401650
 GameObject:
   m_ObjectHideFlags: 0
@@ -2210,10 +2247,13 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+<<<<<<< HEAD
 =======
 >>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
+=======
+>>>>>>> fea8276 (no message)
 --- !u!1 &5877216642470796142
 GameObject:
   m_ObjectHideFlags: 0
@@ -2279,6 +2319,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.XR.Interaction.Toolkit::UnityEngine.XR.Interaction.Toolkit.Locomotion.LocomotionMediator
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> fea8276 (no message)
 --- !u!1 &6007424233844119650
 GameObject:
   m_ObjectHideFlags: 0
@@ -2851,10 +2894,13 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+<<<<<<< HEAD
 =======
 >>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
+=======
+>>>>>>> fea8276 (no message)
 --- !u!1 &7848566616607783358
 GameObject:
   m_ObjectHideFlags: 0
@@ -3139,6 +3185,7 @@ GameObject:
   m_Name: Left Intercater
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   m_TagString: Hand
 =======
   m_TagString: Untagged
@@ -3146,6 +3193,9 @@ GameObject:
 =======
   m_TagString: Untagged
 >>>>>>> 54c0e92 (update module2)
+=======
+  m_TagString: Hand
+>>>>>>> fea8276 (no message)
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3327,6 +3377,9 @@ SphereCollider:
   m_Center: {x: 0, y: 0, z: 0}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> fea8276 (no message)
 --- !u!1 &8109581148021082556
 GameObject:
   m_ObjectHideFlags: 0
@@ -3814,10 +3867,13 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+<<<<<<< HEAD
 =======
 >>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
+=======
+>>>>>>> fea8276 (no message)
 --- !u!1001 &2162964882860583362
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4042,6 +4098,7 @@ Animator:
   m_CorrespondingSourceObject: {fileID: 109434732388006827, guid: 65847589f926b734d9eaed6e25f0046b, type: 3}
   m_PrefabInstance: {fileID: 2162964882860583362}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -4534,6 +4591,8 @@ MonoBehaviour:
 >>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
+=======
+>>>>>>> fea8276 (no message)
 --- !u!1001 &5892026189921646174
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4706,16 +4765,22 @@ PrefabInstance:
     m_RemovedGameObjects: []
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> fea8276 (no message)
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 5686134208185136558, guid: 1fd3a7c43c8190f4d8c167ebde694364, type: 3}
       insertIndex: 0
       addedObject: {fileID: 8656715459887958135}
+<<<<<<< HEAD
 =======
     m_AddedGameObjects: []
 >>>>>>> 54c0e92 (update module2)
 =======
     m_AddedGameObjects: []
 >>>>>>> 54c0e92 (update module2)
+=======
+>>>>>>> fea8276 (no message)
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 5686134208185362930, guid: 1fd3a7c43c8190f4d8c167ebde694364, type: 3}
       insertIndex: -1
@@ -4733,6 +4798,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> fea8276 (no message)
 --- !u!4 &2246621619139216368 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5686134208185136558, guid: 1fd3a7c43c8190f4d8c167ebde694364, type: 3}
@@ -4743,10 +4811,13 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5686134208185136552, guid: 1fd3a7c43c8190f4d8c167ebde694364, type: 3}
   m_PrefabInstance: {fileID: 5892026189921646174}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< HEAD
 =======
 >>>>>>> 54c0e92 (update module2)
 =======
 >>>>>>> 54c0e92 (update module2)
+=======
+>>>>>>> fea8276 (no message)
 --- !u!1 &2246621619139518380 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5686134208185362930, guid: 1fd3a7c43c8190f4d8c167ebde694364, type: 3}

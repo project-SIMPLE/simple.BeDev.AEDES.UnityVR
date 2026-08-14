@@ -22,6 +22,7 @@ public class MosquitoSpawn : MonoBehaviour
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         //print("isWorking");
 =======
         print("isWorking");
@@ -29,6 +30,9 @@ public class MosquitoSpawn : MonoBehaviour
 =======
         print("isWorking");
 >>>>>>> 54c0e92 (update module2)
+=======
+        //print("isWorking");
+>>>>>>> fea8276 (no message)
         if (M2Manager.Instance.isOver == 1)
         {
             if (GameObject.FindGameObjectsWithTag("Mosquito").Length < maxMosquitoInMap)
@@ -39,6 +43,7 @@ public class MosquitoSpawn : MonoBehaviour
                 currentMosquitoInMap = GameObject.FindGameObjectsWithTag("Mosquito").Length;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                 //print("isWork");
 =======
                 print("isWork");
@@ -46,6 +51,9 @@ public class MosquitoSpawn : MonoBehaviour
 =======
                 print("isWork");
 >>>>>>> 54c0e92 (update module2)
+=======
+                //print("isWork");
+>>>>>>> fea8276 (no message)
             }
         }
     }

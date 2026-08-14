@@ -4,6 +4,9 @@ public class SwatterHand : MonoBehaviour
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> fea8276 (no message)
     public int scoreValue = 2;
     public bool isHandActive = false;
 
@@ -38,10 +41,13 @@ public class SwatterHand : MonoBehaviour
     {
         Destroy(gameObject);
     }
+<<<<<<< HEAD
 =======
     
 >>>>>>> 54c0e92 (update module2)
 =======
     
 >>>>>>> 54c0e92 (update module2)
+=======
+>>>>>>> fea8276 (no message)
 }
