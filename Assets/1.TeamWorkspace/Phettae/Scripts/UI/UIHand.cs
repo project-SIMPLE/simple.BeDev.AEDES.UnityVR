@@ -48,13 +48,4 @@ public class UIHand : MonoBehaviour
 
         Debug.DrawRay(transform.position, transform.up);
     }
-
-    public void SpawnSwatter()
-    {
-        if (FindAnyObjectByType<SwatterHand>() == null)
-        {
-            GameObject swatter = Instantiate(SwatterPrefab, handSwatterPoint.transform.position, handSwatterPoint.transform.rotation);
-            swatter.transform.SetParent(handSwatterPoint.transform);
-        }
-    }
 }
