@@ -802,7 +802,11 @@ MeshRenderer:
   - {fileID: 2100000, guid: 6178b2c91212903489cb4c8fb5f718f5, type: 2}
 =======
   - {fileID: -8461402771510706953, guid: b50bc63a5c991704d9f31e5dedfcfa5f, type: 3}
+<<<<<<< HEAD
 >>>>>>> 40d09d4 (baked lighting + skybox package)
+=======
+>>>>>>> 3af4b64 (baked lighting + skybox package)
+>>>>>>> 99a82b0 (no message)
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1764,7 +1768,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
 =======
+<<<<<<< HEAD
 >>>>>>> 40d09d4 (baked lighting + skybox package)
+=======
+>>>>>>> 3af4b64 (baked lighting + skybox package)
+>>>>>>> 99a82b0 (no message)
     - target: {fileID: 1208958970968473576, guid: 908f7032114933a47b79326aa4169a8b, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
@@ -1779,7 +1787,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
 =======
+<<<<<<< HEAD
 >>>>>>> 40d09d4 (baked lighting + skybox package)
+=======
+>>>>>>> 3af4b64 (baked lighting + skybox package)
+>>>>>>> 99a82b0 (no message)
     - target: {fileID: 2031480834360620440, guid: 908f7032114933a47b79326aa4169a8b, type: 3}
       propertyPath: m_LocalRotation.w
       value: 0.61902547
@@ -1862,7 +1874,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
 =======
+<<<<<<< HEAD
 >>>>>>> 40d09d4 (baked lighting + skybox package)
+=======
+>>>>>>> 3af4b64 (baked lighting + skybox package)
+>>>>>>> 99a82b0 (no message)
     - target: {fileID: 4658853443732760444, guid: 908f7032114933a47b79326aa4169a8b, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
@@ -1909,7 +1925,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
 =======
+<<<<<<< HEAD
 >>>>>>> 40d09d4 (baked lighting + skybox package)
+=======
+>>>>>>> 3af4b64 (baked lighting + skybox package)
+>>>>>>> 99a82b0 (no message)
     - target: {fileID: 7597643424678397866, guid: 908f7032114933a47b79326aa4169a8b, type: 3}
       propertyPath: m_Convex
       value: 0
@@ -1924,7 +1944,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
 =======
+<<<<<<< HEAD
 >>>>>>> 40d09d4 (baked lighting + skybox package)
+=======
+>>>>>>> 3af4b64 (baked lighting + skybox package)
+>>>>>>> 99a82b0 (no message)
     - target: {fileID: 8384279801202838530, guid: 908f7032114933a47b79326aa4169a8b, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
@@ -2572,7 +2596,11 @@ Light:
   m_BoundingSphereOverride: {x: 4.5915e-41, y: 9.404966e-39, z: 2.7106638e-20, w: 3.489854e-39}
 =======
   m_BoundingSphereOverride: {x: 7.61e-43, y: -4.0180832e-38, z: 7.61e-43, w: -2.460319e-38}
+<<<<<<< HEAD
 >>>>>>> 40d09d4 (baked lighting + skybox package)
+=======
+>>>>>>> 3af4b64 (baked lighting + skybox package)
+>>>>>>> 99a82b0 (no message)
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ForceVisible: 0
@@ -9331,7 +9359,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
 =======
+<<<<<<< HEAD
 >>>>>>> 40d09d4 (baked lighting + skybox package)
+=======
+>>>>>>> 3af4b64 (baked lighting + skybox package)
+>>>>>>> 99a82b0 (no message)
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -21043,7 +21075,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
 =======
+<<<<<<< HEAD
 >>>>>>> 40d09d4 (baked lighting + skybox package)
+=======
+>>>>>>> 3af4b64 (baked lighting + skybox package)
+>>>>>>> 99a82b0 (no message)
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -21530,7 +21566,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
 =======
+<<<<<<< HEAD
 >>>>>>> 40d09d4 (baked lighting + skybox package)
+=======
+>>>>>>> 3af4b64 (baked lighting + skybox package)
+>>>>>>> 99a82b0 (no message)
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -21732,7 +21772,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
 =======
+<<<<<<< HEAD
 >>>>>>> 40d09d4 (baked lighting + skybox package)
+=======
+>>>>>>> 3af4b64 (baked lighting + skybox package)
+>>>>>>> 99a82b0 (no message)
     - target: {fileID: 4488024307215241627, guid: b08f169dc6dae7944851f10e81cc2766, type: 3}
       propertyPath: m_LocalPosition.x
       value: -18.428
@@ -25895,7 +25939,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
 =======
+<<<<<<< HEAD
 >>>>>>> 40d09d4 (baked lighting + skybox package)
+=======
+>>>>>>> 3af4b64 (baked lighting + skybox package)
+>>>>>>> 99a82b0 (no message)
     - target: {fileID: 5958001880465379099, guid: b4626cd6089bbfa41a12442e228be28f, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
@@ -27102,7 +27150,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
 =======
+<<<<<<< HEAD
 >>>>>>> 40d09d4 (baked lighting + skybox package)
+=======
+>>>>>>> 3af4b64 (baked lighting + skybox package)
+>>>>>>> 99a82b0 (no message)
     - target: {fileID: 2710878984268920796, guid: 48272d5c7e537744bb27ce5335c4b9a4, type: 3}
       propertyPath: m_Name
       value: PF_TV
@@ -27185,7 +27237,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
 =======
+<<<<<<< HEAD
 >>>>>>> 40d09d4 (baked lighting + skybox package)
+=======
+>>>>>>> 3af4b64 (baked lighting + skybox package)
+>>>>>>> 99a82b0 (no message)
     - target: {fileID: 7732829161197999495, guid: 48272d5c7e537744bb27ce5335c4b9a4, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
@@ -27417,7 +27473,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
 =======
+<<<<<<< HEAD
 >>>>>>> 40d09d4 (baked lighting + skybox package)
+=======
+>>>>>>> 3af4b64 (baked lighting + skybox package)
+>>>>>>> 99a82b0 (no message)
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -28742,7 +28802,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
 =======
+<<<<<<< HEAD
 >>>>>>> 40d09d4 (baked lighting + skybox package)
+=======
+>>>>>>> 3af4b64 (baked lighting + skybox package)
+>>>>>>> 99a82b0 (no message)
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -28822,7 +28886,11 @@ MeshRenderer:
   - {fileID: 2100000, guid: 6178b2c91212903489cb4c8fb5f718f5, type: 2}
 =======
   - {fileID: -8461402771510706953, guid: b50bc63a5c991704d9f31e5dedfcfa5f, type: 3}
+<<<<<<< HEAD
 >>>>>>> 40d09d4 (baked lighting + skybox package)
+=======
+>>>>>>> 3af4b64 (baked lighting + skybox package)
+>>>>>>> 99a82b0 (no message)
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -29361,7 +29429,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
 =======
+<<<<<<< HEAD
 >>>>>>> 40d09d4 (baked lighting + skybox package)
+=======
+>>>>>>> 3af4b64 (baked lighting + skybox package)
+>>>>>>> 99a82b0 (no message)
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -30103,7 +30175,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
 =======
+<<<<<<< HEAD
 >>>>>>> 40d09d4 (baked lighting + skybox package)
+=======
+>>>>>>> 3af4b64 (baked lighting + skybox package)
+>>>>>>> 99a82b0 (no message)
     - target: {fileID: 1655784811081038807, guid: 8317a6db60e19c640a1cd1b0c2ac6ec8, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
@@ -30122,7 +30198,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
 =======
+<<<<<<< HEAD
 >>>>>>> 40d09d4 (baked lighting + skybox package)
+=======
+>>>>>>> 3af4b64 (baked lighting + skybox package)
+>>>>>>> 99a82b0 (no message)
     - target: {fileID: 5759142038801972241, guid: 8317a6db60e19c640a1cd1b0c2ac6ec8, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
@@ -30141,7 +30221,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
 =======
+<<<<<<< HEAD
 >>>>>>> 40d09d4 (baked lighting + skybox package)
+=======
+>>>>>>> 3af4b64 (baked lighting + skybox package)
+>>>>>>> 99a82b0 (no message)
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -30225,7 +30309,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
 =======
+<<<<<<< HEAD
 >>>>>>> 40d09d4 (baked lighting + skybox package)
+=======
+>>>>>>> 3af4b64 (baked lighting + skybox package)
+>>>>>>> 99a82b0 (no message)
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -30896,7 +30984,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
 =======
+<<<<<<< HEAD
 >>>>>>> 40d09d4 (baked lighting + skybox package)
+=======
+>>>>>>> 3af4b64 (baked lighting + skybox package)
+>>>>>>> 99a82b0 (no message)
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -31635,7 +31727,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: ae30eaaa598e8074cbff02d587b6b984, type: 2}
 =======
+<<<<<<< HEAD
 >>>>>>> 40d09d4 (baked lighting + skybox package)
+=======
+>>>>>>> 3af4b64 (baked lighting + skybox package)
+>>>>>>> 99a82b0 (no message)
     - target: {fileID: 6039267951378779652, guid: 56df000b2c3087b448db7963fd9f2578, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
