@@ -78,6 +78,7 @@ public class Mosquito : MonoBehaviour
             Random.Range(-maxDirection.z, maxDirection.z)
         ).normalized;
     }
+<<<<<<< HEAD
 
     private void OnTriggerEnter(Collider other)
     {
@@ -87,4 +88,8 @@ public class Mosquito : MonoBehaviour
         }
     }
 
+=======
+   
+    
+>>>>>>> 54c0e92 (update module2)
 }

@@ -20,7 +20,11 @@ public class MosquitoSpawn : MonoBehaviour
 
     public void SpawnMosqitoInMap()
     {
+<<<<<<< HEAD
         //print("isWorking");
+=======
+        print("isWorking");
+>>>>>>> 54c0e92 (update module2)
         if (M2Manager.Instance.isOver == 1)
         {
             if (GameObject.FindGameObjectsWithTag("Mosquito").Length < maxMosquitoInMap)
@@ -29,7 +33,11 @@ public class MosquitoSpawn : MonoBehaviour
                 int randomMosquitoCount = Random.Range(5, M2Manager.Instance.notSaveWaterContainer.Length);
                 Instantiate(mosquitoPrefab, spawnPoint[randomIndex].transform.position, Quaternion.identity);
                 currentMosquitoInMap = GameObject.FindGameObjectsWithTag("Mosquito").Length;
+<<<<<<< HEAD
                 //print("isWork");
+=======
+                print("isWork");
+>>>>>>> 54c0e92 (update module2)
             }
         }
     }
