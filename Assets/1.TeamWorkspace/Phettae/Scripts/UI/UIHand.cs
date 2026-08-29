@@ -48,12 +48,6 @@ public class UIHand : MonoBehaviour
 
         Debug.DrawRay(transform.position, transform.up);
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 54c0e92 (update module2)
 
     public void SpawnSwatter()
     {
@@ -63,10 +57,4 @@ public class UIHand : MonoBehaviour
             swatter.transform.SetParent(handSwatterPoint.transform);
         }
     }
-<<<<<<< HEAD
->>>>>>> 54c0e92 (update module2)
-=======
->>>>>>> 54c0e92 (update module2)
-=======
->>>>>>> fea8276 (no message)
 }
