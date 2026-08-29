@@ -1,5 +1,6 @@
 ﻿using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class M2Manager : MonoBehaviour
@@ -10,11 +11,18 @@ public class M2Manager : MonoBehaviour
     //public GameObject gameOverPanel;
     public TextMeshProUGUI[] socreText;
     public TextMeshProUGUI timerText;
-    public GameObject gameOver;
     public GameObject flySwatterPrefabs;
     public GameObject creamPrefabs;
     public Transform pointFontPlayer;
+    public GameObject particleSpwn;
+    private Transform _cameraPos;
     private static readonly int Exposure = Shader.PropertyToID("_Exposure");
+
+    [Header("Reference Canvas")]
+    public GameObject gameOver;
+
+    [Header("Input System")]
+    public InputActionReference aButton;
 
     [Header("Game Setting")]
     public int score = 0; 
@@ -39,7 +47,7 @@ public class M2Manager : MonoBehaviour
 
         DontDestroyOnLoad(gameObject);
 
-        FlySwatterUi(); 
+
     }
 
     void Start()
@@ -47,6 +55,9 @@ public class M2Manager : MonoBehaviour
         gameOver.SetActive(false);
         socreText[0].text = score.ToString();
         isDay = true;
+
+        _cameraPos = Camera.main.transform;
+        UpdateScore(score);
     }
 
 
@@ -54,8 +65,9 @@ public class M2Manager : MonoBehaviour
     {
         StartTimer();
         DayNightSystem();
+        RestartGame();
 
-        if(isDay && timer <= dayDuration)
+        if (isDay && timer <= dayDuration)
         {
             isDay = false;
             isNight = true;
@@ -66,11 +78,13 @@ public class M2Manager : MonoBehaviour
     public void FlySwatterUi()
     {
         Instantiate(flySwatterPrefabs, pointFontPlayer);
+        Instantiate(particleSpwn, pointFontPlayer);
     }
 
     public void CreamUi()
     {
         Instantiate(creamPrefabs, pointFontPlayer);
+        Instantiate(particleSpwn, pointFontPlayer);
     }
 
     public void UpdateScore(int value)
@@ -117,12 +131,17 @@ public class M2Manager : MonoBehaviour
     {
         if (isOver == 0)
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-            score = 0;
-            timer = 180f;
-            isOver = 1;
-            gameOver.SetActive(false);
+            if (aButton.action.WasPerformedThisFrame())
+            {
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                score = 0;
+                timer = 180f;
+                isOver = 1;
+                gameOver.SetActive(false);
+                Debug.Log("Game Restarted");
+            }
         }
+        
     }
     #endregion
 }
