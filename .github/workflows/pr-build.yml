@@ -1,0 +1,99 @@
+name: PR Build
+
+# Validates that the project still builds for Quest (Android / IL2CPP) on every PR.
+# Requires these repository secrets (Settings -> Secrets and variables -> Actions):
+#   UNITY_LICENSE  - contents of the .ulf licence file (Unity Personal), OR
+#   UNITY_SERIAL   - serial key (Unity Pro/Plus)
+#   UNITY_EMAIL    - Unity account e-mail
+#   UNITY_PASSWORD - Unity account password
+# See https://game.ci/docs/github/activation for how to obtain the .ulf.
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+# A new push to the same PR cancels the previous (long) build.
+concurrency:
+  group: pr-build-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build Android (Quest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check Unity credentials are configured
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        run: |
+          if [ -z "$UNITY_LICENSE" ] && [ -z "$UNITY_SERIAL" ]; then
+            echo "::error::Neither UNITY_LICENSE nor UNITY_SERIAL is set. Add the Unity licence secrets to this repository (see the header of this workflow file)."
+            exit 1
+          fi
+
+      # The Android + IL2CPP editor image is ~30 GB; the default runner does not
+      # have room for it. This frees ~25 GB of tooling we do not use.
+      - name: Free up disk space
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+                      /usr/local/share/boost "$AGENT_TOOLSDIRECTORY" \
+                      /usr/local/share/powershell /usr/share/swift || true
+          sudo docker image prune --all --force || true
+          df -h /
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Cache Library
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-Android-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-Android-
+            Library-
+
+      - name: Build
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          unityVersion: 6000.3.8f1
+          targetPlatform: Android
+          androidExportType: androidPackage
+          buildName: AEDES-VR
+          # Semantic versioning needs full git history + tags; not worth it for a PR check.
+          versioning: None
+
+      - name: Upload APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: AEDES-VR-apk-pr-${{ github.event.pull_request.number || github.run_number }}
+          path: build/Android
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unity-build-log
+          path: |
+            *.log
+            build/**/*.log
+          retention-days: 7
+          if-no-files-found: ignore
