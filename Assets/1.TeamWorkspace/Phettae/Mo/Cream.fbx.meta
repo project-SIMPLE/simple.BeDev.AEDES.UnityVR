@@ -1,14 +1,9 @@
 fileFormatVersion: 2
-guid: c93ea5c7b332b49499f7134766083dc5
+guid: 93e57c39b6cf0b74c9eeac88331282a8
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Texture2D
-      assembly: UnityEngine.CoreModule
-      name: Mosquito_Cream
-    second: {fileID: 2800000, guid: 25a91630bcb6f534baf772534f13f8fc, type: 3}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0

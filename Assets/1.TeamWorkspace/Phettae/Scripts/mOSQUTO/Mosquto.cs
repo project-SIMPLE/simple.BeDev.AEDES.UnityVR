@@ -78,6 +78,13 @@ public class Mosquito : MonoBehaviour
             Random.Range(-maxDirection.z, maxDirection.z)
         ).normalized;
     }
-   
-    
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Swatter"))
+        {
+            Destroy(gameObject);
+        }
+    }
+
 }
