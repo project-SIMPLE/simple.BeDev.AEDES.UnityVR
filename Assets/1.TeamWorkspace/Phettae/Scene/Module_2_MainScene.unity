@@ -3114,7 +3114,6 @@ GameObject:
   m_Component:
   - component: {fileID: 326674666}
   - component: {fileID: 326674663}
-  - component: {fileID: 326674665}
   - component: {fileID: 326674664}
   m_Layer: 7
   m_Name: CameraUI
@@ -3218,14 +3217,6 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
---- !u!81 &326674665
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 326674662}
-  m_Enabled: 1
 --- !u!4 &326674666
 Transform:
   m_ObjectHideFlags: 0
@@ -3772,6 +3763,11 @@ Transform:
 --- !u!1 &401769903 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2723373030106347489, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
+  m_PrefabInstance: {fileID: 2507683916883717659}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &401769911 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2379950430341512700, guid: dacd338a3ef0e194bb382d72ad058119, type: 3}
   m_PrefabInstance: {fileID: 2507683916883717659}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &404140305
@@ -16327,7 +16323,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SendRecieveData
   primaryRightHandButton: {fileID: 0}
-  player: {fileID: 0}
+  player: {fileID: 401769911}
   Ground: {fileID: 7290993179999183354, guid: 7b886bd7aa09cc246875597729385633, type: 3}
 --- !u!114 &1380034232
 MonoBehaviour:
@@ -16357,7 +16353,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SendReceiveMessageExample
   primaryRightHandButton: {fileID: 0}
-  player: {fileID: 0}
+  player: {fileID: 401769911}
   Ground: {fileID: 0}
 --- !u!1001 &1388699124
 PrefabInstance:
