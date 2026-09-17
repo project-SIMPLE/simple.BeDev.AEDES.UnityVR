@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using UnityEngine.InputSystem;
 using UnityEngine;
 using UnityEngine.XR;
-using UnityEngine.iOS;
-using UnityEngine.tvOS;
 public class InputVR : MonoBehaviour
 {
     public UnityEngine.XR.InputDevice _rightController;
@@ -28,17 +26,14 @@ public class InputVR : MonoBehaviour
         if (!_rightController.isValid)
         {
             InitializeInputDevice(InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.Right, ref _rightController);
-            print("A");
         }
         if (!_leftController.isValid)
         {
             InitializeInputDevice(InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.Left, ref _leftController);
-            print("S");
         }
         if (!_HMD.isValid)
         {
             InitializeInputDevice(InputDeviceCharacteristics.HeadMounted, ref _HMD);
-            print("D");
         }
 
     }
