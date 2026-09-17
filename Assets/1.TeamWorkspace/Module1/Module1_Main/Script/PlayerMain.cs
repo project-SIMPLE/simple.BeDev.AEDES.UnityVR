@@ -169,6 +169,11 @@ public class PlayerMain : MonoBehaviour
         {
 
         }
+#if UNITY_EDITOR
+        // No XR controllers (no headset, no simulator): drive with keyboard + mouse instead.
+        if (!_rightController.isValid && !_leftController.isValid)
+            DesktopDebugInput();
+#endif
         bool primaryHeld = R_primaryValue || L_primaryValue;
         PrimaryDown = primaryHeld && !primaryHeldLastFrame;
         primaryHeldLastFrame = primaryHeld;
@@ -245,4 +250,76 @@ public class PlayerMain : MonoBehaviour
             inputDevice = devices[0];
         }
     }
+
+#if UNITY_EDITOR
+    // Editor-only desktop controls so Module 1 can be played without a headset.
+    // Only runs when no XR controllers exist, so a real headset always wins.
+    //   WASD           fly forward/back/strafe   (left stick)
+    //   Q / E          fly down / up             (right stick Y)
+    //   Left/Right     turn                      (right stick X)
+    //   Up/Down arrow  look up / down            (head pitch)
+    //   Right mouse    hold and drag to look around
+    //   Space          primary button: drink / mate / lay eggs
+    //   T (hold)       right trigger: thermal vision
+    //   Tab (hold)     left grip: quest UI
+    private float desktopYaw, desktopPitch;
+    private bool desktopInit;
+
+    private void DesktopDebugInput()
+    {
+        var kb = UnityEngine.InputSystem.Keyboard.current;
+        if (kb == null) return;
+
+        if (!desktopInit)
+        {
+            desktopYaw = CamRot.transform.localEulerAngles.y;
+            desktopInit = true;
+            // The scene ships with an active XR Device Simulator whose bindings (Space, Tab, T,
+            // WASD, right mouse) collide with these keys, and it cannot drive PlayerMain anyway
+            // (it creates Input System devices, not UnityEngine.XR ones). Park it in desktop mode.
+            var sim = FindFirstObjectByType<UnityEngine.XR.Interaction.Toolkit.Inputs.Simulation.XRDeviceSimulator>();
+            if (sim != null)
+            {
+                sim.gameObject.SetActive(false);
+                Debug.Log("[PlayerMain] Desktop debug controls active - XR Device Simulator disabled for this session.");
+            }
+        }
+
+        L_moveInput = new Vector2(
+            (kb.dKey.isPressed ? 1f : 0f) - (kb.aKey.isPressed ? 1f : 0f),
+            (kb.wKey.isPressed ? 1f : 0f) - (kb.sKey.isPressed ? 1f : 0f));
+        // Turn is applied here together with mouse pitch (instead of via Move's Rotate)
+        // so yawing a pitched CamRot cannot introduce roll.
+        float turn = (kb.rightArrowKey.isPressed ? 1f : 0f) - (kb.leftArrowKey.isPressed ? 1f : 0f);
+        float lookUp = (kb.upArrowKey.isPressed ? 1f : 0f) - (kb.downArrowKey.isPressed ? 1f : 0f);
+        R_moveInput = new Vector2(0f, (kb.eKey.isPressed ? 1f : 0f) - (kb.qKey.isPressed ? 1f : 0f));
+        R_primaryValue = kb.spaceKey.isPressed;
+        R_triggerValue = kb.tKey.isPressed;
+        L_gripValue = kb.tabKey.isPressed;
+
+        var mouse = UnityEngine.InputSystem.Mouse.current;
+        bool look = mouse != null && mouse.rightButton.isPressed;
+        Cursor.lockState = look ? CursorLockMode.Locked : CursorLockMode.None;
+        Vector2 md = look ? mouse.delta.ReadValue() * 0.15f : Vector2.zero;
+
+        desktopYaw += turn * CamRotSpeed + md.x;
+        desktopPitch = Mathf.Clamp(desktopPitch - md.y - lookUp * CamRotSpeed, -80f, 80f);
+        CamRot.transform.localRotation = Quaternion.Euler(desktopPitch, desktopYaw, 0f);
+    }
+
+    // Live state readout for desktop mode. "Drinking" = parented to a human/flower by Drink.cs.
+    private void OnGUI()
+    {
+        if (!desktopInit) return;
+        var style = new GUIStyle(GUI.skin.box) { alignment = TextAnchor.UpperLeft, fontSize = 13 };
+        style.normal.textColor = Color.white;
+        string text =
+            "DESKTOP DEBUG\n" +
+            $"Blood {Current_Blood:0.0}/{Max_Blood}   Nectar {Current_Nec:0.0}/{Max_Nec}   Mated: {isMate}   Eggs: {EggLayed}\n" +
+            $"Space: {(R_primaryValue ? "HELD" : "-")}   Drinking: {(transform.parent != null ? "YES (locked on)" : "no")}   " +
+            $"Thermal(T): {(R_triggerValue ? "on" : "off")}   Can move: {canmove}\n" +
+            "WASD fly | Q/E down/up | arrows look | RMB drag look | Space drink/mate/lay | T thermal | Tab quests";
+        GUI.Box(new Rect(10, 10, 640, 84), text, style);
+    }
+#endif
 }
