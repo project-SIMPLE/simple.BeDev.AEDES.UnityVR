@@ -10,12 +10,12 @@ public class DangerSource : MonoBehaviour
 {
     [FormerlySerializedAs("AttactCD")]
     public float AttackCD;
-    private float attackcouttime;
+    private float attackCountTime;
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.GetComponent<PlayerMain>())
         {
-            attackcouttime = 0;
+            attackCountTime = 0;
             GameManager.instance.SetDanger(true);
         }
     }
@@ -23,8 +23,8 @@ public class DangerSource : MonoBehaviour
     {
         if (other.gameObject.GetComponent<PlayerMain>())
         {
-            attackcouttime += Time.deltaTime;
-            if (attackcouttime >= AttackCD)
+            attackCountTime += Time.deltaTime;
+            if (attackCountTime >= AttackCD)
             {
                 GameManager.instance.GameOver(GameManager.GameOverReason.Eaten);
             }
@@ -34,7 +34,7 @@ public class DangerSource : MonoBehaviour
     {
         if (other.gameObject.GetComponent<PlayerMain>())
         {
-            attackcouttime = 0;
+            attackCountTime = 0;
             GameManager.instance.SetDanger(false);
         }
     }
