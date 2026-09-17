@@ -6,7 +6,19 @@ name: PR Build
 #   UNITY_SERIAL   - serial key (Unity Pro/Plus)
 #   UNITY_EMAIL    - Unity account e-mail
 #   UNITY_PASSWORD - Unity account password
-# See https://game.ci/docs/github/activation for how to obtain the .ulf.
+#
+# Obtaining the .ulf for a Personal licence (there is no CI action for this any
+# more; game-ci/unity-request-activation-file was retired):
+#   1. Install Unity Hub on your own machine and log in with the Unity account
+#      that CI should use.
+#   2. Unity Hub -> Preferences -> Licenses -> Add -> "Get a free personal license".
+#      Click through the whole flow: a licence showing in the Hub does not
+#      guarantee the .ulf was written.
+#   3. Copy the full contents of the .ulf into the UNITY_LICENSE secret:
+#        macOS:   /Library/Application Support/Unity/Unity_lic.ulf
+#        Windows: C:\ProgramData\Unity\Unity_lic.ulf
+#        Linux:   ~/.local/share/unity3d/Unity/Unity_lic.ulf
+# Full details: https://game.ci/docs/github/activation
 
 on:
   pull_request:
