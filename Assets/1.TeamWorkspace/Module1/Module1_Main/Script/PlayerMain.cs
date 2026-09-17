@@ -2,7 +2,6 @@ using System.Collections.Generic;
 
 using UnityEngine;
 using UnityEngine.XR;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 public class PlayerMain : MonoBehaviour
 {
@@ -10,12 +9,11 @@ public class PlayerMain : MonoBehaviour
     public UnityEngine.XR.InputDevice _rightController;
     public UnityEngine.XR.InputDevice _leftController;
     public UnityEngine.XR.InputDevice _HMD;
-    public Slider BloodBar,NectarBar;
 
     public Rigidbody rb;
 
     public GameObject mainCamera, CamRot;
-    public GameObject termalcam,ui;
+    public GameObject termalcam;
 
     public float Speed, FlyUpSpeed,CamRotSpeed;
     public float Current_Blood, Max_Blood;
@@ -30,75 +28,99 @@ public class PlayerMain : MonoBehaviour
     public Vector2 L_moveInput, R_moveInput;
     public SendReceiveMessageExample sr;
 
+    /// <summary>What the player is currently touching, for the HUD's contextual prompt.</summary>
+    public enum Interaction { None, Flower, Human, Mate, FemaleMosquito, Container }
+    public Interaction CurrentInteraction { get; private set; }
+    public WaterContainer CurrentContainer { get; private set; }
+    /// <summary>A/X went down this frame (either hand).</summary>
+    public bool PrimaryDown { get; private set; }
+
+    private float interactionExpires;
+    private bool primaryHeldLastFrame;
+
     private void Awake()
     {
         canmove = true;
         instance = this;
         rb = GetComponent<Rigidbody>();
-        BloodBar.maxValue = Max_Blood;
-        BloodBar.value = Current_Blood;
-        NectarBar.maxValue = Max_Nec;
         Current_Nec = Max_Nec/2;
-        NectarBar.value = Current_Nec;
     }
 
     void Update()
     {
         
         checkinput();
-        if (!Death||GameManager.instance.time>0)
+        if (Time.time > interactionExpires)
+        {
+            CurrentInteraction = Interaction.None;
+            CurrentContainer = null;
+        }
+        // Frozen until the intro is dismissed and after the game ends.
+        bool playing = GameManager.instance != null && GameManager.instance.IsPlaying;
+        if (playing)
         {
             termalcam.SetActive(R_triggerValue);
             Move(L_moveInput);
-            if (L_gripValue)
-            {
-                GameManager.instance.questUI.SetActive(L_gripValue);
-            }
             NectarUPdate();
+        }
+        else
+        {
+            termalcam.SetActive(false);
+            rb.linearVelocity = Vector3.zero;
         }
     }
 
-    private void FixedUpdate()
+    /// <summary>Called from trigger callbacks every physics step; the context expires shortly after contact ends.</summary>
+    public void ReportInteraction(Interaction kind, WaterContainer container = null)
     {
-
-        //ui.transform.eulerAngles = new Vector3(0, mainCamera.transform.eulerAngles.y, 0);
+        CurrentInteraction = kind;
+        CurrentContainer = container;
+        interactionExpires = Time.time + 0.2f;
     }
+
     public void NectarUPdate()
     {
         if (Current_Nec > 0)
         {
             Current_Nec -= Time.deltaTime / Max_Nec;
-            NectarBar.value = Current_Nec;
         }
         else
         {
-            GameManager.instance.GameOver();
+            GameManager.instance.GameOver(GameManager.GameOverReason.Starved);
         }
     }
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.gameObject.GetComponent<WaterContainer>())
+        var container = other.gameObject.GetComponent<WaterContainer>();
+        if (container != null)
         {
-            if (Current_Blood >= Max_Blood&&isMate)
+            ReportInteraction(Interaction.Container, container);
+            // Eggs need standing water: containers only count once the rain has filled them.
+            if (container.isFill && Current_Blood >= Max_Blood && isMate)
             {
                 if (R_primaryValue)
                 {
                     Current_Blood = 0;
-                    BloodBar.value = Current_Blood;
                     EggLayed++;
-                    GameManager.instance.setscore(other.gameObject.GetComponent<WaterContainer>().Score);
+                    GameManager.instance.setscore(container.Score, Module1Text.EggsLaid);
                 }
             }
         }
-        if (other.gameObject.GetComponent<Wild_Mosquitos>())
+        var wild = other.gameObject.GetComponent<Wild_Mosquitos>();
+        if (wild != null)
         {
-            if (other.gameObject.GetComponent<Wild_Mosquitos>().Gender == Wild_Mosquitos.genderlist.male && !isMate)
+            if (wild.Gender == Wild_Mosquitos.genderlist.male)
             {
-                if (R_primaryValue)
+                ReportInteraction(Interaction.Mate);
+                if (!isMate && R_primaryValue)
                 {
                     isMate = true;
                 }
+            }
+            else
+            {
+                ReportInteraction(Interaction.FemaleMosquito);
             }
         }
     }
@@ -147,6 +169,10 @@ public class PlayerMain : MonoBehaviour
         {
 
         }
+        bool primaryHeld = R_primaryValue || L_primaryValue;
+        PrimaryDown = primaryHeld && !primaryHeldLastFrame;
+        primaryHeldLastFrame = primaryHeld;
+
         if (RestartAble)
         {
             if(R_primaryValue || L_primaryValue || R_secondary || L_secondary || R_gripValue || L_gripValue || R_triggerValue || L_triggerValue || IsMoveL || IsMoveR)
@@ -177,19 +203,17 @@ public class PlayerMain : MonoBehaviour
 
     public void Drink()
     {
-        if(!Death || GameManager.instance.time > 0)
+        if (GameManager.instance.IsPlaying)
         {
             Current_Blood += Time.deltaTime;
-            BloodBar.value = Current_Blood;
             canmove = !R_primaryValue;
         }
     }
     public void DrinkNectar()
     {
-        if (!Death || GameManager.instance.time > 0)
+        if (GameManager.instance.IsPlaying)
         {
             Current_Nec += Time.deltaTime;
-            NectarBar.value = Current_Nec;
             canmove = !R_primaryValue;
         }
     }

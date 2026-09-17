@@ -1,5 +1,10 @@
 using UnityEngine;
 
+/// <summary>
+/// Kill volume (predator, spray, ...). The player gets <see cref="AttactCD"/> seconds of warning -
+/// red vignette + "DANGER" prompt on the HUD - to get out before it kills them.
+/// Not placed in the current scene; attach it to a dragonfly / fish / spray to use it.
+/// </summary>
 public class DengerSource : MonoBehaviour
 {
     public float AttactCD;
@@ -9,7 +14,7 @@ public class DengerSource : MonoBehaviour
         if (other.gameObject.GetComponent<PlayerMain>())
         {
             attackcouttime = 0;
-            GameManager.instance.DangerUI.SetActive(true);
+            GameManager.instance.SetDanger(true);
         }
     }
     private void OnTriggerStay(Collider other)
@@ -19,8 +24,7 @@ public class DengerSource : MonoBehaviour
             attackcouttime += Time.deltaTime;
             if (attackcouttime >= AttactCD)
             {
-                print("PlayerDeath");
-                GameManager.instance.GameOver();
+                GameManager.instance.GameOver(GameManager.GameOverReason.Eaten);
             }
         }
     }
@@ -29,7 +33,7 @@ public class DengerSource : MonoBehaviour
         if (other.gameObject.GetComponent<PlayerMain>())
         {
             attackcouttime = 0;
-            GameManager.instance.DangerUI.SetActive(false);
+            GameManager.instance.SetDanger(false);
         }
     }
 }

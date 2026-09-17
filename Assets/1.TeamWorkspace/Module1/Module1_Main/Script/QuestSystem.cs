@@ -1,80 +1,88 @@
-using TMPro;
 using UnityEngine;
 
+/// <summary>
+/// The four life-cycle quests: DrinkNectar -> Mating -> DrinkBlood -> LayEgg. Each is worth
+/// <see cref="Reward"/> points once. Quests latch: a bar draining again later (blood resets to 0
+/// after laying eggs) does not undo a completed quest. The HUD reads <see cref="Quests"/> to draw
+/// the list and <see cref="CurrentObjective"/> to pick what to point the player at.
+/// </summary>
 public class QuestSystem : MonoBehaviour
 {
-    private string[] QuestList = new string[] { "DrinkNectar", "Mating", "DrinkBlood", "LayEgg" };
-    private bool[] target;
-    public TextMeshProUGUI[] Quest_Text;
+    public const int QuestCount = 4;
+    public const int Reward = 25;
+    public const int EggsToLay = 4;
+
+    public class Quest
+    {
+        public string title;
+        public string hint;
+        public bool done;
+        /// <summary>Optional "n/m" shown after the title.</summary>
+        public string progress;
+    }
+
+    public Quest[] Quests { get; private set; }
     public GameManager gm;
-    bool n,m,b,l;
+
+    public int CompletedCount
+    {
+        get
+        {
+            int n = 0;
+            foreach (var q in Quests) if (q.done) n++;
+            return n;
+        }
+    }
+
+    /// <summary>Index of the first unfinished quest in life-cycle order, or -1 when all are done.</summary>
+    public int CurrentObjective
+    {
+        get
+        {
+            for (int i = 0; i < Quests.Length; i++) if (!Quests[i].done) return i;
+            return -1;
+        }
+    }
+
+    private void Awake()
+    {
+        Quests = new[]
+        {
+            new Quest { title = Module1Text.QuestNectar, hint = Module1Text.QuestNectarHint },
+            new Quest { title = Module1Text.QuestMate,   hint = Module1Text.QuestMateHint },
+            new Quest { title = Module1Text.QuestBlood,  hint = Module1Text.QuestBloodHint },
+            new Quest { title = Module1Text.QuestEggs,   hint = Module1Text.QuestEggsHint, progress = "0/" + EggsToLay },
+        };
+    }
+
     private void Start()
     {
         gm = GameManager.instance;
-        target = new bool[QuestList.Length];
-        SetQuest();
     }
+
     private void Update()
     {
-        SetQuest();
+        if (gm == null || gm.player == null) return;
+        checkprogess();
     }
+
     public void checkprogess()
     {
-        target[0] = gm.player.Max_Nec <= gm.player.Current_Nec;
-        target[1] = gm.player.isMate;
-        target[2] = gm.player.Max_Blood <= gm.player.Current_Blood;
-        target[3] = gm.player.EggLayed == 4;
-        
+        var p = gm.player;
+        Quests[3].progress = Mathf.Min(p.EggLayed, EggsToLay) + "/" + EggsToLay;
+        // Small tolerance: nectar drains a little every frame, so an exact "== max" is only true
+        // for a frame or two after the bar fills.
+        Complete(0, p.Current_Nec >= p.Max_Nec - 0.05f);
+        Complete(1, p.isMate);
+        Complete(2, p.Current_Blood >= p.Max_Blood - 0.05f);
+        Complete(3, p.EggLayed >= EggsToLay);
     }
-    public void SetQuest()
+
+    void Complete(int i, bool condition)
     {
-        checkprogess();
-        for (int i = 0; i < QuestList.Length; i++)
-        {
-            if (!target[i])
-            {
-                Quest_Text[i].text = "<color=\"red\">" + QuestList[i] + "</color>";
-                if (i == 2 && b)
-                {
-                    b = false;
-                }
-                if (i == 0 && n)
-                {
-                    n = false;
-                }
-                if (i == 1 && m)
-                {
-                    m = false;
-                }
-                if (i == 3 && l)
-                {
-                    l = false;
-                }
-            }
-            if (target[i])
-            {
-                Quest_Text[i].text = "<color=\"green\">" + QuestList[i] + "</color>";
-                if(i == 2 && !b)
-                {
-                    GameManager.instance.setscore(25);
-                    b = true;
-                }
-                if (i == 0 && !n)
-                {
-                    GameManager.instance.setscore(25);
-                    n = true;
-                }
-                if (i == 1 && !m)
-                {
-                    GameManager.instance.setscore(25);
-                    m = true;
-                }
-                if (i == 3 && !l)
-                {
-                    GameManager.instance.setscore(25);
-                    l = true;
-                }
-            }
-        }
+        if (Quests[i].done || !condition) return;
+        Quests[i].done = true;
+        gm.setscore(Reward, Module1Text.QuestComplete(Quests[i].title));
+        gm.hud.OnQuestCompleted(i);
     }
 }
