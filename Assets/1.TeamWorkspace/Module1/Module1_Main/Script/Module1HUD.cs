@@ -211,6 +211,9 @@ public class Module1HUD : MonoBehaviour
         danger = on;
     }
 
+    /// <summary>True while a DangerSource has the player inside its volume.</summary>
+    public bool DangerActive => danger;
+
     public void ShowEnd(GameManager.GameOverReason reason, int score, int questsDone, int questsTotal, int eggs)
     {
         endTitle.text = Module1Text.EndTitle(reason);

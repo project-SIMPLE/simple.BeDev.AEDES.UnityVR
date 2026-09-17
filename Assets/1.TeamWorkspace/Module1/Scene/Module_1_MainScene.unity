@@ -5093,6 +5093,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProboscisBloodFill
   bloodColor: {r: 0.55, g: 0.02, b: 0.03, a: 1}
+  snoutTint: {r: 0.4, g: 0.03, b: 0.04, a: 1}
+  lengthCurve: 0.6
   glow: 0.25
   thickness: 1.15
   pulseAmount: 0.06
@@ -33859,8 +33861,53 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2432415178123616793, guid: 5df36848b11792943b7e30752e1b534c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1115417718040688327}
+    - targetCorrespondingSourceObject: {fileID: 2432415178123616793, guid: 5df36848b11792943b7e30752e1b534c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1115417718040688326}
   m_SourcePrefab: {fileID: 100100000, guid: 5df36848b11792943b7e30752e1b534c, type: 3}
+--- !u!1 &1115417718040688325 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2432415178123616793, guid: 5df36848b11792943b7e30752e1b534c, type: 3}
+  m_PrefabInstance: {fileID: 1115417718040688324}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1115417718040688326
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1115417718040688325}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 638f157a28b8d6641af0c86bca1467b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DangerSource
+  AttackCD: 3
+--- !u!135 &1115417718040688327
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1115417718040688325}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.8
+  m_Center: {x: 0, y: 0.03, z: 0}
 --- !u!4 &1315928357193425793
 Transform:
   m_ObjectHideFlags: 0
