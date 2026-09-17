@@ -63,10 +63,10 @@ public class QuestSystem : MonoBehaviour
     private void Update()
     {
         if (gm == null || gm.player == null) return;
-        checkprogess();
+        CheckProgress();
     }
 
-    public void checkprogess()
+    public void CheckProgress()
     {
         var p = gm.player;
         Quests[3].progress = Mathf.Min(p.EggLayed, EggsToLay) + "/" + EggsToLay;
@@ -82,7 +82,7 @@ public class QuestSystem : MonoBehaviour
     {
         if (Quests[i].done || !condition) return;
         Quests[i].done = true;
-        gm.setscore(Reward, Module1Text.QuestComplete(Quests[i].title));
+        gm.SetScore(Reward, Module1Text.QuestComplete(Quests[i].title));
         gm.hud.OnQuestCompleted(i);
     }
 }

@@ -1,13 +1,15 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /// <summary>
-/// Kill volume (predator, spray, ...). The player gets <see cref="AttactCD"/> seconds of warning -
+/// Kill volume (predator, spray, ...). The player gets <see cref="AttackCD"/> seconds of warning -
 /// red vignette + "DANGER" prompt on the HUD - to get out before it kills them.
 /// Not placed in the current scene; attach it to a dragonfly / fish / spray to use it.
 /// </summary>
-public class DengerSource : MonoBehaviour
+public class DangerSource : MonoBehaviour
 {
-    public float AttactCD;
+    [FormerlySerializedAs("AttactCD")]
+    public float AttackCD;
     private float attackcouttime;
     private void OnTriggerEnter(Collider other)
     {
@@ -22,7 +24,7 @@ public class DengerSource : MonoBehaviour
         if (other.gameObject.GetComponent<PlayerMain>())
         {
             attackcouttime += Time.deltaTime;
-            if (attackcouttime >= AttactCD)
+            if (attackcouttime >= AttackCD)
             {
                 GameManager.instance.GameOver(GameManager.GameOverReason.Eaten);
             }

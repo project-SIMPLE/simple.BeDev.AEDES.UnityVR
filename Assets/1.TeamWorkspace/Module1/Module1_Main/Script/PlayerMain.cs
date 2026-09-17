@@ -61,7 +61,7 @@ public class PlayerMain : MonoBehaviour
         {
             termalcam.SetActive(R_triggerValue);
             Move(L_moveInput);
-            NectarUPdate();
+            NectarUpdate();
         }
         else
         {
@@ -78,7 +78,7 @@ public class PlayerMain : MonoBehaviour
         interactionExpires = Time.time + 0.2f;
     }
 
-    public void NectarUPdate()
+    public void NectarUpdate()
     {
         if (Current_Nec > 0)
         {
@@ -103,7 +103,7 @@ public class PlayerMain : MonoBehaviour
                 {
                     Current_Blood = 0;
                     EggLayed++;
-                    GameManager.instance.setscore(container.Score, Module1Text.EggsLaid);
+                    GameManager.instance.SetScore(container.Score, Module1Text.EggsLaid);
                 }
             }
         }

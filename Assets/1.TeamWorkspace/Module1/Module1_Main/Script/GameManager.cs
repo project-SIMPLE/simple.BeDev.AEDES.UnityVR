@@ -98,13 +98,13 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void setscore(int sc)
+    public void SetScore(int sc)
     {
-        setscore(sc, null);
+        SetScore(sc, null);
     }
 
     /// <summary>Adds points; with a label the HUD also shows a "+N label" toast.</summary>
-    public void setscore(int sc, string label)
+    public void SetScore(int sc, string label)
     {
         score += sc;
         if (SaveManager.instance != null && SaveManager.instance.a != null)
