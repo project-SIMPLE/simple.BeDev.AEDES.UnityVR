@@ -149,6 +149,11 @@ namespace Aedes.Module3.Sim
         /// Days the calendar jumps at each handover ("Three days later.").
         public int DaysPerHandover = 3;
 
+        internal string NetOverResting_Display() =>
+            NetOverRestingPerson.ToString("0.####", System.Globalization.CultureInfo.InvariantCulture);
+        internal string NetOverActive_Display() =>
+            NetOverActivePerson.ToString("0.####", System.Globalization.CultureInfo.InvariantCulture);
+
         public static Module3Config Default => new Module3Config();
 
         public Module3Config Clone()

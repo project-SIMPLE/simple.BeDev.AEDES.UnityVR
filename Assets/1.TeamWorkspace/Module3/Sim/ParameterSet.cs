@@ -276,11 +276,16 @@ namespace Aedes.Module3.Sim
                                + "between two turns and the squad never gets the chance to refer.");
             }
 
-            if (c.NetOverRestingPerson >= c.NetOverActivePerson)
+            if (c.NetOverRestingPerson >= c.NetOverActivePerson * 0.5)
             {
-                set.Errors.Add("net_over_resting_person must be well below net_over_active_person: "
-                               + "a net protects a patient who is lying down during the day, which is the "
-                               + "distinction the module is built to teach.");
+                // Not merely "lower than" - a net that helps a well person nearly as much as a
+                // patient makes netting the sick and netting the well the same action, and the
+                // module has no lesson left. This threshold matches the one the calibration suite
+                // asserts, so a file cannot pass here and fail there.
+                set.Errors.Add($"net_over_resting_person ({c.NetOverResting_Display()}) must be at most half of "
+                               + $"net_over_active_person ({c.NetOverActive_Display()}): a net protects a patient "
+                               + "who is lying down during the day, and that difference is the distinction the "
+                               + "module is built to teach.");
             }
         }
 
