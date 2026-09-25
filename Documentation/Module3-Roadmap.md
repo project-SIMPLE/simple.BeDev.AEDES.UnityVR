@@ -18,8 +18,9 @@ Target branch: `module-3` off `main`.
 | 1 — Epidemic model | **Done.** `Module3/Sim/`, headless and deterministic. |
 | 1.5 — Calibration harness | **Done.** `Module3/Tests/`, 200 seeds. All five of section 5's guarantees hold. |
 | 7a — GAMA parameter delivery | **Done, brought forward.** Parameters now arrive as a GAMA-generated CSV, including mid-session. See the section below. |
-| 2 — Session, turns, handover | Next. |
-| 3–6, 7b, 8 | Not started. |
+| 2 — Session, turns, handover | **Done.** `Sim/Session.cs` + `HandoverBrief`, driven by `M3Session`. `M3DebugDriver` plays a whole session from the keyboard with no headset and no art. |
+| 3 — Household visit in VR | Next. Needs the placeholder props from the asset brief. |
+| 4–6, 7b, 8 | Not started. |
 
 ### Calibration, 200 seeds
 
@@ -254,6 +255,17 @@ per strategy for the clinical review.
 
 **Done when:** a full 5-round session can be played end-to-end with keyboard debug actions in a
 grey scene, the outbreak evolves between turns, and the handover screen states the time jump.
+
+**Done.** Two bugs the tests caught, both worth remembering the shape of:
+
+- `UnreferredWarningGraceDays` was 2 against a 3-day handover jump, so a warning sign could appear
+  *and* send itself to hospital between two turns. The squad never saw it and could not have acted
+  — section 4's referral rule was unreachable rather than merely hard. Any parameter where a
+  consequence is shorter than the handover jump has this failure mode; `ParameterCsv` now refuses
+  such a file.
+- The febrile and defervescing windows overlapped on the last day of fever, so on that day an
+  uncovered patient was reported as uncovered and never as "looking better" — masking precisely
+  the moment section 8 wants the Coach to warn about.
 
 ---
 
