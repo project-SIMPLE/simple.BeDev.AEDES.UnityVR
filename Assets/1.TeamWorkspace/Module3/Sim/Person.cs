@@ -102,7 +102,7 @@ namespace Aedes.Module3.Sim
         /// </summary>
         public bool IsDefervescing(int day)
         {
-            return HasBeenInfected && !IsAsymptomatic && day >= FeverEndDay && day <= FeverEndDay + 2;
+            return HasBeenInfected && !IsAsymptomatic && day > FeverEndDay && day <= FeverEndDay + 3;
         }
     }
 }

@@ -57,9 +57,16 @@ namespace Aedes.Module3.Sim
         public int WarningSignOnsetOffsetMin = -1;
         public int WarningSignOnsetOffsetMax = 1;
 
+        /// <summary>
         /// How long an unreferred warning sign goes before the household takes itself to hospital.
-        /// Section 10: this is a consequence shown to the player, never a deduction.
-        public int UnreferredWarningGraceDays = 2;
+        /// Section 10: a consequence shown to the player, never a deduction.
+        ///
+        /// MUST be longer than DaysPerHandover. At two days against a three-day handover jump, a
+        /// warning sign could appear and resolve itself entirely between two turns - the squad
+        /// never saw it and could not have acted, which quietly removes the module's second
+        /// takeaway. ParameterCsv refuses a file that reintroduces that.
+        /// </summary>
+        public int UnreferredWarningGraceDays = 4;
 
         // ---- Extrinsic incubation (clinical) ---------------------------------------------------
         /// Extrinsic incubation: "eight to twelve days before a mosquito that has fed on a case

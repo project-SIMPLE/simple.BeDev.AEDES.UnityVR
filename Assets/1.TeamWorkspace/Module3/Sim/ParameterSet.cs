@@ -266,6 +266,16 @@ namespace Aedes.Module3.Sim
                                + "the shortage is what makes the player choose.");
             }
 
+            if (c.UnreferredWarningGraceDays <= c.DaysPerHandover)
+            {
+                // Section 4 calls the referral rule the heart of the module. If a warning sign can
+                // appear and resolve itself inside one handover jump, the squad never sees it and
+                // cannot act on it - the lesson becomes unreachable rather than merely hard.
+                set.Errors.Add($"unreferred_warning_grace_days ({c.UnreferredWarningGraceDays}) must be greater "
+                               + $"than days_per_handover ({c.DaysPerHandover}), or a warning sign can come and go "
+                               + "between two turns and the squad never gets the chance to refer.");
+            }
+
             if (c.NetOverRestingPerson >= c.NetOverActivePerson)
             {
                 set.Errors.Add("net_over_resting_person must be well below net_over_active_person: "
