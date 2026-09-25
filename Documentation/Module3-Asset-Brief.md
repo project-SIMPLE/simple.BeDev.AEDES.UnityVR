@@ -36,7 +36,9 @@ person), so there is nothing for a direction to feed. `Socket_Mount` is sufficie
 The health centre was built despite being marked "do not start yet" — kept deliberately crude at
 84 triangles, which is the right call while §13 item 4 is unresolved.
 
-**Still outstanding:** the villager animation clips in §D. Those are the remaining art dependency.
+**Still outstanding:** the villager animation clips in §D — now specified in full in
+`Module3-Animation-Brief.md`, which supersedes §D of this document. That is the remaining art
+dependency.
 
 ---
 
@@ -265,12 +267,20 @@ A small single-storey Lao rural health centre.
 The module needs villagers in three visible states: **well**, **unwell without warning signs**, and
 **unwell with a warning sign**, across varied ages including children and older people.
 
+> **Superseded by `Module3-Animation-Brief.md`.** That document specifies the clips, the rig, the
+> animator contract and the framing rule in full, and corrects two things stated below: the rig is
+> a Unity **Humanoid** (so clips can be retargeted rather than hand-authored), and there is no
+> Supercyan character pack in the project — `SK_Character` is the only human mesh.
+
 **This is explicitly not three models per character.** Do not build separate "sick" meshes. The
 states are communicated by:
 
 1. **Pose and animation** — standing and busy / sitting slumped / lying on a mat under a net.
 2. **A skin material swap** — the toon gradient shading makes pallor a one-texture change.
 3. **Props** — a cloth at the mouth, a bucket beside the bed, a damp towel.
+
+All three are already wired: `VillagerView` drives the animator parameters, swaps the skin material
+and shows or hides the props from what the simulation says is visible in the room.
 
 So what is wanted here is: **animation clips**, not meshes. Against the existing `PF_CharacterV1` /
 `PF_CharacterV2` rigs:

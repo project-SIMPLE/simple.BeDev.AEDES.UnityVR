@@ -1,0 +1,208 @@
+# Module 3 — Villager Animation Brief
+
+**For:** whoever is producing the animation — a generative model, an animator, or someone working
+in Blender. You do not need to know Unity or the rest of the project. Everything you need is here.
+
+**This follows on from** `Module3-Asset-Brief.md`, whose nine placeholder props are delivered and
+merged. This is the remaining art dependency: the villagers themselves.
+
+---
+
+## 1. What this is for
+
+AEDES Module 3 is a VR module for Lao secondary schools. The player is a health volunteer walking
+into people's homes during a dengue outbreak. They talk to the household, look around the room, and
+protect whoever is unwell from being bitten.
+
+So the player spends the module **standing in a room, two metres from a person, looking at them and
+deciding how they are doing.** That is the whole reason this animation matters. There is no combat,
+no traversal, no spectacle. There is a person on a bed and a fourteen-year-old trying to work out
+whether they are all right.
+
+---
+
+## 2. The rule that outranks everything else in this brief
+
+A sick villager must **never** be made to look frightening, contagious, or repellent.
+
+The module exists to teach students to *go to* the people who are unwell and look after them. Its
+design document is explicit: no mechanic may isolate, mark or penalise a sick character, and the
+player is never rewarded for avoiding them — they are rewarded for going to them. A version of this
+module that left students wary of sick neighbours would have done real harm.
+
+In animation terms:
+
+| Yes | No |
+|---|---|
+| Tired, heavy, uncomfortable, slow | Twitching, convulsing, rasping, clawing |
+| Wants to be still | Lurching, staggering, reaching toward the player |
+| A person having a bad few days | A horror-game infected |
+| Withdrawn, quiet | Aggressive, or pitiable to the point of being upsetting |
+
+Aim for **"my mum with a bad fever"**, not "a patient". If a clip would look at home in a zombie
+game, it is wrong, however well made.
+
+---
+
+## 3. The rig — read this before you start
+
+**File:** `Assets/1.TeamWorkspace/Team Assets/Models/SK_Character/SK_Character.fbx`
+
+**It is a Unity Humanoid rig** (`animationType: 3`, avatar configured). That is the single most
+useful fact in this brief, and it means:
+
+- **You can retarget.** Any humanoid animation — Mixamo, an existing library, a generative
+  animation tool that outputs humanoid FBX — can be retargeted onto this character by Unity. You do
+  not have to hand-key from scratch.
+- **You do not have to match the bone names.** Unity maps them through the avatar. (For reference
+  the skeleton is Blender-authored with `.L`/`.R` suffixes, IK bones, and at least one misspelling —
+  `pelis` for the pelvis. Do not "fix" it; the project has several load-bearing typos and renaming
+  breaks references.)
+- **Deliver clips as Humanoid**, not Generic. A Generic clip will not retarget and will be sent back.
+
+**What already exists:** exactly one human clip, `Armature_walk.anim`, plus a controller
+`NpcAnimationController.controller` with an `isWalk` bool. **Do not modify either** — Module 1's
+street NPCs use them. Module 3 gets its own controller (§6).
+
+There is **one** human mesh in the project. There is no character pack to draw on.
+
+---
+
+## 4. The clips
+
+Four clips. All are **idle-class**: the character stays where it is.
+
+### C1 — `A_Villager_Idle_Well`
+A person who is fine, at home, mildly occupied. Standing or sitting, weight shifting occasionally,
+a look around the room, maybe folding something. Should survive being looped for a minute without
+becoming obviously cyclic.
+
+- **Loops:** yes, seamlessly.
+- **Length:** 6–12 s.
+- **Note:** this is the *baseline*. Most people in the neighbourhood are well, including people who
+  are infected and will never feel a thing — the player is not supposed to be able to tell. Do not
+  add "subtly off" cues. Well is well.
+
+### C2 — `A_Villager_Sit_Unwell`
+Sitting on the edge of a bed or a mat, fever, three days in. Shoulders down, head heavy, slow
+breathing, occasional small shift of weight because nothing is comfortable. Eyes mostly down.
+
+- **Loops:** yes.
+- **Length:** 8–14 s. Slow.
+- **Note:** the tell is *weight* and *stillness*, not tremor. They are tired, not fitting.
+
+### C3 — `A_Villager_Lie_Unwell`
+Lying on their back on a bed or a floor mat. Almost still. Breathing visible in the chest. Perhaps
+one slow turn of the head across the loop.
+
+- **Loops:** yes.
+- **Length:** 10–20 s. Very slow.
+- **Note:** this one plays **under a mosquito net**, which is the module's single most important
+  action. Keep the silhouette compact and within roughly a 0.9 m wide footprint so it reads through
+  the netting and does not clip it. The net prefab is
+  `Team Assets/Prefabs/Props/PF_MosquitoNet_Deployed.prefab` — load it with the bed
+  (`Team Assets/Prefabs/PF_Bed.prefab`) and check.
+
+### C4 — `A_Villager_Talk`
+A light speaking gesture — a hand, a small nod, head turning slightly toward the listener. This is
+an **additive / upper-body overlay**: it plays *on top of* C1, C2 or C3, so the character can talk
+while standing, while sitting hunched, or while lying down.
+
+- **Loops:** yes.
+- **Length:** 3–6 s.
+- **Deliver two variants if cheap:** `A_Villager_Talk` (upright) and `A_Villager_Talk_Lying`
+  (reduced, mostly head). If you only do one, do the upright one.
+- **Note:** no mouth shapes needed — there is no facial rig and no lip sync.
+
+---
+
+## 5. Technical contract
+
+- **Format:** FBX, one clip per file, or one FBX containing all clips as takes — either is fine.
+- **Rig type:** **Humanoid.** Set Animation Type to Humanoid on import; deliver against
+  `SK_Character` or any standard humanoid skeleton that retargets to it.
+- **Root motion:** **none.** These are in-place idles. Bake root motion out; the character must not
+  drift. A clip that translates will walk villagers through walls.
+- **Frame rate:** 30 fps. Do not deliver 24 or 60.
+- **Looping:** C1–C4 all loop. First and last pose must match; check Unity's loop-match indicator
+  reads green, or state on delivery that it does not and why.
+- **Naming:** `A_` prefix, exactly as in §4. The project's convention is `SM_` static mesh,
+  `SK_` skinned, `PF_` prefab, `M_` material, `T_` texture, `A_` animation.
+- **Location:** `Assets/1.TeamWorkspace/Team Assets/Animations/A_Villager/`
+- **Commit the `.meta` file** next to every asset. A missing `.meta` breaks every reference to that
+  asset for everyone else on the team.
+
+---
+
+## 6. The animator controller
+
+Create **a new controller** — do not extend `NpcAnimationController`, which Module 1 uses.
+
+**File:** `Assets/1.TeamWorkspace/Team Assets/Animations/A_Villager/AC_Villager_M3.controller`
+
+The gameplay code already drives exactly three parameters. These names are fixed — they are hashed
+in `VillagerView.cs` and the code is already written and tested against them:
+
+| Parameter | Type | Meaning |
+|---|---|---|
+| `Unwell` | bool | The person is visibly ill — fever, or a warning sign |
+| `Resting` | bool | The person is lying down or sat down because of it |
+| `Talking` | bool | The household is speaking to the player right now |
+
+Required behaviour:
+
+| `Unwell` | `Resting` | Plays |
+|---|---|---|
+| false | false | `A_Villager_Idle_Well` |
+| true | false | `A_Villager_Sit_Unwell` |
+| true | true | `A_Villager_Lie_Unwell` |
+| false | true | `A_Villager_Sit_Unwell` — someone whose fever has broken but who is still resting |
+
+`Talking` layers on top of whichever of those is playing, as an additive or upper-body-masked layer.
+
+Transitions should be **slow** — 0.3–0.5 s. A villager snapping between poses at a handover would
+undercut the whole thing. Nothing here needs a blend tree.
+
+---
+
+## 7. Age variety — a question, not a task
+
+The simulation gives every villager an age band: **Child, Adult or Elder**, and the design document
+asks for "ages varied, including children and older people". There is only one human mesh.
+
+**Do not model new characters for this yet.** Instead, tell us which of these you think is right:
+
+1. Scale and proportion variation on the one mesh (cheap, reads acceptably at 2 m, slightly wrong).
+2. Two more meshes — a child and an elder — sharing the same Humanoid skeleton so all four clips
+   retarget to all three with no extra animation work.
+3. Age carried entirely by clothing and material, with body shape unchanged.
+
+Option 2 is probably right, but it is a modelling job with a cost, and it should be a decision
+rather than something that happens by default. Say what you would do and roughly what it costs.
+
+---
+
+## 8. How to check your own work
+
+Before delivering, in Unity:
+
+1. Drop `PF_CharacterV1` in a scene, assign `AC_Villager_M3`.
+2. Tick `Unwell` and `Resting` on and off in the Animator window and watch the transitions.
+3. Add `PF_Bed` and `PF_MosquitoNet_Deployed` around the lying pose. Confirm no clipping through the
+   net and that the person is readable through it.
+4. Watch `A_Villager_Idle_Well` loop for sixty seconds. If you can see the loop point, it needs work.
+5. Stand a camera at eye height, two metres away, and look. That is the actual viewing condition.
+
+**On delivery, state:** clip lengths, whether each loop matches cleanly, what you retargeted from if
+anything, and anything you had to guess at. Guesses are expected — silent guesses are not.
+
+---
+
+## 9. What not to do
+
+- Do not modify `NpcAnimationController` or `Armature_walk.anim` — Module 1 depends on both.
+- Do not deliver Generic clips. Humanoid only.
+- Do not bake in root motion.
+- Do not add facial animation or lip sync; there is no facial rig.
+- Do not rename existing bones, including the misspelled ones.
+- Do not make illness look frightening. See §2 — it outranks everything else here.
