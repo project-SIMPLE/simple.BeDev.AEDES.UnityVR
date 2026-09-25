@@ -223,15 +223,47 @@ public class LocalizationManager : MonoBehaviour
     public bool HasKey(string key)
     {
         return localizedData != null
-            && localizedData.ContainsKey(currentLanguage)
-            && localizedData[currentLanguage].ContainsKey(key);
+            && localizedData.TryGetValue(currentLanguage, out var table)
+            && table.TryGetValue(key, out string value)
+            && value.Length > 0;
     }
+
+    /// <summary>Keys present in English but not yet translated into the current language.</summary>
+    public List<string> UntranslatedKeys()
+    {
+        var missing = new List<string>();
+        if (localizedData == null || !localizedData.TryGetValue(FallbackLanguage, out var english)) return missing;
+
+        localizedData.TryGetValue(currentLanguage, out var table);
+        foreach (var pair in english)
+        {
+            if (table == null || !table.TryGetValue(pair.Key, out string v) || v.Length == 0) missing.Add(pair.Key);
+        }
+        return missing;
+    }
+
+    /// <summary>
+    /// The language used when the current one has no value for a key. Translation lands
+    /// incrementally - Module 3's dialogue is written in English first and the Lao wording for
+    /// the warning signs is being agreed with the NUOL team - so an untranslated row should show
+    /// the English sentence rather than a raw key on a headset in a classroom.
+    /// </summary>
+    private const string FallbackLanguage = "English";
 
     public string GetLocalizedValue(string key)
     {
         if (HasKey(key))
         {
             return localizedData[currentLanguage][key];
+        }
+
+        if (currentLanguage != FallbackLanguage
+            && localizedData != null
+            && localizedData.TryGetValue(FallbackLanguage, out var fallback)
+            && fallback.TryGetValue(key, out string english)
+            && english.Length > 0)
+        {
+            return english;
         }
 
         Debug.LogWarning($"Localization key '{key}' not found for language '{currentLanguage}'.");

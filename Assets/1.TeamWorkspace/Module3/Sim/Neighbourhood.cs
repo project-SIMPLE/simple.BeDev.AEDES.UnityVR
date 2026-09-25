@@ -336,6 +336,14 @@ namespace Aedes.Module3.Sim
 
         private void Bite()
         {
+            // Note who is under a net on a day they could have infected a mosquito, before any
+            // biting happens. This is what "netted before a mosquito could feed on them" means.
+            for (int i = 0; i < People.Count; i++)
+            {
+                var person = People[i];
+                if (person.HasNet && person.IsInfectiousToMosquitoes(Day)) person.WasCoveredWhileInfectious = true;
+            }
+
             for (int i = 0; i < Mosquitoes.Count; i++)
             {
                 var m = Mosquitoes[i];
@@ -361,6 +369,7 @@ namespace Aedes.Module3.Sim
                     && Rng.Chance(acquire, Seed, Day, RngStream.HumanToMosquito, m.Id))
                 {
                     m.State = MosquitoState.Exposed;
+                    target.EverFedOnWhileInfectious = true;
                     m.AcquiredFromPersonId = target.Id;
                     m.AcquiredFromHouseholdId = target.HouseholdId;
                     m.AcquiredOnDay = Day;

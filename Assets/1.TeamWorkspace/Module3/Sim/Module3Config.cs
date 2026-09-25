@@ -154,6 +154,23 @@ namespace Aedes.Module3.Sim
         internal string NetOverActive_Display() =>
             NetOverActivePerson.ToString("0.####", System.Globalization.CultureInfo.InvariantCulture);
 
+        // ---- Scoring (section 10) -------------------------------------------------------------
+        // "Consistent with Modules 1 and 2: failure, then consequence, then success. The player is
+        // not scored on speed." Nothing a player gets wrong subtracts - there are no negative
+        // weights here and there should never be one.
+
+        /// <summary>
+        /// Section 10: a broken chain is "scored higher than every other action in the module
+        /// combined, because it is the only one that stops the virus leaving the house."
+        /// A calibration test checks that this actually holds in played sessions, not just on paper.
+        /// </summary>
+        public int PointsChainBroken = 1000;
+
+        /// <summary>"The strongest positive in the module" among the per-person actions.</summary>
+        public int PointsReferredCorrectly = 60;
+
+        public int PointsGoodHomeCare = 10;
+
         public static Module3Config Default => new Module3Config();
 
         public Module3Config Clone()

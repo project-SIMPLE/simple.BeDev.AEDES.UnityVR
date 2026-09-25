@@ -45,6 +45,9 @@ turn_seconds,180,seconds,session,next_day,"Section 8: two to four minutes, fixed
 turns_per_round,3,count,session,next_session,One per squad member.
 rounds,6,count,session,next_session,Five or six makes a session.
 days_per_handover,3,days,session,next_day,How far the calendar jumps when the headset changes hands.
+points_chain_broken,1000,points,session,next_day,Section 10: a broken chain outscores every other action in the module combined. A calibration test checks this holds in played sessions.
+points_referred_correctly,60,points,session,next_day,Acting on bleeding or persistent vomiting - the strongest of the per-person actions.
+points_good_home_care,10,points,session,next_day,"Rest, fluids and a return visit."
 households_per_lane,5,count,scenario,next_session,Section 11: eight to ten plots along two or three lanes.
 lanes,2,count,scenario,next_session,Number of lanes.
 module2_container_clearance,0.35,fraction 0-1,scenario,next_session,What the squad cleared in Module 2. Open question 3b - this is how that state carries over.

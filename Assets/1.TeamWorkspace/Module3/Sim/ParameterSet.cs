@@ -266,6 +266,20 @@ namespace Aedes.Module3.Sim
                                + "the shortage is what makes the player choose.");
             }
 
+            if (c.PointsChainBroken < 0 || c.PointsReferredCorrectly < 0 || c.PointsGoodHomeCare < 0)
+            {
+                // Section 10 scores failure as a consequence shown, never as marks taken away.
+                set.Errors.Add("scoring weights cannot be negative: the module shows consequences rather than "
+                               + "deducting points, and a negative weight would turn a teaching moment into a penalty.");
+            }
+
+            if (c.PointsChainBroken <= c.PointsReferredCorrectly * 4)
+            {
+                set.Errors.Add($"points_chain_broken ({c.PointsChainBroken}) has to dominate "
+                               + $"points_referred_correctly ({c.PointsReferredCorrectly}): section 10 scores a broken "
+                               + "chain higher than every other action in the module combined.");
+            }
+
             if (c.UnreferredWarningGraceDays <= c.DaysPerHandover)
             {
                 // Section 4 calls the referral rule the heart of the module. If a warning sign can
@@ -358,6 +372,11 @@ namespace Aedes.Module3.Sim
                 case "turns_per_round": return Int(raw, ref c.TurnsPerRound, out error);
                 case "rounds": return Int(raw, ref c.Rounds, out error);
                 case "days_per_handover": return Int(raw, ref c.DaysPerHandover, out error);
+
+                // scoring
+                case "points_chain_broken": return Int(raw, ref c.PointsChainBroken, out error);
+                case "points_referred_correctly": return Int(raw, ref c.PointsReferredCorrectly, out error);
+                case "points_good_home_care": return Int(raw, ref c.PointsGoodHomeCare, out error);
             }
 
             // scenario (struct, so it has to be read back out)
@@ -426,6 +445,9 @@ namespace Aedes.Module3.Sim
                 case "turns_per_round": return Str(c.TurnsPerRound);
                 case "rounds": return Str(c.Rounds);
                 case "days_per_handover": return Str(c.DaysPerHandover);
+                case "points_chain_broken": return Str(c.PointsChainBroken);
+                case "points_referred_correctly": return Str(c.PointsReferredCorrectly);
+                case "points_good_home_care": return Str(c.PointsGoodHomeCare);
                 case "households_per_lane": return Str(s.HouseholdsPerLane);
                 case "lanes": return Str(s.Lanes);
                 case "module2_container_clearance": return Str(s.Module2.ContainerClearance);
@@ -536,6 +558,10 @@ namespace Aedes.Module3.Sim
             D("turns_per_round", "count", sess, ApplyScope.NextSession, "One per squad member.");
             D("rounds", "count", sess, ApplyScope.NextSession, "Five or six makes a session.");
             D("days_per_handover", "days", sess, ApplyScope.NextDay, "How far the calendar jumps when the headset changes hands.");
+
+            D("points_chain_broken", "points", sess, ApplyScope.NextDay, "Section 10: a broken chain outscores every other action in the module combined. A calibration test checks this holds in played sessions.");
+            D("points_referred_correctly", "points", sess, ApplyScope.NextDay, "Acting on bleeding or persistent vomiting - the strongest of the per-person actions.");
+            D("points_good_home_care", "points", sess, ApplyScope.NextDay, "Rest, fluids and a return visit.");
 
             D("households_per_lane", "count", scen, ApplyScope.NextSession, "Section 11: eight to ten plots along two or three lanes.");
             D("lanes", "count", scen, ApplyScope.NextSession, "Number of lanes.");

@@ -57,6 +57,19 @@ namespace Aedes.Module3.Sim
         public bool HasFluids;
 
         /// <summary>
+        /// A mosquito took the virus from this person at some point. The chain left the house.
+        /// </summary>
+        public bool EverFedOnWhileInfectious;
+
+        /// <summary>
+        /// There was a net over this person on at least one day they could have infected a
+        /// mosquito. Recorded as it happens, because scoring cannot read it off the end state:
+        /// a squad that plays well takes the net back once a patient is past it (see ReclaimNet),
+        /// so by the end of the session the people whose chains they broke have no net at all.
+        /// </summary>
+        public bool WasCoveredWhileInfectious;
+
+        /// <summary>
         /// Visibly unwell on a given day - what a Pilot walking in would see.
         ///
         /// Deliberately a pure function of the scheduled days and NOT of the current State: the
