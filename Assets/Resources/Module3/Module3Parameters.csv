@@ -18,7 +18,7 @@ asymptomatic_relative_infectiousness,0.35,fraction 0-1,clinical,future_infection
 warning_sign_share,0.08,fraction 0-1,clinical,future_infections,Background rate of bleeding or persistent vomiting among symptomatic cases.
 warning_sign_onset_offset_min,-1,days,clinical,future_infections,Earliest warning-sign onset relative to the end of fever. Section 8: danger arrives as the fever comes down.
 warning_sign_onset_offset_max,1,days,clinical,future_infections,Latest warning-sign onset relative to the end of fever.
-unreferred_warning_grace_days,2,days,clinical,next_day,"How long before an unreferred household takes itself to hospital. A consequence shown to the player, never a penalty."
+unreferred_warning_grace_days,4,days,clinical,next_day,"How long before an unreferred household takes itself to hospital. A consequence shown to the player, never a penalty."
 extrinsic_incubation_min_days,8,days,entomology,future_infections,Shortest time before a mosquito that fed on a case can transmit. Section 5: eight to twelve days.
 extrinsic_incubation_max_days,12,days,entomology,future_infections,Longest extrinsic incubation period.
 mosquito_lifespan_min_days,10,days,population-rates,next_day,Shortest adult female lifespan.
