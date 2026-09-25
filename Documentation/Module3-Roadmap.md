@@ -10,6 +10,47 @@ Target branch: `module-3` off `main`.
 
 ---
 
+## Status
+
+| Phase | State |
+|---|---|
+| 0 — Groundwork | **Done.** Worktree, folder tree, asmdefs. Localization ported from `origin/Boy` with the CSV parser rewritten (RFC-4180, so sentences with commas work) and the Lao font switched to a dynamic atlas — it was static with only 64 glyphs baked. |
+| 1 — Epidemic model | **Done.** `Module3/Sim/`, headless and deterministic. |
+| 1.5 — Calibration harness | **Done.** `Module3/Tests/`, 200 seeds. All five of section 5's guarantees hold. |
+| 7a — GAMA parameter delivery | **Done, brought forward.** Parameters now arrive as a GAMA-generated CSV, including mid-session. See the section below. |
+| 2 — Session, turns, handover | Next. |
+| 3–6, 7b, 8 | Not started. |
+
+### Calibration, 200 seeds
+
+| Strategy | Secondary cases | Design requirement |
+|---|---|---|
+| do nothing | 14.0 | outbreak grows ✅ |
+| cleared every container, no nets | 10.5 | still grows ✅ |
+| net the well | 13.6 | no better than nothing ✅ |
+| net the first two patients, day 1 | 5.4 | outbreak stops ✅ |
+| net every visible patient | 4.7 | 69% of residue from invisible sources ✅ |
+| net visible + cleared containers | 3.1 | the two modules together ✅ |
+
+Every session presents at least one referral situation; unaided hospitalisations fall
+from 2.3 to 0.7 when a squad refers.
+
+### Parameters come from GAMA
+
+They are no longer C# literals. GAMA generates a `key,value` CSV; Unity reads it, validates it
+whole, and can take delivery **mid-session** over the existing WebSocket bridge.
+
+- Template and schema: `Assets/Resources/Module3/Module3Parameters.csv` — hand this to the GAMA
+  modellers; it carries units, sections, notes and an apply scope per key.
+- Receiver: `Module3/Scripts/Module3Parameters.cs`; bridge: `Module3GamaLink.cs`.
+- A mid-session change applies **from the next day, never retroactively** — people already
+  infected keep the course of illness they were given, or the trace-back replay stops being
+  true. Structural keys are held for the next session.
+- **The calibration suite is now the acceptance gate for a GAMA parameter file**, not a tuning
+  aid. Run it against a new file before that file goes near a classroom.
+
+---
+
 ## 0. The one architectural decision everything hangs on
 
 Read §5 of the design doc as a specification, not as flavour. It demands four things that, taken
@@ -437,12 +478,20 @@ Item 4 is the one worth pushing for an answer on before Phase 3.
 4. **Two `SimulationManager` subclasses on one GameObject** fight over `Instance` in `Awake`. One only.
 5. **`SaveManager` wipes the save at build index 0 or 1.** Check where the M3 scenes land in
    `EditorBuildSettings` before relying on persistence for the Module 2 handoff.
-6. **The localization CSV parser splits on `,`.** Fix in Phase 0 or every sentence in the module
-   breaks. This is the single most likely thing to waste a week.
+6. ~~**The localization CSV parser splits on `,`.**~~ Fixed — the parser is RFC-4180 now and
+   quoted values may contain commas and line breaks.
 7. **`Mosquto.cs` declares `class Mosquito`** — filename/class mismatch. References resolve by
    GUID; renaming the file breaks them unless the `.meta` GUID is preserved.
-8. **No CI and no tests in this repo today.** Phase 1.5 introduces the first ones. Keep them
-   runnable from `dev.sh` so they actually get run.
+8. ~~**No CI and no tests in this repo today.**~~ Phase 1.5 added the first ones, under
+   `Module3/Tests/`. Still not wired into `dev.sh` — do that, or they will not get run.
+
+9. **A negative day is not an unset day.** An index case was infected before the squad arrived,
+   so their exposure, onset and infectious window can all sit before day 0. An early version
+   guarded with `InfectiousStartDay >= 0` to mean "has this been scheduled", which silently made
+   the outbreak's own starting cases non-infectious — every chain then traced to somewhere else,
+   nets did nothing, and a one-day shift in a seeded case swung the outbreak threefold. The model
+   now carries an explicit `Person.HasBeenInfected` flag and a regression test. Worth remembering
+   the shape of it: in this model, "unset" and "before the session started" look identical.
 
 ---
 
