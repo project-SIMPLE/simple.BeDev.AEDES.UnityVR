@@ -13,6 +13,33 @@ The assets below are the things the player looks at and picks up while doing tha
 
 ---
 
+## 0. Status — the placeholders are delivered
+
+All nine placeholder assets exist, built with Blender from `Tools/Module3/make_placeholders.py`
+and turned into prefabs by `Assets/Editor/Module3PlaceholderPrefabs.cs`. Verified independently
+against this brief: every asset within its triangle budget, one material each, unit scale, real
+metres, and `Fan_Blade` correctly separated. **Phase 3 code is no longer blocked on art.**
+
+Three things were done differently from what this brief originally asked for, and in each case
+**the delivered asset is right and this brief has been corrected to match**:
+
+| Brief originally said | Delivered | Why the delivered version wins |
+|---|---|---|
+| `Socket_Airflow`, `Socket_Beam`, `Socket_Hang`; blade named `Blade` | `Socket_Mount`, `Socket_Light`, `Socket_Hook`; `Fan_Blade` | Consistent `Socket_Mount` across everything that attaches; names now fixed, code binds to these |
+| `SM_WaterGlass` **and** `SM_WaterJug` | One `SM_DrinkingVessel` | The simulation has a single `BringWater` action; two meshes served no mechanic |
+| `SM_MosquitoNet_Deployed` as a new mesh | Prefab reuses the existing `SM_MosquitoNet`; only `SM_MosquitoNet_RolledUp` is new | The deployed net already existed in Team Assets. Correctly measured so the two swap 1:1 |
+
+One thing this brief asked for that turned out not to be needed: **the fan has no airflow-direction
+socket.** The simulation models a fan at household level (`SetFan` applies to the room, not to a
+person), so there is nothing for a direction to feed. `Socket_Mount` is sufficient.
+
+The health centre was built despite being marked "do not start yet" — kept deliberately crude at
+84 triangles, which is the right call while §13 item 4 is unresolved.
+
+**Still outstanding:** the villager animation clips in §D. Those are the remaining art dependency.
+
+---
+
 ## 1. Read this first: two tiers, and why
 
 Every asset on the list has a **placeholder** form and a **final** form, and the placeholder is
@@ -167,8 +194,8 @@ A cheap floor-standing or table-top electric fan, the kind found in most Lao hom
 - A protective cage around the blade is wanted — model it as simple crossed rings, not as a
   faithful wire mesh.
 - Pivot: centre of the base, at floor level.
-- Socket: an empty named `Socket_Airflow` at the centre of the fan head, **+Z pointing the way the
-  air blows**. The game uses this to work out who is in the airflow.
+- Socket: `Socket_Mount` at the base. No airflow-direction socket is needed — the simulation
+  applies a fan to the room, not to a person.
 
 #### A2. Window screen, intact — `SM_WindowScreen`
 An insect screen in a simple frame, fitted into a window opening.
@@ -195,7 +222,7 @@ correctly over `PF_Bed` with somebody lying under it.
   floor on all four sides.
 - Single-sided geometry with an alpha-cutout net texture. It will be rendered two-sided in engine.
 - Pivot: floor level, centred on the bed's footprint.
-- Socket: `Socket_Hang` at the apex, where it would tie to a ceiling hook.
+- Socket: `Socket_Hook` at the apex, where it would tie to a ceiling hook.
 
 #### A5. Mosquito net, stowed — `SM_MosquitoNet_Stowed`
 The same net gathered up and tied off above the bed — what the room looks like before the player
@@ -205,15 +232,11 @@ puts it up. Same pivot as A4 so the two can be swapped in place.
 
 ### Priority B — needed for the full set of player actions
 
-#### B1. Drinking vessel — `SM_WaterGlass`
-A plain glass or enamel cup, ~0.12 m tall. Held by the player and handed to a patient.
-Pivot at the grip point. Must read as "clean drinking water" at arm's length.
+#### B1. Drinking vessel — `SM_DrinkingVessel`
+A plain glass or enamel cup, ~0.11 m tall. Held by the player and handed to a patient.
+`Socket_Grip` at the grip point. Must read as "clean drinking water" at arm's length.
 
-#### B2. Water bottle / jug — `SM_WaterJug`
-A household jug or large plastic bottle, ~0.3 m tall, for bringing fluids to a patient.
-Pivot at floor level; add `Socket_Grip` at the handle or neck.
-
-#### B3. Repellent bottle — `SM_Repellent`
+#### B3. Repellent bottle — `SM_RepellentBottle`
 A small squeeze or spray bottle, ~0.15 m tall. Generic — **no real brand names, logos or
 trade dress of any kind.** Pivot at grip point.
 
@@ -272,7 +295,9 @@ help — yes. Alarming — no.
 A "socket" is an **empty object** (Blender: Add → Empty → Plain Axes) parented to the mesh, named
 `Socket_<Purpose>`. It carries no geometry. It tells the game where something attaches or points.
 
-- Name exactly as specified above — the code looks them up by name.
+- Name exactly as specified above — the code looks them up by name. The set in use is
+  `Socket_Mount` (attaches to a surface or opening), `Socket_Grip` (held in a hand),
+  `Socket_Hook` (hangs from above) and `Socket_Light` (a beam origin).
 - Orientation matters: **+Z is "forward"** (the direction of airflow, a torch beam, the way a
   screen faces out).
 - Keep the empty's scale at `1, 1, 1`.
@@ -287,7 +312,7 @@ A placeholder must still get these right, because the code binds to them:
 - ✅ Correct **real-world dimensions**
 - ✅ Correct **pivot / origin**
 - ✅ All **sockets** present and correctly oriented
-- ✅ Separate **`Blade`** object on the fan
+- ✅ Separate **`Fan_Blade`** object on the fan
 - ✅ Single material, any flat colour
 - ❌ Detail, texturing, bevels, and interesting silhouettes are all *not* required
 
