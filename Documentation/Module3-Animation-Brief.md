@@ -82,7 +82,7 @@ useful fact in this brief, and it means:
 
 ## 4. The clips
 
-Four clips. All are **idle-class**: the character stays where it is.
+Five clips. All are **idle-class**: the character stays where it is.
 
 ### C1 — `A_Villager_Idle_Well`
 A person who is fine, at home, mildly occupied. Standing or sitting, weight shifting occasionally,
@@ -127,6 +127,18 @@ while standing, while sitting hunched, or while lying down.
   (reduced, mostly head). If you only do one, do the upright one.
 - **Note:** no mouth shapes needed — there is no facial rig and no lip sync.
 
+### C5 — `A_Villager_Sit_Improving`
+The same person as C2, a few days later: the fever has broken. Sitting up, **noticeably better than
+C2** — straighter back, head up, present in the room, able to hold a conversation — and still not
+well. Tired around the edges. Someone you could believe was on the mend.
+
+- **Loops:** yes.
+- **Length:** 8–12 s.
+- **Note:** read *How much the body should carry*, immediately below, before animating this one. It
+  is the hardest clip in the brief and the only one where the body is the sole honest signal, so it
+  deserves more of your time than C2 and C3 together. If it ends up indistinguishable from C2 the
+  state may as well not exist; if it reads as fully well, the module misleads instead of teaching.
+
 ### How much the body should carry
 
 Four clips cover five things the player can see, because most of what distinguishes those five is
@@ -138,7 +150,7 @@ code that decides what a player observes is already written, and it splits the w
 | Someone well | nothing at all | C1 |
 | Fever, a few days in | they say *"she has been hot for three days"*, and there is bedding | C2 or C3, tired and heavy |
 | **Needs a doctor now** | they say *"there is blood"* or *"she cannot keep water down"*, **and** there is a cloth or a bucket in the room | **the same C2 or C3 — do not escalate** |
-| **The fever has broken** | they say *"he is feeling better today"* — **and nothing else** | C2, sitting, visibly better than the fever version |
+| **The fever has broken** | they say *"he is feeling better today"* — **and nothing else** | **C5**, sitting, visibly better than C2 |
 
 Two consequences, and they are the difference between a clip that teaches and one that does not.
 
@@ -201,7 +213,16 @@ Required behaviour:
 | false | false | `A_Villager_Idle_Well` |
 | true | false | `A_Villager_Sit_Unwell` |
 | true | true | `A_Villager_Lie_Unwell` |
-| false | true | `A_Villager_Sit_Unwell` — someone whose fever has broken but who is still resting |
+| false | true | **`A_Villager_Sit_Improving`** — the fever has broken, and they are still resting |
+
+Note what the two bools deliberately do **and do not** separate. They tell someone who is improving
+apart from someone with a fever, because those must look different. They do **not** tell someone who
+needs a doctor apart from someone with a fever, because those must look the *same* — the warning
+sign is carried by the line and the prop, and escalating the body would teach the wrong lesson. That
+collapse is the design, not a gap in the parameters.
+
+A villager who has gone to the health centre needs no clip. The game hides their body while they are
+away, so whatever the controller is playing goes unseen.
 
 `Talking` layers on top of whichever of those is playing, as an additive or upper-body-masked layer.
 
@@ -241,7 +262,9 @@ not part of this delivery.
 Before delivering, in Unity:
 
 1. Drop `PF_CharacterV1` in a scene, assign `AC_Villager_M3`.
-2. Tick `Unwell` and `Resting` on and off in the Animator window and watch the transitions.
+2. Tick `Unwell` and `Resting` on and off in the Animator window and watch the transitions. Check
+   all four combinations, including `Unwell` off with `Resting` on — that is C5, and it is the one
+   most easily left wired to the wrong clip.
 3. Add `PF_Bed` and `PF_MosquitoNet_Deployed` around the lying pose. Confirm no clipping through the
    net and that the person is readable through it.
 4. Watch `A_Villager_Idle_Well` loop for sixty seconds. If you can see the loop point, it needs work.

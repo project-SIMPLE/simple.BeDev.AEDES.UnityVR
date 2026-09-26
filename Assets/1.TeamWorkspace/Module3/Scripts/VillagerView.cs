@@ -75,6 +75,12 @@ public class VillagerView : MonoBehaviour
         bool unwell = Observation.IsUnwell;
         bool resting = unwell || Condition == VisibleCondition.Improving;
 
+        // Someone who has gone to the health centre is not in the room. Nothing was hiding them,
+        // so a referred villager went on standing in their house looking perfectly well - which
+        // quietly undoes the feedback for the one action the module most wants to reward, and
+        // leaves the household talking to somebody who is not there.
+        SetBodyVisible(Condition != VisibleCondition.AtTheHealthCentre);
+
         if (animator != null)
         {
             animator.SetBool(UnwellParam, unwell);
@@ -93,6 +99,24 @@ public class VillagerView : MonoBehaviour
         Show(cloth, HasSign("m3.see.bloodOnCloth"));
         Show(bucket, HasSign("m3.see.bucketByTheBed"));
         Show(drinkingVessel, Observation.HasFluids);
+    }
+
+    /// <summary>
+    /// Hides the body without deactivating this GameObject. Deactivating it would stop
+    /// OnTurnStarted arriving, and the villager would stay at the health centre for the rest of
+    /// the session even after they came home.
+    ///
+    /// Only skinned renderers are touched, which is exactly the character and none of the props,
+    /// so the cloth and the bucket go on following the observation - and they hide themselves
+    /// anyway, because an observation of someone at the health centre carries no signs.
+    /// </summary>
+    private void SetBodyVisible(bool visible)
+    {
+        var bodies = GetComponentsInChildren<SkinnedMeshRenderer>(true);
+        for (int i = 0; i < bodies.Length; i++)
+        {
+            if (bodies[i].enabled != visible) bodies[i].enabled = visible;
+        }
     }
 
     private void MoveToRestingPlace(bool resting)
