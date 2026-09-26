@@ -2,9 +2,12 @@ using UnityEngine;
 
 /// <summary>
 /// The four life-cycle quests: DrinkNectar -> Mating -> DrinkBlood -> LayEgg. Each is worth
-/// <see cref="Reward"/> points once. Quests latch: a bar draining again later (blood resets to 0
-/// after laying eggs) does not undo a completed quest. The HUD reads <see cref="Quests"/> to draw
+/// <see cref="Reward"/> points once. Quests latch: a bar draining again later (each egg spends part
+/// of the blood meal) does not undo a completed quest. The HUD reads <see cref="Quests"/> to draw
 /// the list and <see cref="CurrentObjective"/> to pick what to point the player at.
+///
+/// Finishing the last quest - the full clutch of <see cref="EggsToLay"/> eggs - wins the run and
+/// ends the game.
 /// </summary>
 public class QuestSystem : MonoBehaviour
 {
@@ -76,6 +79,11 @@ public class QuestSystem : MonoBehaviour
         Complete(1, p.isMate);
         Complete(2, p.Current_Blood >= p.Max_Blood - 0.05f);
         Complete(3, p.EggLayed >= EggsToLay);
+
+        // Laying the clutch is the win condition, so the run ends there rather than running the
+        // clock down. Checked after Complete so the "+25 Lay eggs complete" toast lands first, and
+        // Victory() is a no-op once the game has ended.
+        if (Quests[3].done) gm.Victory();
     }
 
     void Complete(int i, bool condition)
