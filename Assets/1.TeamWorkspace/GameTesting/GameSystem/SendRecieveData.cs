@@ -15,7 +15,7 @@ public class SendRecieveData : SimulationManager
             Dictionary<string, string> args = new Dictionary<string, string> {
                {"id", ConnectionManager.Instance.GetConnectionId()},
                {"mes", mes},
-               {"score_val", GameManager.instance.score.ToString()},
+               {"score_val", CurrentScore().ToString()},
                {"name_val", "NIGG"}
             };
             Debug.Log("sent to GAMA: " + mes);
@@ -27,6 +27,13 @@ public class SendRecieveData : SimulationManager
             Debug.Log("received from GAMA: cycle " + message.cycle);
             message = null;
         }
+    }
+    // The bridge sits in both module scenes: Module 1 has GameManager, Module 2 has M2Manager.
+    static int CurrentScore()
+    {
+        if (GameManager.instance != null) return GameManager.instance.score;
+        if (M2Manager.Instance != null) return M2Manager.Instance.score;
+        return 0;
     }
     public class GAMAMessages
     {
