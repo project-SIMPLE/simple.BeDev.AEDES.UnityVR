@@ -59,6 +59,9 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Scenes by Simple/Code Examples/Receive Water Data.unity
     guid: e432add6f06a341039153cf5e865ad9d
+  - enabled: 1
+    path: Assets/1.TeamWorkspace/Module3/Scenes/Module_3_MainScene.unity
+    guid: 040e1520071c948c698619f43ea0e298
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: bfa1182bd221b4ca89619141f66f1260, type: 2}
     Unity.XR.WindowsMR.Settings: {fileID: 11400000, guid: dc5a169419fa04987b057f65238cf3ba, type: 2}

@@ -32,6 +32,14 @@ public class HouseholdView : MonoBehaviour
     private bool shownFan, shownNet;
     private bool netShownAtAll;
 
+    /// <summary>Wired by M3NeighbourhoodBuilder, which creates the anchors as it lays out a plot.</summary>
+    public void Bind(Transform screen, Transform fan, Transform net)
+    {
+        screenMount = screen;
+        fanStand = fan;
+        bedNetAnchor = net;
+    }
+
     private void OnEnable()
     {
         if (M3Session.Instance != null) M3Session.Instance.OnTurnStarted += OnTurnStarted;

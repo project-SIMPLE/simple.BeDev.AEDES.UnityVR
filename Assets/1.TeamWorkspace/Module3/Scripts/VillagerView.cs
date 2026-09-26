@@ -37,6 +37,16 @@ public class VillagerView : MonoBehaviour
     [Tooltip("A bucket beside the bed.")]
     [SerializeField] private GameObject bucket;
 
+    /// <summary>
+    /// Where this person lies down when they are unwell. Section 6: the net works here because
+    /// Aedes bites during the day and the patient is in bed during the day, so a villager who is
+    /// resting has to actually be on the bed the net is over.
+    /// </summary>
+    public Transform RestingPlace { get; set; }
+
+    private Vector3 standingPosition;
+    private bool capturedStandingPosition;
+
     public VisibleCondition Condition { get; private set; }
     public PersonObservation Observation { get; private set; }
 
@@ -71,6 +81,8 @@ public class VillagerView : MonoBehaviour
             animator.SetBool(RestingParam, resting);
         }
 
+        MoveToRestingPlace(resting);
+
         if (skinRenderer != null && wellSkin != null && unwellSkin != null)
         {
             skinRenderer.sharedMaterial = unwell ? unwellSkin : wellSkin;
@@ -81,6 +93,19 @@ public class VillagerView : MonoBehaviour
         Show(cloth, HasSign("m3.see.bloodOnCloth"));
         Show(bucket, HasSign("m3.see.bucketByTheBed"));
         Show(drinkingVessel, Observation.HasFluids);
+    }
+
+    private void MoveToRestingPlace(bool resting)
+    {
+        if (RestingPlace == null) return;
+
+        if (!capturedStandingPosition)
+        {
+            standingPosition = transform.position;
+            capturedStandingPosition = true;
+        }
+
+        transform.position = resting ? RestingPlace.position : standingPosition;
     }
 
     private bool HasSign(string key)
