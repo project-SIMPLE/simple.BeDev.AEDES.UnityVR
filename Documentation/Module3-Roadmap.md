@@ -18,9 +18,14 @@ Target branch: `module-3` off `main`.
 | 1 — Epidemic model | **Done.** `Module3/Sim/`, headless and deterministic. |
 | 1.5 — Calibration harness | **Done.** `Module3/Tests/`, 200 seeds. All five of section 5's guarantees hold. |
 | 7a — GAMA parameter delivery | **Done, brought forward.** Parameters now arrive as a GAMA-generated CSV, including mid-session. See the section below. |
-| 2 — Session, turns, handover | **Done.** `Sim/Session.cs` + `HandoverBrief`, driven by `M3Session`. `M3DebugDriver` plays a whole session from the keyboard with no headset and no art. |
-| 3 — Household visit in VR | Next. Needs the placeholder props from the asset brief. |
-| 4–6, 7b, 8 | Not started. |
+| 2 — Session, turns, handover | **Done.** `Sim/Session.cs` + `HandoverBrief`, driven by `M3Session`. `M3DebugDriver` plays a whole session from the keyboard. |
+| 3 — Household visit | **Mostly done.** `Observe`, dialogue, `HouseholdView`, `VillagerView`, prop binding. Remaining: the hand-attached radial action menu, which needs an XR rig. |
+| 4 — Consequence and evidence | **Done.** `TraceBack`, `OutbreakMap`, counterfactual comparison, §10 `Scoring`, `FieldJournal`. |
+| 6 — Art integration | **Props done and merged** (`module3-placeholder-art`). Villager animation clips outstanding — see `Module3-Animation-Brief.md`. |
+| — Scene | **Done.** `Module_3_MainScene` is generated, 682 lines, and builds a playable neighbourhood at runtime. |
+| 5 — Squad layer | Next. The data all exists (`HandoverBrief`, `FieldJournal`); it needs a cast-legible HUD. |
+| 7b — Module 2 handoff | Not started. `INeighbourhoodStateSource`; the GAMA parameter half is done. |
+| 8 — Build and headset | Not started. **The scene has a plain camera, not an XR rig — Module 3 is not VR yet.** |
 
 ### Calibration, 200 seeds
 
@@ -35,6 +40,18 @@ Target branch: `module-3` off `main`.
 
 Every session presents at least one referral situation; unaided hospitalisations fall
 from 2.3 to 0.7 when a squad refers.
+
+### The scene is generated, not dressed
+
+`AEDES > Module 3 > Generate Main Scene` rebuilds `Module_3_MainScene` from scratch; the
+neighbourhood is laid out at runtime by `M3NeighbourhoodBuilder` from the simulation's own
+`lanes` / `households_per_lane`. The scene file stays at a few hundred lines, so two people can
+work on Module 3 at once — which was risk 1 below.
+
+`AEDES > Module 3 > Smoke Test Main Scene` opens it and builds a real neighbourhood, catching
+unassigned prefab references, missing managers and overlapping plots. It is not a unit test and
+cannot be: the builder and views are MonoBehaviours in `Assembly-CSharp`, and an assembly
+definition cannot reference the predefined assemblies, so the Sim suite cannot reach them.
 
 ### Parameters come from GAMA
 
@@ -479,10 +496,10 @@ Item 4 is the one worth pushing for an answer on before Phase 3.
 
 ## 6. Risks and repo traps
 
-1. **Unity YAML merge conflicts.** `Module_1_MainScene.unity` is ~38k lines and two people cannot
-   edit a scene at once. Build the M3 neighbourhood from **prefabs placed by a builder script**
-   driven by a data asset, not by hand-dragging 10 plots into a scene file. The scene stays small,
-   the layout becomes reviewable as data, and merges stop hurting.
+1. ~~**Unity YAML merge conflicts.**~~ Handled: the scene is generated and the neighbourhood is
+   built at runtime. `Module_3_MainScene` is 682 lines against Module 1's ~38,000. Keep it that
+   way — if you find yourself dragging things into the scene, the change belongs in
+   `Module3SceneBuilder` instead.
 2. **`Player_Test.cs` has an editor-only `using` in a runtime script** — will break the Android
    build. Do not carry it over from `origin/Boy`.
 3. **`SendRecieveData` reads `GameManager.instance`**, which only exists in Module 1. Module 3 must
