@@ -26,6 +26,8 @@ public static class Module3SceneBuilder
     private const string Villager = "Assets/1.TeamWorkspace/Team Assets/Prefabs/Character/PF_CharacterV1.prefab";
     private const string Container = "Assets/1.TeamWorkspace/Team Assets/Prefabs/Props/PF_Jar.prefab";
     private const string DebugOverlay = "Assets/Resources/Prefabs/Utils/Debug Overlay.prefab";
+    private const string LaoFont =
+        "Assets/1.TeamWorkspace/Team Assets/TextMesh Pro/Fonts/Lao/Lao_SomVang SDF_Custom.asset";
 
     [MenuItem("AEDES/Module 3/Generate Main Scene")]
     public static void Generate()
@@ -37,6 +39,7 @@ public static class Module3SceneBuilder
         BuildManagers();
         BuildNeighbourhood();
         BuildPlayer();
+        BuildSquadScreens();
 
         System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(ScenePath));
         EditorSceneManager.SaveScene(scene, ScenePath);
@@ -123,6 +126,24 @@ public static class Module3SceneBuilder
         // Keyboard driver so a whole session can be played without a headset. It compiles out of
         // a release build, so leaving it in the scene costs nothing.
         player.AddComponent<M3DebugDriver>();
+    }
+
+    private static void BuildSquadScreens()
+    {
+        // The Coach and the Analyst watch the cast, not the headset (section 9), so this is a
+        // screen-space overlay rather than anything in world space.
+        var squad = new GameObject("Squad Screens");
+        var hud = squad.AddComponent<M3Hud>();
+        squad.AddComponent<M3JournalWriter>();
+
+        // One font for English and Lao: the Lao face is a dynamic atlas and carries all 95
+        // printable ASCII as well as the Lao block, so nothing needs a fallback.
+        var so = new SerializedObject(hud);
+        var font = so.FindProperty("font");
+        var asset = AssetDatabase.LoadAssetAtPath<TMPro.TMP_FontAsset>(LaoFont);
+        if (asset == null) Debug.LogWarning($"Module 3: no font at {LaoFont}; the HUD will use the TMP default.");
+        if (font != null) font.objectReferenceValue = asset;
+        so.ApplyModifiedPropertiesWithoutUndo();
     }
 
     private static void Assign(SerializedObject so, string field, string assetPath)

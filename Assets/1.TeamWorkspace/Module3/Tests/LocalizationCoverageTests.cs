@@ -110,6 +110,9 @@ namespace Aedes.Module3.Sim.Tests
                     foreach (var note in brief.LookingBetterButWatch) Add(note.MessageKey);
 
                     // The trace-back replay shown as each case appears.
+                    foreach (var line in CoachBrief.Compose(brief)) Add(line.MessageKey);
+                    Add(CoachBrief.TimeJumpKey(brief.DaysElapsed));
+
                     foreach (var replay in TraceBack.ForBrief(n, brief))
                     {
                         Add(replay.SummaryKey);
@@ -129,6 +132,14 @@ namespace Aedes.Module3.Sim.Tests
                 Add("m3.debrief.chainFromNowhere");
                 Add("m3.debrief.peopleWhoNeverKnew");
                 Add("m3.debrief.noInvisibleEvidence");
+                foreach (var k in new[]
+                {
+                    "m3.coach.nothingUrgent", "m3.coach.handItOver", "m3.coach.neverVisited",
+                    "m3.coach.newCases", "m3.coach.noNetsLeft", "m3.coach.sameDay",
+                    "m3.coach.oneDayLater", "m3.coach.daysLater",
+                    "m3.debrief.title", "m3.debrief.caseCount", "m3.debrief.preventable",
+                    "m3.debrief.chainsStopped", "m3.debrief.casesAvoided",
+                }) Add(k);
             }
 
             return used;

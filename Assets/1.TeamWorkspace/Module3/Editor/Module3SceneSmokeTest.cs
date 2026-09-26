@@ -33,6 +33,10 @@ public static class Module3SceneSmokeTest
         if (builder == null) failures.Add("no M3NeighbourhoodBuilder in the scene");
         if (Object.FindFirstObjectByType<LocalizationManager>() == null)
             failures.Add("no LocalizationManager - every string would render as a raw key");
+        if (Object.FindFirstObjectByType<M3Hud>() == null)
+            failures.Add("no M3Hud - the Coach and the Analyst would have nothing to work from");
+        if (Object.FindFirstObjectByType<M3JournalWriter>() == null)
+            failures.Add("no M3JournalWriter - the facilitator gets no record of the session");
 
         // Only one SimulationManager subclass may exist, or they race over the static Instance.
         var simManagers = Object.FindObjectsByType<SimulationManager>(FindObjectsInactive.Include,
