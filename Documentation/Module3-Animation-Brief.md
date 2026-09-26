@@ -60,11 +60,23 @@ useful fact in this brief, and it means:
   breaks references.)
 - **Deliver clips as Humanoid**, not Generic. A Generic clip will not retarget and will be sent back.
 
-**What already exists:** exactly one human clip, `Armature_walk.anim`, plus a controller
-`NpcAnimationController.controller` with an `isWalk` bool. **Do not modify either** — Module 1's
-street NPCs use them. Module 3 gets its own controller (§6).
+**What already exists:**
 
-There is **one** human mesh in the project. There is no character pack to draw on.
+- `Armature_walk.anim` and the controller `NpcAnimationController.controller` (one `isWalk` bool),
+  both sitting beside the rig. **Do not modify either** — Module 1's street NPCs use them. Module 3
+  gets its own controller (§6).
+- The rig FBX itself carries takes named `idle`, `walk` and a t-pose. No clip ranges are configured
+  on it, so Unity exposes those takes as-is. The `idle` take is a reasonable thing to build C1 from
+  rather than keying from nothing.
+- **Three body meshes share this one skeleton** — `fodo`, `nasa` and `Roger`, at 592 / 712 / 656
+  triangles, 18 vertex groups each. The neighbourhood already has three villager bodies, and one
+  set of clips drives all of them. This matters for §7.
+- **There is a humanoid character pack in the project you may retarget from:**
+  `Assets/1.TeamWorkspace/Imported by Simple/Supercyan Character Pack Free Sample/`. Its mesh and
+  all **12** of its animation FBXs are Humanoid, so they retarget onto `SK_Character` directly —
+  `common_people@idle`, `@walk`, `@pickup` and `@wave` are the ones worth looking at. It is
+  **read-only**: the project rule is that nothing under `Imported by Simple/` gets edited, but
+  retargeting *from* it is fine.
 
 ---
 
@@ -98,10 +110,11 @@ one slow turn of the head across the loop.
 - **Loops:** yes.
 - **Length:** 10–20 s. Very slow.
 - **Note:** this one plays **under a mosquito net**, which is the module's single most important
-  action. Keep the silhouette compact and within roughly a 0.9 m wide footprint so it reads through
-  the netting and does not clip it. The net prefab is
-  `Team Assets/Prefabs/Props/PF_MosquitoNet_Deployed.prefab` — load it with the bed
-  (`Team Assets/Prefabs/PF_Bed.prefab`) and check.
+  action. The net is a dome measuring **1.56 × 1.77 m in plan and 1.39 m tall**, over a bed of
+  **1.60 × 1.94 m**, both centred on the same point. Keep the lying silhouette inside roughly a
+  0.9 m width — arms in, nothing flung out — so it reads through the netting and never clips it.
+  Load `Team Assets/Prefabs/Props/PF_MosquitoNet_Deployed.prefab` with the bed
+  (`Team Assets/Prefabs/PF_Bed.prefab`) and check against the real props.
 
 ### C4 — `A_Villager_Talk`
 A light speaking gesture — a hand, a small nod, head turning slightly toward the listener. This is
@@ -168,17 +181,26 @@ undercut the whole thing. Nothing here needs a blend tree.
 ## 7. Age variety — a question, not a task
 
 The simulation gives every villager an age band: **Child, Adult or Elder**, and the design document
-asks for "ages varied, including children and older people". There is only one human mesh.
+asks for "ages varied, including children and older people".
 
-**Do not model new characters for this yet.** Instead, tell us which of these you think is right:
+The variety problem is already half solved: three body meshes share the skeleton (§3). But all
+three are adult-proportioned, so the gap is specifically **a child and an elder**, not bodies in
+general.
 
-1. Scale and proportion variation on the one mesh (cheap, reads acceptably at 2 m, slightly wrong).
-2. Two more meshes — a child and an elder — sharing the same Humanoid skeleton so all four clips
-   retarget to all three with no extra animation work.
-3. Age carried entirely by clothing and material, with body shape unchanged.
+**Do not model new characters for this yet.** Tell us which of these you think is right:
+
+1. Scale and proportion variation on the three existing meshes (cheap, but a scaled adult reads as
+   a small adult, not as a child).
+2. Two more meshes — a child and an elder — on the same Humanoid skeleton, so all four clips
+   retarget to all five bodies with no extra animation work.
+3. Age carried by clothing and material on the existing three, with body shape unchanged.
 
 Option 2 is probably right, but it is a modelling job with a cost, and it should be a decision
 rather than something that happens by default. Say what you would do and roughly what it costs.
+
+Either way, **age does not need its own animation**: one set of clips retargets to every body. If
+playtesting later says an elder needs a different weight of movement, that is a follow-up variant,
+not part of this delivery.
 
 ---
 
