@@ -23,9 +23,9 @@ Target branch: `module-3` off `main`.
 | 4 — Consequence and evidence | **Done.** `TraceBack`, `OutbreakMap`, counterfactual comparison, §10 `Scoring`, `FieldJournal`. |
 | 6 — Art integration | **Props done and merged** (`module3-placeholder-art`). Villager animation clips outstanding — see `Module3-Animation-Brief.md`. |
 | — Scene | **Done.** `Module_3_MainScene` is generated, 682 lines, and builds a playable neighbourhood at runtime. |
-| 5 — Squad layer | Next. The data all exists (`HandoverBrief`, `FieldJournal`); it needs a cast-legible HUD. |
-| 7b — Module 2 handoff | Not started. `INeighbourhoodStateSource`; the GAMA parameter half is done. |
-| 8 — Build and headset | Not started. **The scene has a plain camera, not an XR rig — Module 3 is not VR yet.** |
+| 5 — Squad layer | **Done.** `CoachBrief` (ordering tested in the Sim assembly), `M3Hud` for the cast, the handover screen, the §5-ordered debrief, and `M3JournalWriter`. |
+| 7b — Module 2 handoff | Next. `INeighbourhoodStateSource`; the GAMA parameter half is done. |
+| 3 remainder / 8 — XR rig, build, headset | Not started. **The scene has a plain camera, not an XR rig — Module 3 is playable but not yet VR.** This is where a headset becomes necessary. |
 
 ### Calibration, 200 seeds
 
