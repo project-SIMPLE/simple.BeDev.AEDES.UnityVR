@@ -127,6 +127,38 @@ while standing, while sitting hunched, or while lying down.
   (reduced, mostly head). If you only do one, do the upright one.
 - **Note:** no mouth shapes needed — there is no facial rig and no lip sync.
 
+### How much the body should carry
+
+Four clips cover five things the player can see, because most of what distinguishes those five is
+carried by **what the household says** and **what is lying in the room** — not by the body. The
+code that decides what a player observes is already written, and it splits the work like this:
+
+| What the player is seeing | What tells them | What the body does |
+|---|---|---|
+| Someone well | nothing at all | C1 |
+| Fever, a few days in | they say *"she has been hot for three days"*, and there is bedding | C2 or C3, tired and heavy |
+| **Needs a doctor now** | they say *"there is blood"* or *"she cannot keep water down"*, **and** there is a cloth or a bucket in the room | **the same C2 or C3 — do not escalate** |
+| **The fever has broken** | they say *"he is feeling better today"* — **and nothing else** | C2, sitting, visibly better than the fever version |
+
+Two consequences, and they are the difference between a clip that teaches and one that does not.
+
+**Do not put severity into the performance.** The warning signs already have two signals: a plain
+sentence and a prop. If the body escalates on top of that, students learn to scan a room for the
+most dramatic person instead of learning the two signs they are meant to carry out of the module —
+and a quiet person with a bucket beside the bed gets walked past. **The person who needs a doctor
+should not look more alarming than the person with a fever.** They may well look calmer. That is
+not a mistake in the brief.
+
+**The fever breaking is the one place where the body is the only honest signal.** When someone is
+past the fever, the household says they are better, and there is no prop in the room to say
+otherwise. In the real illness this is often exactly when the dangerous phase begins — which is why
+the module is built to make a student who sees someone improving and moves on regret it. That makes
+this pose the hardest ask in the brief, because it has to be genuinely ambiguous: **better than the
+fever pose — more upright, more present, someone you could plausibly leave alone — but not well.**
+If they read as fine, the student is being tricked rather than taught. If they read as still
+obviously ill, there is nothing to learn. Aim for the version of *"no, no, I'm all right"* that
+nobody in the room quite believes.
+
 ---
 
 ## 5. Technical contract
