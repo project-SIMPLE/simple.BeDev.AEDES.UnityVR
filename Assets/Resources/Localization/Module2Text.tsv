@@ -1,0 +1,45 @@
+# Module 2 strings. TAB separated so values may contain commas. Use \n for a line break.
+# Lao is primary; English is the fallback and is also compiled into Module2Text.cs.
+# Lao column intentionally left empty until the curriculum wording arrives.
+key	Lao	English
+intro.kicker		BRIEFING
+intro.title		Clear the mosquito breeding sites
+intro.body		Mosquitoes breed in still water.\nFind it. Cover it. Tip it out.\n\n<color=#73D2FF>Follow the arrow.</color>
+intro.footer		Press A, trigger or grip to begin
+end.kicker		ROUND OVER
+end.footer		Press A, trigger or grip to play again
+site.jar		Water jar
+site.container		Open container
+site.bowl		Water bowl
+site.generic		Standing water
+hud.dayTag		Daytime - Aedes bite by day
+hud.nightTag		Evening - the swarm is settling
+hud.allClear		Every breeding site dealt with
+toast.start		Find the standing water - that is where they breed
+toast.trash		Rubbish binned - no more water traps
+toast.night		Evening is coming - the light is going
+toast.oneMinute		One minute left!
+toast.thirtySeconds		30 seconds left!
+toast.swatterOut		Swatter is in front of you - grab it
+toast.swatterAlready		You already have a swatter
+toast.creamOut		Repellent is in front of you - grab it
+toast.creamAlready		You already have repellent
+measure.cover	ປິດ	Cover
+measure.change	ປ່ຽນ	Change
+measure.release	ປ່ອຍ	Release
+measure.improve	ປັບປຸງ	Improve
+measure.practice	ປະຕິບັດ	Practice
+hud.energy		ENERGY
+hud.bites		Bites
+toast.bitesNearLimit		Too many bites - get away from the swarm
+end.titleBitten		Driven off by the swarm
+end.statSourceReduction		SOURCE REDUCTION
+end.statAction		Action score
+end.statBites		Bites
+end.statSwatted		Swatted
+end.belowHalf		Under half the sites cleared - the outbreak you hand on will be twice as severe.
+prompt.jar		Cover - grab the lid beside the jar
+prompt.jarCarrying		Cover - hold the lid over the jar and let go
+prompt.tip		Change - tip the water out
+prompt.fish		Release - drop a guppy in, the fish eat the larvae
+prompt.generic		Improve - get rid of the standing water
