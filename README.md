@@ -68,6 +68,88 @@ Composed of two types of elements:
 7. To run the application in conjunction with GAMA, make sure you have installed [GAMA 2025.06](https://gama-platform.org/download) and the [Unity Plugin for GAMA](https://github.com/project-SIMPLE/simple.toolchain/tree/Unity-6/GAMA%20Plugin). Information on installing the plugin is available [here](https://github.com/project-SIMPLE/simple.toolchain/tree/Unity-6/GAMA%20Plugin#installation). The plugin provides a set of model (added in Plugin models/LinkToUnity) that works with the Unity project.
 
 
+## Building and deploying AEDES to a Quest headset
+
+> This section covers the **AEDES game** in this repository, not the upstream SIMPLE
+> template. Everything below runs from a Mac with no Windows machine required.
+
+Two committed scripts cover the whole loop. There is no separate "make an APK" step:
+Unity's player build *is* the APK, written signed and ready to sideload.
+
+```bash
+Tools/build.sh  2            # build module 2 -> build/Android/AEDES-Module2.apk
+Tools/deploy.sh 2            # install it on the attached headset and launch it
+
+Tools/build-and-deploy.sh 2  # both in one command
+```
+
+### Modules
+
+Each module is built and deployed separately for now.
+
+| Key | Module | Scene |
+|---|---|---|
+| `1` | Play as the mosquito | `Module_1_MainScene` |
+| `2` | Household vector control | `Module_2_MainScene` |
+| `tut2` | Module 2 tutorial | `Tutorial_M2` |
+
+Scenes are located by filename, so moving or renaming their folders will not break the
+scripts. Build Settings are ignored: each build contains only that module's scene.
+
+> **Only one module can be installed at a time.** They all share the application id
+> `com.unity.template.vr`, so deploying module 2 replaces module 1 on the headset.
+
+### Requirements
+
+- **Unity 6000.3.8f1** with the **Android Build Support** module (IL2CPP + SDK/NDK).
+  The version is read from `ProjectSettings/ProjectVersion.txt`; the scripts refuse to run
+  with a different one, because opening the project in another version rewrites asset files.
+- **Rosetta 2** on Apple silicon: `softwareupdate --install-rosetta --agree-to-license`.
+  A macOS major upgrade removes it, after which Unity exits silently with no log.
+- `adb` is found automatically inside the editor's bundled Android SDK; it does not need
+  to be on your `PATH`.
+
+### Preparing the headset (once)
+
+1. Create a **developer team** at [developers.meta.com](https://developers.meta.com) and
+   verify the account (SMS two-factor, or a payment method).
+2. Turn on developer mode in the **Meta Horizon phone app**: headset icon → your headset →
+   *Headset settings* → *Developer mode*. There is **no in-headset toggle** for this.
+3. Connect a **data-capable** USB-C cable, put the headset on, and accept
+   *Allow USB debugging*, ticking **Always allow from this computer**.
+
+The headset must be **awake** to launch an app. Horizon OS also refuses to start one while
+a system dialog is open, so `Tools/deploy.sh` retries until it succeeds or times out
+(`--wait <seconds>`, default 180).
+
+The installed app appears in the headset library under **Unknown Sources**, named
+**SIMPLE Template** — the template branding was never changed, so do not look for "AEDES".
+
+### Clean builds
+
+`Tools/build.sh <module> --clean` forces IL2CPP to recompile from scratch. This takes
+several minutes rather than the usual two or three, and is occasionally necessary: a build
+that crashes part-way can leave the IL2CPP cache holding a stub `libil2cpp.so`, after which
+every incremental build happily reuses it and still reports success. The resulting APK
+installs and starts the engine, then dies, because it contains no compiled C# at all.
+
+You should not normally need the flag. `Tools/build.sh` checks `libil2cpp.so` inside the
+finished APK and re-runs itself with `--clean` automatically if it finds a stub, and
+`Tools/deploy.sh` refuses to install one.
+
+### Troubleshooting
+
+| Symptom | Cause |
+|---|---|
+| `no headset detected over adb` | Developer mode off, or a charge-only cable. An empty device list means the ADB interface is absent entirely, not that authorization is pending. |
+| `headset is connected but unauthorized` | The *Allow USB debugging* prompt has not been accepted. Put the headset on. |
+| Build fails, log mentions `cannot be extracted by the YAML Parser` | A `.meta` file has git conflict markers committed into it. Find them with `grep -rlE '^<{4,}' Assets --include='*.meta'` and keep the GUID the live scenes reference — never just delete the markers at random, as the wrong GUID silently breaks every reference to that asset. |
+| App installs but never starts | Headset asleep, or a system dialog is open in it. |
+| Changes missing from the build | Unity compiles scripts in roughly the first 90 seconds. Anything saved after that misses the build with no warning. Do not edit while a build runs. |
+
+Build logs are written to `Logs/build/module-<key>.log`.
+
+
 ## Documentation
 
 This section focuses only on the C# scripts which are useful for a Unity developer. The scripts not mentioned here are at least commented.
