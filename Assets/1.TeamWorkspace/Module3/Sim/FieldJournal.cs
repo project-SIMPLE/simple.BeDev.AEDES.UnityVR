@@ -26,7 +26,26 @@ namespace Aedes.Module3.Sim
         /// <summary>The closing prompt. Deliberately the last thing on the page.</summary>
         public const string ClosingPrompt = "Why did the outbreak stop, or why did it not?";
 
-        public string ToPlainText()
+        /// <summary>
+        /// The score line's player-facing text. The Sim assembly cannot reach the localization
+        /// table, so the caller passes a lookup; the journal used to print the raw enum
+        /// ("ReferredCorrectly x2"). Without a lookup the enum name is split into words.
+        /// </summary>
+        private static string Label(ScoreLine l, System.Func<string, string> text)
+        {
+            string t = text != null && !string.IsNullOrEmpty(l.MessageKey) ? text(l.MessageKey) : null;
+            if (!string.IsNullOrEmpty(t) && t != l.MessageKey) return t;
+            string name = l.Reason.ToString();
+            var sb = new StringBuilder();
+            for (int i = 0; i < name.Length; i++)
+            {
+                if (i > 0 && char.IsUpper(name[i])) sb.Append(' ');
+                sb.Append(i > 0 ? char.ToLowerInvariant(name[i]) : name[i]);
+            }
+            return sb.ToString();
+        }
+
+        public string ToPlainText(System.Func<string, string> text = null)
         {
             var sb = new StringBuilder();
             sb.AppendLine("SCIENTIFIC FIELD JOURNAL - Module 3");
@@ -78,9 +97,10 @@ namespace Aedes.Module3.Sim
                 for (int i = 0; i < Score.Lines.Count; i++)
                 {
                     var l = Score.Lines[i];
+                    string label = Label(l, text);
                     sb.AppendLine(l.IsNote
-                        ? $"  - {l.Reason} x{l.Count} (something to talk about, not a mark against you)"
-                        : $"  - {l.Reason} x{l.Count}");
+                        ? $"  - {label} x{l.Count} (something to talk about, not a mark against you)"
+                        : $"  - {label} x{l.Count}");
                 }
                 sb.AppendLine();
             }
@@ -134,8 +154,10 @@ namespace Aedes.Module3.Sim
                         : "from a patient we could see was unwell, with no net up")
                     : "from someone who never looked ill";
 
-                export.Chains.Add($"Day {e.Day}: house {e.TargetHouseholdId} caught it "
-                                  + $"from house {e.SourceHouseholdId}, {how}.");
+                string from = e.SourceHouseholdId == e.TargetHouseholdId
+                    ? "from someone in the same house"
+                    : $"from house {e.SourceHouseholdId}";
+                export.Chains.Add($"Day {e.Day}: house {e.TargetHouseholdId} caught it {from}, {how}.");
             }
 
             for (int i = 0; i < n.Households.Count; i++)

@@ -62,7 +62,8 @@ public class M3JournalWriter : MonoBehaviour
 
             string path = Path.Combine(dir,
                 $"journal_{DateTime.Now:yyyyMMdd_HHmmss}_seed{s.Seed}.txt");
-            File.WriteAllText(path, export.ToPlainText());
+            File.WriteAllText(path, export.ToPlainText(key =>
+                LocalizationManager.Instance != null ? LocalizationManager.Instance.GetLocalizedValue(key) : null));
 
             LastWrittenPath = path;
             Debug.Log($"Module 3: Field Journal written to {path}");
