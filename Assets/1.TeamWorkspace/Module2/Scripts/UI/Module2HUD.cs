@@ -555,13 +555,16 @@ public class Module2HUD : MonoBehaviour
         sitesFill.fillAmount = 0f;
 
         // --- centre: objective arrow + label ---
+        // Arrow and distance sit in the free band at the top centre, above the toast stack. They used
+        // to be at +150/+108, exactly where toasts stack down from, so a toast covered the label.
+        // The label is narrow enough to stay clear of the sites counter on the right.
         objectiveArrow = NewImage("ObjectiveArrow", gameplay, arrowSprite, accentColor, Image.Type.Simple,
-            new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 150), new Vector2(54, 54));
+            new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 268), new Vector2(54, 54));
         objectiveText = NewText("ObjectiveText", gameplay, "", 26, textColor, TextAlignmentOptions.Center,
-            new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 108), new Vector2(620, 34));
+            new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 226), new Vector2(320, 34));
 
         // --- toasts, stacked under the timer ---
-        toastContainer = NewRect("Toasts", gameplay, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -140), new Vector2(ToastW, 10));
+        toastContainer = NewRect("Toasts", gameplay, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -112), new Vector2(ToastW, 10));
 
         // --- bottom: contextual prompt ---
         promptRect = NewRect("Prompt", gameplay, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 54), new Vector2(PromptW, 56));
@@ -620,10 +623,12 @@ public class Module2HUD : MonoBehaviour
             new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -18), new Vector2(-40, 26), FontStyles.Bold);
         endTitle = NewText("Title", panel, "", 52, textColor, TextAlignmentOptions.Center,
             new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -48), new Vector2(-40, 64), FontStyles.Bold);
+        // Below the title (which ends at -112) with room for three lines; it used to start at -94
+        // and the title was drawn over it.
         endSubtitle = NewText("Subtitle", panel, "", 25, mutedColor, TextAlignmentOptions.Center,
-            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -94), new Vector2(-60, 70));
+            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -116), new Vector2(-60, 96));
         endStats = NewText("Stats", panel, "", 30, textColor, TextAlignmentOptions.Center,
-            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -176), new Vector2(-60, 170));
+            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -214), new Vector2(-60, 160));
         endFact = NewText("Fact", panel, "", 23, accentColor, TextAlignmentOptions.Center,
             new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 76), new Vector2(-80, 90), FontStyles.Italic);
         endFooter = NewText("Footer", panel, "", 28, doneColor, TextAlignmentOptions.Center,
