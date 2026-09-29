@@ -52,6 +52,13 @@ namespace Aedes.Module3.Sim
             public const string Grip = "Socket_Grip";
             /// <summary>Hangs from above - the net's ceiling tie.</summary>
             public const string Hook = "Socket_Hook";
+            /// <summary>
+            /// On the BED, not on a net: where a rolled-up net's <see cref="Hook"/> is tied. It sits
+            /// on the head post farthest from the door, so the bundle hangs clear of whoever is
+            /// lying in the bed and never stands between a visitor and their face. The bed knows
+            /// where its own posts are; the code only follows the socket.
+            /// </summary>
+            public const string BedNetHook = "Socket_NetHook";
             /// <summary>Where a beam starts, on the torch.</summary>
             public const string Light = "Socket_Light";
             /// <summary>The way into the health centre.</summary>

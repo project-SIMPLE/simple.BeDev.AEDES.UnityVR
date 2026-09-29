@@ -62,6 +62,64 @@ namespace Aedes.Module3.Sim.Tests
         }
 
         [Test]
+        public void ARolledNetHangsFromTheBedPostClearOfTheSleeper()
+        {
+            // The rolled bundle is modelled a metre above its origin. Left at the bed's centre it
+            // stood on the chest of the villager lying there, so the bed carries a socket for its
+            // hook and the view hangs the net from it. Both ends have to exist and, together, put
+            // the bundle out of the sleeper's way.
+            var bed = AssetDatabase.LoadAssetAtPath<GameObject>(Module3Props.Bed);
+            var rolled = AssetDatabase.LoadAssetAtPath<GameObject>(Module3Props.MosquitoNetRolledUp);
+            Assert.IsNotNull(bed);
+            Assert.IsNotNull(rolled);
+
+            var bedHook = Socket(bed, Module3Props.Socket.BedNetHook);
+            var netHook = Socket(rolled, Module3Props.Socket.Hook);
+            Assert.IsNotNull(bedHook, $"the bed has no {Module3Props.Socket.BedNetHook}");
+            Assert.IsNotNull(netHook, $"the rolled net has no {Module3Props.Socket.Hook}");
+
+            // Bundle bounds once slid so the two hooks meet (both prefabs sit at the origin here).
+            var bundle = Bounds(rolled);
+            bundle.center += bedHook.position - netHook.position;
+
+            // A villager lying on their back with their arms at their sides is under 0.7 m across.
+            const float sleeperHalfWidth = 0.35f;
+            float nearestEdge = Mathf.Min(Mathf.Abs(bundle.min.x), Mathf.Abs(bundle.max.x));
+            bool straddlesCentre = bundle.min.x < 0f && bundle.max.x > 0f;
+            Assert.IsFalse(straddlesCentre, "the hung bundle spans the middle of the bed");
+            Assert.GreaterOrEqual(nearestEdge, sleeperHalfWidth,
+                $"the hung bundle reaches within {nearestEdge:0.00} m of the bed's centre line, over the sleeper");
+        }
+
+        [Test]
+        public void NoPropRendersAsFlatBlack()
+        {
+            // SHD_SimpleLit_Static takes its colour from a gradient texture and ignores _BaseColor,
+            // so a "flat colour" material on it draws solid black in the game. The greybox props
+            // shipped like that: a black net on a sleeping villager, a black torn window screen.
+            var black = new SortedSet<string>();
+            foreach (string path in Module3Props.AllPrefabs)
+            {
+                var go = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                if (go == null) continue;
+
+                foreach (var r in go.GetComponentsInChildren<Renderer>(true))
+                {
+                    foreach (var m in r.sharedMaterials)
+                    {
+                        if (m == null || m.shader == null || !m.shader.name.Contains("SHD_SimpleLit")) continue;
+                        if (m.HasProperty("_Texture_01") && m.GetTexture("_Texture_01") == null)
+                            black.Add($"{path}: {m.name} is on {m.shader.name} with no _Texture_01");
+                    }
+                }
+            }
+
+            Assert.IsTrue(black.Count == 0,
+                "these draw black; give them a URP/Lit colour or a gradient texture:\n  "
+                + string.Join("\n  ", black));
+        }
+
+        [Test]
         public void TheScreenStatesSwapAtOneTransform()
         {
             var torn = AssetDatabase.LoadAssetAtPath<GameObject>(Module3Props.WindowScreenTorn);
@@ -119,6 +177,15 @@ namespace Aedes.Module3.Sim.Tests
             }
 
             Assert.IsEmpty(over, "over budget:\n  " + string.Join("\n  ", over));
+        }
+
+        private static Transform Socket(GameObject go, string name)
+        {
+            foreach (var t in go.GetComponentsInChildren<Transform>(true))
+            {
+                if (t.name == name) return t;
+            }
+            return null;
         }
 
         private static Bounds Bounds(GameObject go)

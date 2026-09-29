@@ -145,12 +145,33 @@ public class HouseholdView : MonoBehaviour
         if (netInstance != null) Destroy(netInstance);
         if (bedNetAnchor == null) return;
 
-        // The two net prefabs share an origin, so this is a straight swap at one transform.
+        // Both prefabs are placed at the bed's centre, but only the deployed net belongs there. The
+        // rolled bundle is modelled a metre above its origin, so left at the centre it stood on
+        // the chest of whoever was resting - who is exactly who the net is for.
         GameObject prefab = deployed
             ? Resolve(ref netDeployedPrefab, Module3Props.MosquitoNetDeployed)
             : Resolve(ref netRolledUpPrefab, Module3Props.MosquitoNetRolledUp);
 
         netInstance = Place(prefab, bedNetAnchor);
+        if (!deployed) HangFromBedPost(netInstance);
+    }
+
+    /// <summary>
+    /// Slides a rolled-up net so its own Socket_Hook meets the bed's Socket_NetHook. It goes by the
+    /// net's hook rather than its origin, so replacement art can shape the bundle however it likes
+    /// as long as the hook stays where the bundle hangs from. This component sits on the plot and
+    /// the bed is one of its children, so the socket is found from here; a bed without one leaves
+    /// the net where it was placed.
+    /// </summary>
+    private void HangFromBedPost(GameObject net)
+    {
+        if (net == null) return;
+
+        var bedHook = M3Sockets.Find(transform, Module3Props.Socket.BedNetHook);
+        var netHook = M3Sockets.Find(net.transform, Module3Props.Socket.Hook);
+        if (bedHook == null || netHook == null) return;
+
+        net.transform.position += bedHook.position - netHook.position;
     }
 
     private static GameObject Place(GameObject prefab, Transform at)

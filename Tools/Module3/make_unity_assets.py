@@ -5,8 +5,7 @@ Unity-side companions for the Module 3 greybox placeholders:
     stable GUIDs instead of whatever the first person to open Unity gets
     (roadmap Sec.4: "commit with .meta files"; CLAUDE.md Sec.9: a missing .meta
     breaks every reference to that asset for everyone else)
-  - M_Module3Placeholder.mat, one flat grey URP material on the project's own
-    SHD_SimpleLit_Static graph
+  - M_Module3Placeholder.mat, one flat grey material on URP/Lit
 
 Run after make_placeholders.py:
     python3 Tools/Module3/make_unity_assets.py
@@ -19,7 +18,13 @@ The FBX importer settings are cloned from an existing repo model
 with one deliberate change: materialImportMode is set to 0 (None). The
 placeholders carry no embedded materials; the prefab builder assigns
 M_Module3Placeholder explicitly, so the material is a real, editable asset on
-the project's own shader rather than an FBX-embedded Standard-shader material.
+an editable URP material rather than an FBX-embedded Standard-shader material.
+
+Why URP/Lit and not the project's SHD_SimpleLit_Static graph: that toon graph takes
+its colour from a gradient texture (_Texture_01) and ignores _BaseColor, so a flat
+colour on it renders solid black in the game - a black net standing on a sleeping
+patient. Anything that wants a flat colour, this material and any per-asset ones
+derived from it, has to sit on URP/Lit like the rest of Team Assets.
 """
 
 import hashlib, os, re, sys
@@ -33,8 +38,8 @@ MATERIALS = os.path.join(TEAM, "Materials")
 TEMPLATE_META = os.path.join(MODELS, "SM_Bed", "SM_Bed.fbx.meta")
 
 # Existing project assets the material is built from.
-SHADER_GUID = "850a53dfcf2e85a4d8365db9ad81bf96"   # SHD_SimpleLit_Static
-SHADER_FILEID = "-6465566751694194690"
+SHADER_GUID = "933532a4fcc9baf4fa0491de14d08ed7"   # Universal Render Pipeline/Lit
+SHADER_FILEID = "4800000"
 URP_ASSETVERSION_GUID = "d0353a89b1f911e48b9e16bdc9f2e058"
 
 PLACEHOLDERS = [
@@ -168,7 +173,7 @@ Material:
     - _QueueOffset: 0
     - _ReceiveShadows: 1
     - _ShadowLimit: -0.14
-    - _Smoothness: 0.5
+    - _Smoothness: 0.2
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
