@@ -13,12 +13,19 @@ The assets below are the things the player looks at and picks up while doing tha
 
 ---
 
-## 0. Status — the placeholders are delivered
+## 0. Status — final art delivered
 
-All nine placeholder assets exist, built with Blender from `Tools/Module3/make_placeholders.py`
-and turned into prefabs by `Assets/Editor/Module3PlaceholderPrefabs.cs`. Verified independently
-against this brief: every asset within its triangle budget, one material each, unit scale, real
-metres, and `Fan_Blade` correctly separated. **Phase 3 code is no longer blocked on art.**
+All nine assets from §5 below now exist as final, detailed meshes — `Tools/Module3/
+make_final_models.py` (Blender) and `make_final_materials.py` (one material per asset), turned
+into prefabs by the same `Assets/Editor/Module3PlaceholderPrefabs.cs` that built the original
+greybox pass. Verified against this brief and against `Module3-Placeholder-Assets.md`'s contract:
+every asset within its triangle budget, one material each, unit scale, real metres, correct pivots
+and sockets, and `Fan_Blade` correctly separated. **Phase 3 code was never blocked on art, and now
+isn't blocked on placeholder-quality art either.**
+
+The greybox pass (`Tools/Module3/make_placeholders.py`, flat grey `M_Module3Placeholder.mat`) that
+originally unblocked Phase 3 is described in full in `Module3-Placeholder-Assets.md`, along with the
+Blender→Unity axis/unit traps that apply equally to the final meshes.
 
 Three things were done differently from what this brief originally asked for, and in each case
 **the delivered asset is right and this brief has been corrected to match**:

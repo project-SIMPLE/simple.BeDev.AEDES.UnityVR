@@ -5,15 +5,19 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// Builds the Module 3 greybox placeholder prefabs at their FINAL paths and
-/// names, per the "Unblocking pattern" in Documentation/Module3-Roadmap.md §4:
-/// code binds to the prefab path and the Socket_* transforms now, and art
-/// replaces the mesh inside the prefab later with no scene churn.
+/// Builds the Module 3 prop prefabs at their FINAL paths and names, per the
+/// "Unblocking pattern" in Documentation/Module3-Roadmap.md §4: code binds to
+/// the prefab path and the Socket_* transforms, and art replaces the mesh
+/// inside the prefab with no scene or prefab-path churn.
 ///
-/// The meshes come from Tools/Module3/make_placeholders.py (Blender). This
-/// script only does the Unity half: instantiate each model, assign the
-/// placeholder material, save the prefab, and check the §4 contract held on
-/// import (sockets present, triangles within budget).
+/// The meshes come from Tools/Module3/make_final_models.py (Blender); their
+/// materials from Tools/Module3/make_final_materials.py, one flat colour per
+/// asset per Asset Brief §2. This script only does the Unity half:
+/// instantiate each model, assign its material, save the prefab, and check
+/// the §4 contract held on import (sockets present, triangles within
+/// budget). Eight of the nine entries were greybox placeholders (forced onto
+/// the shared M_Module3Placeholder.mat) before the final art pass; Entry.
+/// Material is what changed -- paths, sockets and budgets did not.
 ///
 /// Re-running is safe and idempotent -- it overwrites the prefabs in place, so
 /// the GUIDs and every scene reference to them survive.
@@ -36,7 +40,8 @@ public static class Module3PlaceholderPrefabs
         public int TriBudget;       // §4 budget, 0 = not specified by the contract
         public string[] Sockets;    // sockets the contract expects to survive import
         public Vector3 Size;        // expected size in metres, Unity axes (Y = up)
-        public bool Greybox = true; // false = finished art, keep its own materials
+        public bool Greybox = true; // true = force M_Module3Placeholder (no Material set)
+        public string Material;     // finished art's own material; null = use Greybox rule
         public string Note;
     }
 
@@ -53,6 +58,8 @@ public static class Module3PlaceholderPrefabs
             TriBudget = 3000,
             Sockets = new[] { "Socket_Mount" },
             Size = new Vector3(0.306f, 0.453f, 0.21f),
+            Greybox = false,
+            Material = Materials + "/M_ElectricFan.mat",
             Note = "Fan_Blade is a separate child on the spin axis; animate its local Z.",
         },
         new Entry {
@@ -61,6 +68,8 @@ public static class Module3PlaceholderPrefabs
             TriBudget = 500,
             Sockets = new[] { "Socket_Mount" },
             Size = new Vector3(1.5f, 1f, 0.04f),
+            Greybox = false,
+            Material = Materials + "/M_WindowScreen.mat",
             Note = "1.50 x 1.00 m, sized to the measured Lao house window opening.",
         },
         new Entry {
@@ -69,6 +78,8 @@ public static class Module3PlaceholderPrefabs
             TriBudget = 500,
             Sockets = new[] { "Socket_Mount" },
             Size = new Vector3(1.5f, 1f, 0.099f),
+            Greybox = false,
+            Material = Materials + "/M_WindowScreen.mat",   // same material as intact (Asset Brief A3)
             Note = "Repair target for RepairScreen(householdId). Same opening as PF_WindowScreen.",
         },
         new Entry {
@@ -77,6 +88,8 @@ public static class Module3PlaceholderPrefabs
             TriBudget = 1500,
             Sockets = new[] { "Socket_Mount", "Socket_Hook" },
             Size = new Vector3(0.32f, 0.589f, 0.32f),
+            Greybox = false,
+            Material = Materials + "/M_MosquitoNet_RolledUp.mat",
             Note = "The 'up' state. Shares an origin with PF_MosquitoNet_Deployed -- swap at one transform.",
         },
         // The 'down' state is existing finished art, not a placeholder. It gets a
@@ -97,6 +110,8 @@ public static class Module3PlaceholderPrefabs
             TriBudget = 1500,
             Sockets = new[] { "Socket_Grip" },
             Size = new Vector3(0.071f, 0.191f, 0.06f),
+            Greybox = false,
+            Material = Materials + "/M_RepellentBottle.mat",
             Note = "GiveRepellent(personId).",
         },
         new Entry {
@@ -105,6 +120,8 @@ public static class Module3PlaceholderPrefabs
             TriBudget = 1500,
             Sockets = new[] { "Socket_Grip" },
             Size = new Vector3(0.084f, 0.11f, 0.084f),
+            Greybox = false,
+            Material = Materials + "/M_DrinkingVessel.mat",
             Note = "BringWater(personId).",
         },
         new Entry {
@@ -113,6 +130,8 @@ public static class Module3PlaceholderPrefabs
             TriBudget = 1500,
             Sockets = new[] { "Socket_Grip" },
             Size = new Vector3(0.4f, 0.06f, 0.26f),
+            Greybox = false,
+            Material = Materials + "/M_Cloth.mat",
             Note = "HelpRest(personId) dressing. §5: dresses the scene, never flags the person.",
         },
         new Entry {
@@ -121,6 +140,8 @@ public static class Module3PlaceholderPrefabs
             TriBudget = 1500,
             Sockets = new[] { "Socket_Grip", "Socket_Light" },
             Size = new Vector3(0.064f, 0.171f, 0.066f),
+            Greybox = false,
+            Material = Materials + "/M_Torch.mat",
             Note = "Parent a Light to Socket_Light with identity rotation; its forward is the beam.",
         },
         new Entry {
@@ -129,6 +150,8 @@ public static class Module3PlaceholderPrefabs
             TriBudget = 2000,
             Sockets = new[] { "Socket_Entrance" },
             Size = new Vector3(12.6f, 3.65f, 10.3f),
+            Greybox = false,
+            Material = Materials + "/M_HealthCentre.mat",
             Note = "PROVISIONAL massing. §13 item 4 has not resolved whether the player travels here.",
         },
     };
@@ -138,15 +161,25 @@ public static class Module3PlaceholderPrefabs
     {
         AssetDatabase.Refresh();
 
-        var material = AssetDatabase.LoadAssetAtPath<Material>(PlaceholderMaterial);
-        if (material == null)
+        // Only needed if an Entry still falls back to the shared grey
+        // placeholder (Greybox = true, Material = null); every current entry
+        // has its own finished-art material, but a future placeholder could
+        // still bind here.
+        bool anyGreybox = false;
+        foreach (var e in Entries) anyGreybox |= e.Greybox && e.Material == null;
+        Material placeholder = null;
+        if (anyGreybox)
         {
-            Debug.LogError($"[Module3] Missing {PlaceholderMaterial}. " +
-                           "Run Tools/Module3/make_unity_assets.py first.");
-            return;
+            placeholder = AssetDatabase.LoadAssetAtPath<Material>(PlaceholderMaterial);
+            if (placeholder == null)
+            {
+                Debug.LogError($"[Module3] Missing {PlaceholderMaterial}. " +
+                               "Run Tools/Module3/make_unity_assets.py first.");
+                return;
+            }
         }
 
-        var log = new StringBuilder("[Module3] Placeholder prefabs\n");
+        var log = new StringBuilder("[Module3] Prop prefabs\n");
         int built = 0, failed = 0;
 
         // Deliberately NOT wrapped in StartAssetEditing/StopAssetEditing:
@@ -154,7 +187,7 @@ public static class Module3PlaceholderPrefabs
         // paused inside that block, so every save fails silently.
         foreach (var e in Entries)
         {
-            if (BuildOne(e, material, log)) built++;
+            if (BuildOne(e, placeholder, log)) built++;
             else failed++;
         }
 
@@ -166,7 +199,7 @@ public static class Module3PlaceholderPrefabs
         else Debug.Log(log.ToString());
     }
 
-    private static bool BuildOne(Entry e, Material material, StringBuilder log)
+    private static bool BuildOne(Entry e, Material placeholder, StringBuilder log)
     {
         var model = AssetDatabase.LoadAssetAtPath<GameObject>(e.Model);
         if (model == null)
@@ -195,7 +228,7 @@ public static class Module3PlaceholderPrefabs
 
             // Unity's FBX importer puts a -90 deg X rotation on the root node of
             // a Z-up-declared file. Our meshes are already authored in Unity's
-            // axes (Tools/Module3/make_placeholders.py does the conversion into
+            // axes (Tools/Module3/make_final_models.py does the conversion into
             // the vertex data, because letting the exporter bake it displaces
             // parented children like Fan_Blade), so that rotation is a leftover
             // and the prefab root should sit at identity like the rest of the
@@ -211,12 +244,24 @@ public static class Module3PlaceholderPrefabs
             PrefabUtility.UnpackPrefabInstance(
                 instance, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
 
-            if (e.Greybox)
+            // Finished art (Entry.Material set) gets its own single material;
+            // a still-greybox entry is forced onto the shared placeholder.
+            // Reused existing art (Greybox = false, Material = null, e.g.
+            // PF_MosquitoNet_Deployed) is left exactly as the FBX imported it.
+            Material assign = e.Material != null
+                ? AssetDatabase.LoadAssetAtPath<Material>(e.Material)
+                : (e.Greybox ? placeholder : null);
+            if (e.Material != null && assign == null)
+            {
+                log.Append($"  MISSING MATERIAL {e.Material}\n");
+                return false;
+            }
+            if (assign != null)
             {
                 foreach (var r in instance.GetComponentsInChildren<MeshRenderer>(true))
                 {
                     var mats = new Material[Mathf.Max(1, r.sharedMaterials.Length)];
-                    for (int i = 0; i < mats.Length; i++) mats[i] = material;
+                    for (int i = 0; i < mats.Length; i++) mats[i] = assign;
                     r.sharedMaterials = mats;
                 }
             }
