@@ -220,13 +220,14 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
 
     private void BuildVillager(Neighbourhood sim, Transform plot, int personId, int index, Transform bed)
     {
-        // A loose fan facing the side door the volunteer comes in by, rather than a single-file
-        // row across the room facing a wall, which read as a queue.
+        // A loose group in the far corner of the room, turned to face the door the volunteer comes
+        // in by. The first layout fanned them across the middle of the room - straight in the path
+        // between the door and the bed, so a Pilot walked into one of them - and before that they
+        // stood in a row facing a wall. Model-space numbers, scaled with the house.
         int count = sim.HouseholdById(sim.PersonById(personId).HouseholdId).ResidentIds.Count;
         Vector3 door = new Vector3(3.0f, 0f, -1.27f) * houseScale;
-        Vector3 away = new Vector3(-0.84f, 0f, 0.54f);   // from the door towards the middle of the room
-        float angle = (index - (count - 1) * 0.5f) * 22f;
-        Vector3 local = door + Quaternion.Euler(0f, angle, 0f) * away * (2.6f * houseScale);
+        float rowStep = Mathf.Min(0.7f, 2.9f / Mathf.Max(count, 1));
+        Vector3 local = new Vector3(-1.6f + (index % 2) * 0.7f, 0f, -2.4f + index * rowStep) * houseScale;
         local.y = FloorY;   // on the floor, not the ground beneath it
         var spot = Anchor(plot, $"Villager_{personId}", local);
         var faceDoor = door - local;
