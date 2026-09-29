@@ -406,8 +406,11 @@ public class Module1HUD : MonoBehaviour
         }
         else
         {
-            bool bloodFull = player.Current_Blood >= player.Max_Blood;
-            bool necFull = player.Current_Nec >= player.Max_Nec;
+            // A little slack: nectar starts draining the frame you stop drinking, so an exact
+            // comparison flipped the prompt back to "Hold A to drink nectar" right after the bar
+            // filled and the quest completed.
+            bool bloodFull = player.Current_Blood >= player.Max_Blood - 0.2f;
+            bool necFull = player.Current_Nec >= player.Max_Nec - 0.2f;
             bool holding = player.PrimaryHeld;
             switch (player.CurrentInteraction)
             {
