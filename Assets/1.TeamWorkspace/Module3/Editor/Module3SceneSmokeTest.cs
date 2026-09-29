@@ -80,6 +80,14 @@ public static class Module3SceneSmokeTest
                         failures.Add($"plot {h.householdId} overlaps another at {h.transform.position}");
                 }
 
+                // The ground is painted at build time (M3GroundPainter); flat colour means the paint step failed.
+                if (builder.GetComponent<M3Surroundings>() != null)
+                {
+                    var painted = GameObject.Find("Ground (painted)");
+                    var groundTexture = painted != null ? painted.GetComponent<Renderer>().sharedMaterial.mainTexture : null;
+                    if (groundTexture == null) failures.Add("the village ground has no painted texture");
+                }
+
                 Debug.Log($"Module 3 smoke test: seed {session.Seed}, {sim.Households.Count} households, "
                           + $"{sim.People.Count} residents, {sim.AliveMosquitoCount} mosquitoes, "
                           + $"{sim.VisiblyIll().Count} visibly ill on day one, "

@@ -35,14 +35,31 @@ public class M3Surroundings : MonoBehaviour
     [SerializeField] private Color hills = new Color(0.30f, 0.44f, 0.36f);
     [SerializeField] private Color haze = new Color(0.74f, 0.82f, 0.88f);
 
+    [Header("Ground pattern")]
+    [Tooltip("Metres per texel of the painted ground over the village. Smaller is crisper and costs texture "
+             + "memory: 0.06 gives about 2200 texels across a 130 m village (10 MB).")]
+    [SerializeField] private float groundTexel = 0.06f;
+    [Tooltip("How strongly the grass mottles and the track is marked. 0 is the old flat colour.")]
+    [Range(0f, 1.5f)]
+    [SerializeField] private float groundContrast = 1f;
+
+    /// <summary>Metres one repeat of the far-fields grass tile covers.</summary>
+    private const float FieldTile = 32f;
+    /// <summary>How far the painted ground reaches past the houses along the lane, and across it (up to the paddies).</summary>
+    private const float PaintMarginAlong = 36f, PaintMarginAcross = 14f;
+    /// <summary>Width of the dirt track down the lane, before it wanders.</summary>
+    private const float TrackWidth = 3.2f;
+
     private System.Random rng;
     private Transform root;
     private readonly Dictionary<Color, Material> materials = new Dictionary<Color, Material>();
+    private readonly List<Texture2D> paintedTextures = new List<Texture2D>();
 
     /// <summary>Called by M3NeighbourhoodBuilder once the plots stand; <paramref name="village"/> covers the houses.</summary>
     public void Build(Bounds village)
     {
         if (root != null) Destroy(root.gameObject);
+        ReleaseTextures();
         root = new GameObject("Surroundings (runtime)").transform;
         root.SetParent(transform, false);
         rng = new System.Random(seed);
@@ -74,15 +91,25 @@ public class M3Surroundings : MonoBehaviour
 
     private void BuildGround(Bounds village)
     {
-        // Grass to the horizon, and the scene's own grey ground plane turned to grass to match.
-        Quad("Fields", village.center + Vector3.down * 0.03f, new Vector2(hillRadius * 2.2f, hillRadius * 2.2f), grass);
+        // Grass to the horizon: a small seamless tile repeated, since out there the repeats vanish into the haze.
+        float fieldSize = hillRadius * 2.2f;
+        var fields = Quad("Fields", village.center + Vector3.down * 0.03f, new Vector2(fieldSize, fieldSize), grass);
+        fields.GetComponent<Renderer>().sharedMaterial = PaintedMat(
+            M3GroundPainter.PaintTile(256, grass, groundContrast, seed), Vector2.one * (fieldSize / FieldTile));
+
+        // Over the village and its lane, one image that never repeats, with the dirt track between the
+        // two rows of houses painted into the grass. The scene's own grey ground plane sits at the same
+        // height, so its renderer is switched off (its collider is still what the player stands on and
+        // teleports to) rather than left to fight the painted quad for the pixels.
+        var area = new Rect(village.min.x - PaintMarginAlong, village.min.z - PaintMarginAcross,
+                            village.size.x + PaintMarginAlong * 2f, village.size.z + PaintMarginAcross * 2f);
+        var painted = Quad("Ground (painted)", new Vector3(area.center.x, 0f, area.center.y), area.size, grass);
+        painted.GetComponent<Renderer>().sharedMaterial = PaintedMat(
+            M3GroundPainter.PaintVillage(area, groundTexel, 4096, village.center.z, TrackWidth * 0.5f,
+                                         grass, track, groundContrast, seed), Vector2.one);
         var sceneGround = GameObject.Find("Ground");
         if (sceneGround != null && sceneGround.TryGetComponent<Renderer>(out var groundRenderer))
-            groundRenderer.sharedMaterial = Mat(grass, 0.05f);
-
-        // A dirt track down the lane between the two rows of houses.
-        Quad("Track", new Vector3(village.center.x, 0.005f, village.center.z),
-             new Vector2(village.size.x + 60f, 3.2f), track);
+            groundRenderer.enabled = false;
     }
 
     private void BuildPaddies(Bounds village)
@@ -222,6 +249,22 @@ public class M3Surroundings : MonoBehaviour
         materials[key] = m;
         return m;
     }
+
+    /// <summary>A matte material showing <paramref name="tex"/>. The texture is remembered so a rebuild or destroy can free it.</summary>
+    private Material PaintedMat(Texture2D tex, Vector2 tiling)
+    {
+        paintedTextures.Add(tex);
+        return new Material(Mat(Color.white, 0.05f)) { mainTexture = tex, mainTextureScale = tiling };
+    }
+
+    private void ReleaseTextures()
+    {
+        foreach (var t in paintedTextures)
+            if (t != null) Destroy(t);
+        paintedTextures.Clear();
+    }
+
+    private void OnDestroy() => ReleaseTextures();
 
     private Color Vary(Color c, float amount)
     {
