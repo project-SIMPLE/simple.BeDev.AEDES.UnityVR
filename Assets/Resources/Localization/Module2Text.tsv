@@ -24,6 +24,9 @@ toast.swatterOut		Swatter is in front of you - grab it
 toast.swatterAlready		You already have a swatter
 toast.creamOut		Repellent is in front of you - grab it
 toast.creamAlready		You already have repellent
+toast.repellentOn		Repellent on - no bites for {0} s
+toast.repellentOff		Repellent has worn off
+hud.repellent		Repellent
 measure.cover	ປິດ	Cover
 measure.change	ປ່ຽນ	Change
 measure.release	ປ່ອຍ	Release

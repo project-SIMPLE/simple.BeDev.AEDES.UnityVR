@@ -62,6 +62,10 @@ public class M2Manager : MonoBehaviour
     [Tooltip("Seconds after a bite during which further bites are ignored. Mosquitoes emerge from the very containers the player is working on, so without this a swarm landed 8 bites in 5 seconds while a jar was being covered and ended the round in under 30 seconds.")]
     public float biteGracePeriod = 5f;
 
+    [Header("Repellent")]
+    [Tooltip("Seconds of bite protection from one squeeze of repellent cream onto a hand.")]
+    public float repellentDuration = 30f;
+
     [Header("Day Night System")]
     public Light sun;
     public Material skybox;
@@ -101,6 +105,8 @@ public class M2Manager : MonoBehaviour
     private bool _subsetChosen;
     private float _roundStartedAt = -1f;
     private float _lastBiteAt = -999f;
+    private float _repellentUntil = -1f;
+    private bool _repellentWasActive;
 
     /// <summary>True once the player has picked anything up, which ends the guidance early.</summary>
     public bool HasGrabbed { get; private set; }
@@ -126,6 +132,11 @@ public class M2Manager : MonoBehaviour
     public int MosquitoesSwatted { get; private set; }
     public int BiteCount { get; private set; }
     public int BiteLimit => Mathf.Max(biteLimit, 1);
+    /// <summary>True while repellent protects the player: bites are ignored and mosquitoes veer away.</summary>
+    public bool RepellentActive => IsPlaying && Time.time < _repellentUntil;
+    public float RepellentRemaining => RepellentActive ? _repellentUntil - Time.time : 0f;
+    public int RepellentApplications { get; private set; }
+
     /// <summary>Energy, 0..1. Drains on bites and comes back after a spell without one.</summary>
     public float Energy { get; private set; } = 1f;
 
@@ -219,6 +230,7 @@ public class M2Manager : MonoBehaviour
         StartTimer();
         DayNightSystem();
         TickEnergy();
+        TickRepellent();
         AutoStartIfStuck();
         RestartGame();
     }
@@ -405,6 +417,7 @@ public class M2Manager : MonoBehaviour
     public void NoteBite()
     {
         if (!IsPlaying) return;
+        if (RepellentActive) return;
         if (Time.time - _lastBiteAt < Mathf.Max(biteGracePeriod, 0f)) return;
 
         BiteCount++;
@@ -414,6 +427,23 @@ public class M2Manager : MonoBehaviour
         if (hud != null) hud.OnBitten(BiteCount, BiteLimit);
 
         if (BiteCount >= BiteLimit) EndRound(RoundEndReason.BitesReached);
+    }
+
+    /// <summary>Called by the cream tube when it is squeezed onto a hand. Re-applying refreshes it.</summary>
+    public void ApplyRepellent()
+    {
+        if (!IsPlaying) return;
+        _repellentUntil = Time.time + Mathf.Max(repellentDuration, 0f);
+        _repellentWasActive = true;
+        RepellentApplications++;
+        if (hud != null) hud.Toast(Module2Text.RepellentOn(Mathf.RoundToInt(repellentDuration)));
+    }
+
+    private void TickRepellent()
+    {
+        if (!_repellentWasActive || RepellentActive) return;
+        _repellentWasActive = false;
+        if (IsPlaying && hud != null) hud.Toast(Module2Text.RepellentWornOff);
     }
 
     private void TickEnergy()
