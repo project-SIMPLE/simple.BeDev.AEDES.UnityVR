@@ -52,16 +52,35 @@ public class VillagerView : MonoBehaviour
 
     private void OnEnable()
     {
-        if (M3Session.Instance != null) M3Session.Instance.OnTurnStarted += OnTurnStarted;
+        if (M3Session.Instance != null)
+        {
+            M3Session.Instance.OnTurnStarted += OnTurnStarted;
+            M3Session.Instance.OnActionResolved += OnActionResolved;
+        }
         Refresh();
     }
 
     private void OnDisable()
     {
-        if (M3Session.Instance != null) M3Session.Instance.OnTurnStarted -= OnTurnStarted;
+        if (M3Session.Instance != null)
+        {
+            M3Session.Instance.OnTurnStarted -= OnTurnStarted;
+            M3Session.Instance.OnActionResolved -= OnActionResolved;
+        }
     }
 
     private void OnTurnStarted(int turnIndex) => Refresh();
+
+    // Water, rest and referral change what the room shows; do it when they happen, not at the
+    // next turn.
+    private void OnActionResolved(ActionResult result) => Refresh();
+
+    /// <summary>For a view added at runtime to a prefab that was not built for it.</summary>
+    public void WireFrom(GameObject body)
+    {
+        if (animator == null) animator = body.GetComponentInChildren<Animator>();
+        if (skinRenderer == null) skinRenderer = body.GetComponentInChildren<SkinnedMeshRenderer>();
+    }
 
     public void Refresh()
     {

@@ -143,6 +143,11 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
         if (view == null) view = villager.AddComponent<VillagerView>();
         view.personId = personId;
         view.RestingPlace = bed;
+        view.WireFrom(villager);
+        // Instantiate/AddComponent already ran OnEnable -> Refresh with personId still 0, so on
+        // the first turn every villager showed person 0's condition: a patient with a fever stood
+        // there looking well until the next turn. Refresh now that it knows who it is.
+        view.Refresh();
         Villagers.Add(view);
     }
 

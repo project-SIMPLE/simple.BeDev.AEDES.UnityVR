@@ -38,20 +38,39 @@ public class HouseholdView : MonoBehaviour
         screenMount = screen;
         fanStand = fan;
         bedNetAnchor = net;
+        bound = true;
+        Refresh();
     }
+
+    // AddComponent runs OnEnable before the builder has set householdId or called Bind, so an
+    // unconditional Refresh there drew house 0's state with no anchors - and cached it, which then
+    // stopped the real house's screen from ever being placed when its state matched.
+    private bool bound;
 
     private void OnEnable()
     {
-        if (M3Session.Instance != null) M3Session.Instance.OnTurnStarted += OnTurnStarted;
-        Refresh();
+        if (M3Session.Instance != null)
+        {
+            M3Session.Instance.OnTurnStarted += OnTurnStarted;
+            M3Session.Instance.OnActionResolved += OnActionResolved;
+        }
+        if (bound) Refresh();
     }
 
     private void OnDisable()
     {
-        if (M3Session.Instance != null) M3Session.Instance.OnTurnStarted -= OnTurnStarted;
+        if (M3Session.Instance != null)
+        {
+            M3Session.Instance.OnTurnStarted -= OnTurnStarted;
+            M3Session.Instance.OnActionResolved -= OnActionResolved;
+        }
     }
 
     private void OnTurnStarted(int turnIndex) => Refresh();
+
+    // Nothing called Refresh after an action, so a net, screen or fan appeared three days later
+    // at the next turn instead of when the Pilot put it up.
+    private void OnActionResolved(ActionResult result) => Refresh();
 
     /// <summary>Called after any action so the room changes under the player's hands.</summary>
     public void Refresh()
