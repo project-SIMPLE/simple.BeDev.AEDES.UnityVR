@@ -117,6 +117,10 @@ public class Module2Interaction : MonoBehaviour
             var body = go.GetComponent<Rigidbody>();
             if (body == null) body = go.AddComponent<Rigidbody>();
             body.mass = 0.2f;
+            // Litter was placed sunk into the ground (it never had a body, so it did not matter).
+            // Uncapped, the solver fired a banana leaf out at 8 m/s and it flew 3 m up at round
+            // start; capped, embedded pieces ease up onto the surface.
+            body.maxDepenetrationVelocity = 0.3f;
             go.AddComponent<XRGrabInteractable>();
             count++;
         }
