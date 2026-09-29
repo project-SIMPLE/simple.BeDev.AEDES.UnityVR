@@ -49,15 +49,30 @@ public class M3Surroundings : MonoBehaviour
     private const float PaintMarginAlong = 36f, PaintMarginAcross = 14f;
     /// <summary>Width of the dirt track down the lane, before it wanders.</summary>
     private const float TrackWidth = 3.2f;
+    /// <summary>
+    /// The Lao house as modelled, measured along its plot's axes (z toward the lane) at scale 1 and
+    /// multiplied by the builder's house scale: its side walls, its front wall, and where the side
+    /// door opens in the +x wall - the one a visitor comes in by, from the gap between houses.
+    /// </summary>
+    private const float ModelMinX = -4.16f, ModelMaxX = 4.39f, ModelFrontZ = 3.4f, ModelDoorZ = -0.89f;
+    /// <summary>Metres out from the side wall that the worn path down the gap runs.</summary>
+    private const float PathOffset = 1f;
 
     private System.Random rng;
     private Transform root;
     private readonly Dictionary<Color, Material> materials = new Dictionary<Color, Material>();
     private readonly List<Texture2D> paintedTextures = new List<Texture2D>();
 
-    /// <summary>Called by M3NeighbourhoodBuilder once the plots stand; <paramref name="village"/> covers the houses.</summary>
+    /// <summary>
+    /// Called by M3NeighbourhoodBuilder once the plots stand; <paramref name="village"/> covers the
+    /// houses. The plots themselves (whose yards get worn) are read from the builder on this object.
+    /// </summary>
     public void Build(Bounds village)
     {
+        // Not the builder's static HouseholdViews: that is only set in Awake, so it is empty when the
+        // neighbourhood is built in edit mode (the scene smoke test).
+        var builder = GetComponent<M3NeighbourhoodBuilder>();
+        IReadOnlyList<HouseholdView> plots = builder != null ? builder.Households : M3NeighbourhoodBuilder.HouseholdViews;
         if (root != null) Destroy(root.gameObject);
         ReleaseTextures();
         root = new GameObject("Surroundings (runtime)").transform;
@@ -65,7 +80,7 @@ public class M3Surroundings : MonoBehaviour
         rng = new System.Random(seed);
 
         BuildSky();
-        BuildGround(village);
+        BuildGround(village, plots);
         BuildPaddies(village);
         BuildTrees(village);
         BuildHills(village.center);
@@ -89,7 +104,7 @@ public class M3Surroundings : MonoBehaviour
         if (cam != null) cam.farClipPlane = Mathf.Max(cam.farClipPlane, farClip);
     }
 
-    private void BuildGround(Bounds village)
+    private void BuildGround(Bounds village, IReadOnlyList<HouseholdView> plots)
     {
         // Grass to the horizon: a small seamless tile repeated, since out there the repeats vanish into the haze.
         float fieldSize = hillRadius * 2.2f;
@@ -98,15 +113,28 @@ public class M3Surroundings : MonoBehaviour
             M3GroundPainter.PaintTile(256, grass, groundContrast, seed), Vector2.one * (fieldSize / FieldTile));
 
         // Over the village and its lane, one image that never repeats, with the dirt track between the
-        // two rows of houses painted into the grass. The scene's own grey ground plane sits at the same
-        // height, so its renderer is switched off (its collider is still what the player stands on and
-        // teleports to) rather than left to fight the painted quad for the pixels.
+        // two rows of houses painted into the grass, and the worn yard and side-door path of every house.
+        // The scene's own grey ground plane sits at the same height, so its renderer is switched off
+        // (its collider is still what the player stands on and teleports to) rather than left to fight
+        // the painted quad for the pixels.
         var area = new Rect(village.min.x - PaintMarginAlong, village.min.z - PaintMarginAcross,
                             village.size.x + PaintMarginAlong * 2f, village.size.z + PaintMarginAcross * 2f);
+        var frames = new M3GroundPainter.PlotFrame[plots != null ? plots.Count : 0];
+        for (int i = 0; i < frames.Length; i++)
+            frames[i] = M3GroundPainter.FrameOf(plots[i].transform, village.center.z);
+        float houseScale = M3NeighbourhoodBuilder.HouseScale;
+        var yard = new M3GroundPainter.YardLayout
+        {
+            minX = ModelMinX * houseScale,
+            maxX = ModelMaxX * houseScale,
+            frontZ = ModelFrontZ * houseScale,
+            doorZ = ModelDoorZ * houseScale,
+            pathX = ModelMaxX * houseScale + PathOffset,
+        };
         var painted = Quad("Ground (painted)", new Vector3(area.center.x, 0f, area.center.y), area.size, grass);
         painted.GetComponent<Renderer>().sharedMaterial = PaintedMat(
             M3GroundPainter.PaintVillage(area, groundTexel, 4096, village.center.z, TrackWidth * 0.5f,
-                                         grass, track, groundContrast, seed), Vector2.one);
+                                         frames, yard, grass, track, groundContrast, seed), Vector2.one);
         var sceneGround = GameObject.Find("Ground");
         if (sceneGround != null && sceneGround.TryGetComponent<Renderer>(out var groundRenderer))
             groundRenderer.enabled = false;
