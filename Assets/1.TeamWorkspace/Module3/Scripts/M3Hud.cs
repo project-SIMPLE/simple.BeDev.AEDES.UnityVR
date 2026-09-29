@@ -145,6 +145,8 @@ public class M3Hud : MonoBehaviour
         handoverText.text = sb.ToString();
         handoverPanel.SetActive(true);
         handoverShownAt = Time.time;
+        // The next Pilot's turn starts when they can see, not while the old one is still reading.
+        if (M3Session.Instance != null) M3Session.Instance.HoldTurnClock(handoverSeconds);
     }
 
     private void ShowDebrief(HandoverBrief finalBrief)

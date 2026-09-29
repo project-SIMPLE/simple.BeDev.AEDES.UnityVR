@@ -37,6 +37,9 @@ public class M3Session : MonoBehaviour
     public float TurnSecondsTotal { get; private set; }
     public bool Running { get; private set; }
 
+    /// <summary>The turn clock does not run before this time - the handover screen is still up.</summary>
+    private float clockHeldUntil;
+
     public event Action<int> OnTurnStarted;              // turn index
     public event Action<HandoverBrief> OnHandover;
     public event Action<HandoverBrief> OnSessionFinished;
@@ -85,6 +88,7 @@ public class M3Session : MonoBehaviour
     private void Update()
     {
         if (!Running) return;
+        if (Time.time < clockHeldUntil) return;
 
         TurnSecondsRemaining -= Time.deltaTime;
         if (TurnSecondsRemaining > 0f) return;
@@ -116,6 +120,16 @@ public class M3Session : MonoBehaviour
         TurnSecondsRemaining = TurnSecondsTotal;
         OnHandover?.Invoke(brief);
         OnTurnStarted?.Invoke(Session.TurnIndex);
+    }
+
+    /// <summary>
+    /// Holds the turn clock while the handover screen is up. The clock used to start the instant
+    /// the turn ended, so every incoming Pilot lost the whole handover (12 s of a 180 s turn,
+    /// measured) before touching anything.
+    /// </summary>
+    public void HoldTurnClock(float seconds)
+    {
+        clockHeldUntil = Mathf.Max(clockHeldUntil, Time.time + seconds);
     }
 
     /// <summary>Everything the interaction layer routes through.</summary>
