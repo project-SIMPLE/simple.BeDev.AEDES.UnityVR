@@ -84,6 +84,9 @@ public class M3Surroundings : MonoBehaviour
         BuildPaddies(village);
         BuildTrees(village);
         BuildHills(village.center);
+
+        // The houses are part of the look too: give them their surface texture now that they stand.
+        M3HouseSurface.ApplyToPlots(plots);
     }
 
     private void BuildSky()

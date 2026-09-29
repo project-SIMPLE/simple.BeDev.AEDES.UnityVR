@@ -88,6 +88,27 @@ public static class Module3SceneSmokeTest
                     if (groundTexture == null) failures.Add("the village ground has no painted texture");
                 }
 
+                // The houses get their surface texture by material swap (M3HouseSurface); missing assets leave them smooth.
+                foreach (string asset in new[] { "Module3/M_M3_House_Light", "Module3/M_M3_House_Door" })
+                {
+                    var houseMaterial = Resources.Load<Material>(asset);
+                    if (houseMaterial == null || !houseMaterial.HasProperty("_M3DetailMap") || houseMaterial.GetTexture("_M3DetailMap") == null)
+                        failures.Add($"Resources/{asset} is missing or has no detail texture (AEDES > Module 3 > Generate House Surface Assets)");
+                }
+                // ...and that the swap reached the houses that were actually built (M3Surroundings applies it).
+                if (builder.GetComponent<M3Surroundings>() != null)
+                {
+                    foreach (var plot in builder.Households)
+                    {
+                        foreach (var part in plot.GetComponentsInChildren<Transform>())
+                        {
+                            if (part.name != "Roof") continue;
+                            if (!part.GetComponent<Renderer>().sharedMaterial.HasProperty("_M3DetailMap"))
+                                failures.Add($"the house on plot {plot.householdId} kept its smooth palette material");
+                        }
+                    }
+                }
+
                 Debug.Log($"Module 3 smoke test: seed {session.Seed}, {sim.Households.Count} households, "
                           + $"{sim.People.Count} residents, {sim.AliveMosquitoCount} mosquitoes, "
                           + $"{sim.VisiblyIll().Count} visibly ill on day one, "
