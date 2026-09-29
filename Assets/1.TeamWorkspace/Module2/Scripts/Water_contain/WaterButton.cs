@@ -18,10 +18,15 @@ public class WaterButton : MonoBehaviour
 
     private AudioSource _source;
 
+    // Only one of the scene's vases has waterSplashEffect assigned, so three of four tipped out with
+    // sound but no splash. Containers without their own effect borrow the one that is set.
+    private static GameObject s_sharedSplashEffect;
+
     private void Start()
     {
         _source = GetComponent<AudioSource>();
         isWaterActive = true;
+        if (waterSplashEffect != null) s_sharedSplashEffect = waterSplashEffect;
 
         if (!isSave && M2Manager.Instance != null) M2Manager.Instance.RegisterBreedingSite(this);
     }
@@ -43,8 +48,9 @@ public class WaterButton : MonoBehaviour
 
         // The splash lands on the nearest surface under the container (ground, house floor or
         // furniture). PF_VaseWithFlowers was serialised before waterSplashEffect existed, so it can be null.
-        if (waterSplashEffect != null && FindSplashPoint(out RaycastHit hit))
-            Instantiate(waterSplashEffect, hit.point, Quaternion.LookRotation(hit.normal));
+        var splash = waterSplashEffect != null ? waterSplashEffect : s_sharedSplashEffect;
+        if (splash != null && FindSplashPoint(out RaycastHit hit))
+            Instantiate(splash, hit.point, Quaternion.LookRotation(hit.normal));
 
         if (M2Manager.Instance == null) return;
         M2Manager.Instance.UpdateScore(getScore);
