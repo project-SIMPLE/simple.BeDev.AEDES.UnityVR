@@ -24,6 +24,11 @@ public static class Module3SceneBuilder
     private const string House = "Assets/1.TeamWorkspace/Team Assets/Prefabs/Buildings/PF_Lao_House_One_FloorV2.prefab";
     private const string Bed = "Assets/1.TeamWorkspace/Team Assets/Prefabs/PF_Bed.prefab";
     private const string Villager = "Assets/1.TeamWorkspace/Team Assets/Prefabs/Character/PF_CharacterV1.prefab";
+    // Purpose-built child and elder bodies (Tools/Module3/make_villagers.py, Module3VillagerPrefabs.cs).
+    private const string Characters = "Assets/1.TeamWorkspace/Team Assets/Prefabs/Character/";
+    private const string ChildA = Characters + "PF_Villager_Child_A.prefab";
+    private const string ChildB = Characters + "PF_Villager_Child_B.prefab";
+    private const string Elder = Characters + "PF_Villager_Elder.prefab";
     private const string Container = "Assets/1.TeamWorkspace/Team Assets/Prefabs/Props/PF_Jar.prefab";
     private const string DebugOverlay = "Assets/Resources/Prefabs/Utils/Debug Overlay.prefab";
     private const string LaoFont =
@@ -108,6 +113,8 @@ public static class Module3SceneBuilder
         Assign(so, "housePrefab", House);
         Assign(so, "bedPrefab", Bed);
         Assign(so, "villagerPrefab", Villager);
+        AssignArray(so, "childPrefabs", ChildA, ChildB);
+        AssignArray(so, "elderPrefabs", Elder);
         Assign(so, "containerPrefab", Container);
         so.ApplyModifiedPropertiesWithoutUndo();
 

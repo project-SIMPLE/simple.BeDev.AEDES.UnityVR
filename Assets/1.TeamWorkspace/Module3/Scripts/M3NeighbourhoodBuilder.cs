@@ -31,6 +31,14 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
     [SerializeField] private GameObject housePrefab;
     [SerializeField] private GameObject bedPrefab;
     [SerializeField] private GameObject villagerPrefab;
+
+    [Tooltip("Purpose-built child bodies (Animation Brief section 7, option 2): their own skeleton and "
+             + "proportions, not a scaled adult. One is picked per person. Empty falls back to "
+             + "villagerPrefab scaled down.")]
+    [SerializeField] private GameObject[] childPrefabs;
+
+    [Tooltip("Purpose-built elder bodies. Empty falls back to villagerPrefab, scaled.")]
+    [SerializeField] private GameObject[] elderPrefabs;
     [SerializeField] private GameObject containerPrefab;
 
     [Tooltip("Where the yard containers stand, in front of the house on the lane side. The house "
@@ -225,8 +233,11 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
         faceDoor.y = 0f;
         spot.localRotation = Quaternion.LookRotation(faceDoor, Vector3.up);
 
-        var villager = villagerPrefab != null ? Instantiate(villagerPrefab, spot) : new GameObject("Villager");
-        if (villagerPrefab == null) villager.transform.SetParent(spot, false);
+        var person = sim.PersonById(personId);
+        var body = BodyPrefabFor(person.Age, personId);
+        var villager = body != null ? Instantiate(body, spot) : new GameObject("Villager");
+        if (body == null) villager.transform.SetParent(spot, false);
+        ShowOneBody(villager, personId);
 
         // The prefab is Module 1's street NPC: its Human component walks waypoints and sets
         // isWalk on Start, so every villager ran on the spot indoors. They stand at home here.
@@ -235,10 +246,11 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
         var animator = villager.GetComponentInChildren<Animator>();
         if (animator != null) animator.SetBool("isWalk", false);
 
-        // One body for everyone until the art arrives, so at least size them by age.
-        var person = sim.PersonById(personId);
-        float size = person.Age == AgeBand.Child ? 0.65f : person.Age == AgeBand.Elder ? 0.94f : 1f;
-        size *= 1f + ((personId * 37) % 7 - 3) * 0.012f;  // a little natural variation
+        // A purpose-built child or elder body already has the right proportions; only the fallback
+        // adult body needs scaling by age. Everyone gets a little natural variation.
+        bool ownBody = body != villagerPrefab;
+        float size = ownBody ? 1f : person.Age == AgeBand.Child ? 0.65f : person.Age == AgeBand.Elder ? 0.94f : 1f;
+        size *= 1f + ((personId * 37) % 7 - 3) * 0.012f;
         villager.transform.localScale = Vector3.one * size;
 
         var view = villager.GetComponent<VillagerView>();
@@ -263,6 +275,32 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
         }
         var target = villager.GetComponent<M3VillagerTarget>() ?? villager.AddComponent<M3VillagerTarget>();
         target.personId = personId;
+    }
+
+    /// <summary>The body for this person: a purpose-built one for their age band if the scene has any.</summary>
+    private GameObject BodyPrefabFor(AgeBand age, int personId)
+    {
+        var pool = age == AgeBand.Child ? childPrefabs : age == AgeBand.Elder ? elderPrefabs : null;
+        if (pool != null && pool.Length > 0)
+        {
+            var pick = pool[(int)((uint)personId % (uint)pool.Length)];
+            if (pick != null) return pick;
+        }
+        return villagerPrefab;
+    }
+
+    /// <summary>
+    /// PF_CharacterV1 carries three complete bodies (fodo, nasa, Roger - each 1.6-1.7 m tall, each a
+    /// different head) as siblings, all active, and nothing chooses between them, so every adult
+    /// rendered all three stacked in one spot. Keep one per person, chosen from their id so it is
+    /// stable across rebuilds, and switch the others off. A prefab with a single body is untouched.
+    /// </summary>
+    private static void ShowOneBody(GameObject villager, int personId)
+    {
+        var bodies = villager.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+        if (bodies.Length < 2) return;
+        int keep = (int)((uint)personId % (uint)bodies.Length);
+        for (int i = 0; i < bodies.Length; i++) bodies[i].gameObject.SetActive(i == keep);
     }
 
     private static Transform Anchor(Transform parent, string name, Vector3 localPosition)

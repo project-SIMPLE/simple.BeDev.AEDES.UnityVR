@@ -47,6 +47,12 @@ public class VillagerView : MonoBehaviour
     [Tooltip("Height of the mattress surface above the bed anchor (measured on PF_Bed; the body's own thickness is added on top).")]
     [SerializeField] private float mattressHeight = 0.6f;
 
+    [Tooltip("Standing height of this body in metres. The lying pose is offset by half of it because the "
+             + "rig's origin is at the feet, so a shorter body must be laid nearer the bed's head end or "
+             + "it hangs off the far side. 1.7 is the adult SK_Character the offsets were measured on; "
+             + "the child and elder prefabs set their own.")]
+    [SerializeField] private float bodyHeight = 1.7f;
+
     private Vector3 standingPosition;
     private Quaternion standingRotation;
     private bool capturedStandingPosition;
@@ -163,7 +169,9 @@ public class VillagerView : MonoBehaviour
 
         if (resting)
         {
-            float s = transform.lossyScale.y;   // children are smaller, so the offsets scale with them
+            // Children are smaller, so the offsets scale with them: by any scale applied to this
+            // object, and by how tall the body itself is relative to the 1.7 m adult.
+            float s = transform.lossyScale.y * (bodyHeight / 1.7f);
             Vector3 feetOffset = RestingPlace.rotation * new Vector3(0f, 0f, 0.85f * s);
             transform.SetPositionAndRotation(
                 RestingPlace.position + feetOffset + Vector3.up * (mattressHeight + 0.12f * s),

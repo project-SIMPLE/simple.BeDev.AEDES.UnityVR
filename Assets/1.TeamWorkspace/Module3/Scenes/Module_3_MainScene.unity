@@ -580,6 +580,11 @@ MonoBehaviour:
   housePrefab: {fileID: 6484222673902141143, guid: 908f7032114933a47b79326aa4169a8b, type: 3}
   bedPrefab: {fileID: 8638829071811766795, guid: 5e86aaec090b5034cbda1bc9a0cf13c4, type: 3}
   villagerPrefab: {fileID: 5270409977889807214, guid: 79fdf6a8b358f664f92b8fa1ae1d67bd, type: 3}
+  childPrefabs:
+  - {fileID: 4507602776438705724, guid: e3ef79d2b7f4c4055aefbff0d84ebec8, type: 3}
+  - {fileID: 8327351880105173063, guid: 4fa041fac870d45dc9d9bff421580882, type: 3}
+  elderPrefabs:
+  - {fileID: 2075428549564017450, guid: ee936e0eb9ea349ca823b484bb395092, type: 3}
   containerPrefab: {fileID: 7376524743313560442, guid: 56df000b2c3087b448db7963fd9f2578, type: 3}
   yardDepth: 6.2
   houseScale: 1.4

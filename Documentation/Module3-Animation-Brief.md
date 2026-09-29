@@ -255,6 +255,17 @@ Either way, **age does not need its own animation**: one set of clips retargets 
 playtesting later says an elder needs a different weight of movement, that is a follow-up variant,
 not part of this delivery.
 
+> **Decision (2026-09-29): option 2.** New meshes on their own Humanoid skeletons — one elder and
+> two children — replace the uniform-scale hack. The cost was two new rigs (a child skeleton with
+> two mesh variants, an elder skeleton), 1.4–1.7k triangles each against the existing bodies'
+> 0.6–0.7k, and five flat materials each (one dark eye material is shared). All of it retargets exactly as this section promised:
+> the shared walk clip drives both new skeletons, scaled to their bodies. Bodies, the rules they
+> follow (matching `SK_Character`'s super-deformed proportions; Lao context carried by clothing,
+> hair and colour, with only the same two eye bars the existing characters have and no caricature) and how to regenerate them are in
+> `Module3-Villager-Bodies.md`. Two things worth knowing for the clips themselves: the idle already
+> inside `SK_Character.fbx` is a static pose plus root sway, and the adult prefab was showing all
+> three of its bodies at once (now fixed in the builder).
+
 ---
 
 ## 8. How to check your own work
