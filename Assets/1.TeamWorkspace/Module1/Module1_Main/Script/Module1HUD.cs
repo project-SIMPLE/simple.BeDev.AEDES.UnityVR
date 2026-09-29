@@ -68,6 +68,7 @@ public class Module1HUD : MonoBehaviour
     Image vignette;
 
     TextMeshProUGUI timerText, rainTag, scoreText, objectiveText, promptText;
+    Image promptBg;
     RectTransform promptRect;
     string lastPrompt;
     Image objectiveArrow;
@@ -399,10 +400,14 @@ public class Module1HUD : MonoBehaviour
         string msg = null;
         Color color = textColor;
 
+        bool dangerStyle = false;
         if (danger)
         {
             msg = Module1Text.DangerPrompt;
-            color = dangerColor;
+            // White on a solid red box: red text on the dark translucent panel was nearly unreadable
+            // against the sky and power lines, on the one message that has to be read instantly.
+            color = Color.white;
+            dangerStyle = true;
         }
         else
         {
@@ -447,6 +452,8 @@ public class Module1HUD : MonoBehaviour
                 promptRect.sizeDelta = new Vector2(PromptW, Mathf.Max(52f, promptText.GetPreferredValues(msg, PromptW - 28f, 0f).y + 18f));
             }
             promptText.color = color;
+            promptText.fontStyle = dangerStyle ? FontStyles.Bold : FontStyles.Normal;
+            promptBg.color = dangerStyle ? new Color(dangerColor.r, dangerColor.g, dangerColor.b, 0.9f) : panelColor;
         }
         Fade(promptGroup, show, 12f);
     }
@@ -593,7 +600,7 @@ public class Module1HUD : MonoBehaviour
         var prompt = NewRect("Prompt", gameplay, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 92), new Vector2(PromptW, 52));
         promptRect = prompt;
         promptGroup = prompt.gameObject.AddComponent<CanvasGroup>();
-        var promptBg = prompt.gameObject.AddComponent<Image>();
+        promptBg = prompt.gameObject.AddComponent<Image>();
         promptBg.sprite = roundedSprite; promptBg.type = Image.Type.Sliced; promptBg.color = panelColor; promptBg.raycastTarget = false;
         promptText = NewText("Text", prompt, "", 28, textColor, TextAlignmentOptions.Center,
             Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(-28, 0));
