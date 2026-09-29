@@ -17,14 +17,26 @@ public class M3JournalWriter : MonoBehaviour
 
     public string LastWrittenPath { get; private set; }
 
-    private void OnEnable()
+    // Same race as M3Hud: when this OnEnable ran before M3Session's Awake it subscribed to nothing
+    // and the journal was never written. Start runs after every Awake, so try again there.
+    private M3Session subscribedTo;
+
+    private void OnEnable() => Subscribe();
+    private void Start() => Subscribe();
+
+    private void Subscribe()
     {
-        if (M3Session.Instance != null) M3Session.Instance.OnSessionFinished += Write;
+        var s = M3Session.Instance;
+        if (s == null || subscribedTo == s) return;
+        s.OnSessionFinished += Write;
+        subscribedTo = s;
     }
 
     private void OnDisable()
     {
-        if (M3Session.Instance != null) M3Session.Instance.OnSessionFinished -= Write;
+        if (subscribedTo == null) return;
+        subscribedTo.OnSessionFinished -= Write;
+        subscribedTo = null;
     }
 
     private void Write(HandoverBrief finalBrief)

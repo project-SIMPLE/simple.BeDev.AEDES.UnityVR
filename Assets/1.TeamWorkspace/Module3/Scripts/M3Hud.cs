@@ -44,20 +44,32 @@ public class M3Hud : MonoBehaviour
         BuildCanvas();
     }
 
-    private void OnEnable()
+    // M3Session sets Instance in its Awake, and Awake/OnEnable order across GameObjects is not
+    // defined. When this OnEnable ran first it silently subscribed to nothing, so the handover
+    // screen, the debrief and action feedback never appeared. Start runs after every Awake in the
+    // scene, so try again there.
+    private M3Session subscribedTo;
+
+    private void OnEnable() => Subscribe();
+    private void Start() => Subscribe();
+
+    private void Subscribe()
     {
-        if (M3Session.Instance == null) return;
-        M3Session.Instance.OnHandover += ShowHandover;
-        M3Session.Instance.OnSessionFinished += ShowDebrief;
-        M3Session.Instance.OnActionResolved += ShowActionFeedback;
+        var s = M3Session.Instance;
+        if (s == null || subscribedTo == s) return;
+        s.OnHandover += ShowHandover;
+        s.OnSessionFinished += ShowDebrief;
+        s.OnActionResolved += ShowActionFeedback;
+        subscribedTo = s;
     }
 
     private void OnDisable()
     {
-        if (M3Session.Instance == null) return;
-        M3Session.Instance.OnHandover -= ShowHandover;
-        M3Session.Instance.OnSessionFinished -= ShowDebrief;
-        M3Session.Instance.OnActionResolved -= ShowActionFeedback;
+        if (subscribedTo == null) return;
+        subscribedTo.OnHandover -= ShowHandover;
+        subscribedTo.OnSessionFinished -= ShowDebrief;
+        subscribedTo.OnActionResolved -= ShowActionFeedback;
+        subscribedTo = null;
     }
 
     private void Update()
