@@ -8,10 +8,11 @@ same origins, and export over the same Team Assets/Models/<name>/<name>.fbx path
 existing .fbx.meta untouched, so swapping the art is a one-file change with no scene or
 prefab-path churn. What changed in this pass:
 
-  * Far more geometry. Lathes run at 40-56 segments instead of 14-18, edges get a two-segment
-    bevel, and shading is smooth-by-angle (flat faces stay flat, rounded ones read round). The
-    Quest 3 budgets in Module3PlaceholderPrefabs.cs were raised to match; each prop stays under
-    8000 triangles and most are well under, which is nothing next to the scene's houses.
+  * More geometry where it shows. Lathes run at 28-36 segments instead of 14-18, edges get a
+    two-segment bevel where it helps, and shading is smooth-by-angle (flat faces stay flat,
+    rounded ones read round). Small round parts and hidden faces stay cheap: a first cut of this
+    pass ran everything at 40-56 segments and doubled the counts for no visible gain. The
+    budgets in Module3PlaceholderPrefabs.cs match the table below.
   * More than one colour per prop, still with ONE material per prop. Every part's UVs sit on a
     swatch of the shared palette texture (Tools/Module3/m3_palette.py, T_M3_PropPalette.png), so
     the fan has a cream body, blue blades and grey guard wire in a single draw call. This is the
@@ -47,18 +48,20 @@ WINDOW_H        = 1.00
 WINDOW_REVEAL   = 0.12   # frame reveal depth the screen must sit inside
 NET_TOP         = 1.39   # SM_MosquitoNet canopy height -- rolled net shares it
 
-# Triangle budgets, per asset. Raised in the detail pass (they were 500-3000); the
-# PlaceholderAssetTests ceiling of 8000 per prop still holds for every one of them.
+# Triangle budgets, per asset. Raised in the detail pass (they were 500-3000), then trimmed
+# back once profiling showed where the count went (guard rings, wires and lathes at more
+# segments than a Quest lens can resolve). The PlaceholderAssetTests ceiling of 8000 per prop
+# still holds for every one of them.
 TRI_BUDGET = {
-    "SM_ElectricFan":          8000,
-    "SM_WindowScreen":         3000,
-    "SM_WindowScreenTorn":     4000,
-    "SM_MosquitoNet_RolledUp": 5000,
-    "SM_RepellentBottle":      3000,
-    "SM_DrinkingVessel":       3000,
-    "SM_Cloth":                4000,
-    "SM_Torch":                3000,
-    "SM_HealthCentre":         4000,
+    "SM_ElectricFan":          5000,
+    "SM_WindowScreen":         2000,
+    "SM_WindowScreenTorn":     2500,
+    "SM_MosquitoNet_RolledUp": 3000,
+    "SM_RepellentBottle":      2000,
+    "SM_DrinkingVessel":       1500,
+    "SM_Cloth":                2000,
+    "SM_Torch":                2500,
+    "SM_HealthCentre":         3000,
 }
 
 SCREEN_CELL = 0.015      # wire pitch of the insect mesh, metres -- one tile of T_M3_ScreenMesh
@@ -310,8 +313,9 @@ def electric_fan():
     Envelope held to the verified 0.306 x 0.453 x 0.21: guard ring radius 0.145 + 0.008 wire,
     hub at 0.300, foot radius 0.105. Inside that: a lathed foot-and-column pedestal with three
     push buttons, a ball neck and a yoke with pivot pins, a domed motor housing with a dark
-    rear vent, a real wire guard (rings, a badge plate and 36 radial wires), and three broad
-    twisted, cambered blades on a domed hub.
+    rear vent, a real wire guard (rings, a badge plate and 36 four-sided radial wires), and three
+    broad twisted, cambered blades on a domed hub. Segment counts are what a Quest lens
+    resolves at arm's length, no more: the guard rings at 36x6, not 44x8.
     """
     HUB_Z = 0.300
     GR, GT = 0.145, 0.008          # guard ring: major / wire radius
@@ -324,15 +328,15 @@ def electric_fan():
         (0.000, 0.000), (0.098, 0.000), (FOOT_R, 0.005), (FOOT_R, 0.015), (0.099, 0.023),
         (0.082, 0.029), (0.056, 0.034), (0.036, 0.041), (0.028, 0.052), (0.026, 0.066),
         (0.026, 0.184), (0.031, 0.196), (0.037, 0.206), (0.037, 0.222), (0.030, 0.230),
-        (0.000, 0.232)], seg=40, name="_ped")
+        (0.000, 0.232)], seg=28, name="_ped")
     parts.append(paint(ped, "cream"))
     for i, dx in enumerate((-0.026, 0.0, 0.026)):                       # speed buttons
-        parts.append(paint(cyl(0.0075, 0.012, at=(dx, -0.062, 0.031), seg=16),
+        parts.append(paint(cyl(0.0075, 0.012, at=(dx, -0.062, 0.031), seg=12),
                            "red" if i == 0 else "dark"))
-    parts.append(paint(sphere(0.030, at=(0, 0.010, 0.236), seg=20), "cream"))   # ball neck
+    parts.append(paint(sphere(0.030, at=(0, 0.010, 0.236), seg=14), "cream"))   # ball neck
     for sx in (-1, 1):                                                   # yoke cheeks + pins
         parts.append(paint(box((0.008, 0.034, 0.064), at=(sx * 0.062, 0.045, 0.268)), "cream"))
-        parts.append(paint(cyl(0.011, 0.012, at=(sx * 0.068, 0.045, HUB_Z), seg=16,
+        parts.append(paint(cyl(0.011, 0.012, at=(sx * 0.068, 0.045, HUB_Z), seg=12,
                                rot=(0, math.radians(90), 0)), "dark"))
     parts.append(paint(box((0.132, 0.034, 0.010), at=(0, 0.045, 0.239)), "cream"))
     # One-segment bevel, corners only: the pedestal is already a smooth lathe.
@@ -343,7 +347,7 @@ def electric_fan():
     housing = revolve([
         (0.000, -0.058), (0.030, -0.0575), (0.046, -0.052), (0.055, -0.040), (0.058, -0.020),
         (0.058, 0.006), (0.054, 0.020), (0.044, 0.030), (0.028, 0.034), (0.000, 0.035)],
-        seg=40, at=(0, 0.045, HUB_Z), name="_housing")
+        seg=32, at=(0, 0.045, HUB_Z), name="_housing")
     paint(housing, "cream")
     paint_faces(housing, "dark", lambda c, n: c.z < -0.050)             # rear vent cap
     housing.rotation_euler = (math.radians(90), 0, 0)                   # local +Z -> world -Y
@@ -351,24 +355,24 @@ def electric_fan():
     parts.append(housing)
     for y in (FRONT_Y, BACK_Y):                                          # the two big rings
         parts.append(paint(torus(GR, GT, at=(0, y, HUB_Z), rot=(math.radians(90), 0, 0),
-                                 mseg=44, nseg=8), "fan_guard"))
+                                 mseg=36, nseg=6), "fan_guard"))
     parts.append(paint(torus(0.092, 0.0035, at=(0, FRONT_Y - 0.004, HUB_Z),
-                             rot=(math.radians(90), 0, 0), mseg=40, nseg=6), "fan_guard"))
-    parts.append(paint(cyl(0.036, 0.004, at=(0, FRONT_Y - 0.007, HUB_Z), seg=32,
+                             rot=(math.radians(90), 0, 0), mseg=32, nseg=5), "fan_guard"))
+    parts.append(paint(cyl(0.036, 0.004, at=(0, FRONT_Y - 0.007, HUB_Z), seg=24,
                            rot=(math.radians(90), 0, 0)), "cream"))      # badge plate, no logo
     for i in range(24):                                                  # front wires
         th = 2 * math.pi * i / 24 + math.pi / 24
         c, s = math.cos(th), math.sin(th)
         parts.append(paint(seg_between((0.034 * c, FRONT_Y - 0.007, HUB_Z + 0.034 * s),
-                                       (GR * c, FRONT_Y, HUB_Z + GR * s), 0.0016, seg=6),
+                                       (GR * c, FRONT_Y, HUB_Z + GR * s), 0.0016, seg=4),
                            "fan_guard"))
-    parts.append(paint(cyl(0.030, 0.004, at=(0, BACK_Y + 0.001, HUB_Z), seg=24,
+    parts.append(paint(cyl(0.030, 0.004, at=(0, BACK_Y + 0.001, HUB_Z), seg=20,
                            rot=(math.radians(90), 0, 0)), "fan_guard"))
     for i in range(12):                                                  # back wires
         th = 2 * math.pi * i / 12
         c, s = math.cos(th), math.sin(th)
         parts.append(paint(seg_between((0.028 * c, BACK_Y, HUB_Z + 0.028 * s),
-                                       (GR * c, BACK_Y, HUB_Z + GR * s), 0.0016, seg=6),
+                                       (GR * c, BACK_Y, HUB_Z + GR * s), 0.0016, seg=4),
                            "fan_guard"))
     for i in range(8):                                                   # ring-to-ring bridges
         th = 2 * math.pi * i / 8 + math.pi / 8
@@ -380,12 +384,12 @@ def electric_fan():
 
     # --- Fan_Blade: authored around the origin so its own origin is the spin axis ---
     hub = revolve([(0.000, -0.014), (0.018, -0.014), (0.025, -0.010), (0.026, 0.006),
-                   (0.022, 0.014), (0.012, 0.019), (0.000, 0.021)], seg=32, name="_hub")
+                   (0.022, 0.014), (0.012, 0.019), (0.000, 0.021)], seg=24, name="_hub")
     paint(hub, "dark")
     hub.rotation_euler = (math.radians(90), 0, 0)                       # dome to the front (-Y)
     apply_rotation(hub)
     parts = [hub]
-    NU, NV = 12, 7
+    NU, NV = 8, 5
     for k in range(3):
         phi = math.radians(k * 120)
         R = Vector((math.cos(phi), 0, math.sin(phi)))       # radial, in the disc plane (X-Z)
@@ -448,7 +452,7 @@ def _screen_mesh(bays, z0, z1, torn):
             dx, dz = (x - cx) / RX, (z - cz) / RZ
             return math.hypot(dx, dz) < rho(math.atan2(dz, dx))
 
-        cell = 0.025
+        cell = 0.04
         nx, nz = int(round((x1 - x0) / cell)), int(round((z1 - z0) / cell))
         for i in range(nx):
             for j in range(nz):
@@ -461,7 +465,7 @@ def _screen_mesh(bays, z0, z1, torn):
         # -Y, the room side) and sagging. Their reach sets the torn screen's depth.
         for th0, th1, rc, kappa in ((math.radians(95), math.radians(170), 0.085, 1.35),
                                      (math.radians(245), math.radians(320), 0.060, 1.60)):
-            NS, NT = 9, 6
+            NS, NT = 7, 5
             grid = []
             for si in range(NS):
                 th = th0 + (th1 - th0) * si / (NS - 1)
@@ -535,13 +539,13 @@ def mosquito_net_rolled_up():
         phase = 3.0 * (z - 0.8)
         return 1 + a * math.sin(11 * th + phase) + 0.012 * math.sin(23 * th - 2 * phase)
 
-    bundle = paint(revolve(prof, seg=56, name="_bundle", ripple=ripple), "net")
+    bundle = paint(revolve(prof, seg=36, name="_bundle", ripple=ripple), "net")
     parts = [bundle]
-    parts.append(paint(torus(0.100, 0.010, at=(0, 0, 0.808), mseg=40, nseg=8), "net"))   # rolled hem
+    parts.append(paint(torus(0.100, 0.010, at=(0, 0, 0.808), mseg=32, nseg=6), "net"))   # rolled hem
     for z, r in zip(ties, (0.128, 0.124)):
-        parts.append(paint(torus(r + 0.003, 0.006, at=(0, 0, z), mseg=48, nseg=8), "cord"))
+        parts.append(paint(torus(r + 0.003, 0.006, at=(0, 0, z), mseg=36, nseg=6), "cord"))
         kx, ky = (r + 0.006) * math.cos(0.35), (r + 0.006) * math.sin(0.35)
-        parts.append(paint(sphere(0.012, at=(kx, ky, z), seg=12), "cord"))              # knot
+        parts.append(paint(sphere(0.012, at=(kx, ky, z), seg=10), "cord"))              # knot
         for dz, dx in ((-0.075, 0.010), (-0.095, -0.012)):                              # loose ends
             parts.append(paint(seg_between((kx, ky, z - 0.006), (kx + dx, ky + 0.012, z + dz),
                                            0.0035, seg=6), "cord"))
@@ -557,16 +561,16 @@ def repellent_bottle():
     body = revolve([(0.000, 0.000), (0.024, 0.001), (0.029, 0.004), (0.030, 0.010),
                     (0.030, 0.098), (0.028, 0.110), (0.021, 0.120), (0.017, 0.126),
                     (0.016, 0.132), (0.016, 0.146), (0.013, 0.150), (0.013, 0.162),
-                    (0.000, 0.162)], seg=40, name="_body")
+                    (0.000, 0.162)], seg=32, name="_body")
     paint(body, "amber")
     paint_faces(body, "label", lambda c, n: 0.028 < c.z < 0.086 and polar(c) > 0.02)
     paint_faces(body, "white", lambda c, n: c.z > 0.140)
     parts = [body]
     head = box((0.050, 0.032, 0.030), at=(-0.010, 0, 0.176))
     apply_rotation(head)                                    # bake the scale so the bevel is even
-    bevel(head, 0.006, 3)
+    bevel(head, 0.006, 2)
     parts.append(paint(head, "white"))
-    parts.append(paint(cyl(0.006, 0.022, at=(-0.036, 0, 0.180), seg=16,
+    parts.append(paint(cyl(0.006, 0.022, at=(-0.036, 0, 0.180), seg=12,
                            rot=(0, math.radians(90), 0)), "white"))          # nozzle
     parts.append(paint(cyl(0.0035, 0.004, at=(-0.048, 0, 0.180), seg=12,
                            rot=(0, math.radians(90), 0)), "dark"))           # nozzle tip
@@ -586,11 +590,11 @@ def drinking_vessel():
             (0.036, 0.060), (0.040, 0.094), (0.043, 0.101), (0.0435, 0.105), (0.042, 0.107),
             (0.039, 0.106), (0.037, 0.100), (0.034, 0.070), (0.031, 0.020), (0.026, 0.014),
             (0.000, 0.013)]
-    cup = paint(revolve(prof, seg=40, name="_cup"), "enamel")
+    cup = paint(revolve(prof, seg=32, name="_cup"), "enamel")
     paint_faces(cup, "enamel_blue", lambda c, n: c.z > 0.0985)
     parts = [cup]
-    parts.append(paint(cyl(0.0355, 0.002, at=(0, 0, 0.090), seg=40), "water"))
-    handle = torus(0.026, 0.0045, at=(0.045, 0, 0.060), rot=(math.radians(90), 0, 0), mseg=32, nseg=8)
+    parts.append(paint(cyl(0.0355, 0.002, at=(0, 0, 0.090), seg=32), "water"))
+    handle = torus(0.026, 0.0045, at=(0.045, 0, 0.060), rot=(math.radians(90), 0, 0), mseg=24, nseg=6)
     delete_verts(handle, lambda co: co.x < -0.004)          # the half that would be inside the cup
     parts.append(paint(handle, "enamel_blue"))
     o = join(parts, "SM_DrinkingVessel", bevel_width=0.0)
@@ -603,7 +607,7 @@ def cloth():
     swept along its length with soft folds across the top and a little sag at the ends, its
     faces painted in two alternating tones for the checks."""
     L, Wd, T, cr = 0.40, 0.26, 0.046, 0.020
-    NP, NY = 56, 24
+    NP, NY = 40, 18
     segs = [(L, 0), (T - cr, 1), (math.pi * cr / 2, 2), (L - 2 * cr, 3), (math.pi * cr / 2, 4), (T - cr, 5)]
     perimeter = sum(length for length, _ in segs)
 
@@ -661,13 +665,13 @@ def torch():
         prof += [(0.0205, z), (0.0228, z + 0.0045)]
     prof += [(0.0205, 0.108), (0.021, 0.116), (0.026, 0.126), (0.031, 0.138), (0.033, 0.148),
              (0.033, 0.160), (0.031, 0.165), (0.028, 0.165), (0.028, 0.161), (0.000, 0.160)]
-    body = paint(revolve(prof, seg=36, name="_torch"), "dark")
+    body = paint(revolve(prof, seg=28, name="_torch"), "dark")
     paint_faces(body, "silver", lambda c, n: c.z > 0.117)
     paint_faces(body, "lens", lambda c, n: c.z > 0.1595 and polar(c) < 0.0285)
     parts = [body]
     button = box((0.014, 0.008, 0.022), at=(0, -0.023, 0.098))
     apply_rotation(button)
-    bevel(button, 0.003, 3)
+    bevel(button, 0.003, 2)
     parts.append(paint(button, "red"))
     parts.append(paint(torus(0.008, 0.002, at=(0, 0.027, 0.009), rot=(0, math.radians(90), 0),
                              mseg=16, nseg=6), "silver"))                   # tail D-ring
@@ -714,7 +718,7 @@ def health_centre():
     parts.append(canopy)
     for cx in (-2.7, -0.9, 0.9, 2.7):
         col = revolve([(0, 0.15), (0.14, 0.15), (0.14, 0.28), (0.10, 0.34), (0.10, 2.40),
-                       (0.13, 2.48), (0.13, 2.60), (0, 2.60)], seg=20, at=(cx, -5.95, 0), name="_col")
+                       (0.13, 2.48), (0.13, 2.60), (0, 2.60)], seg=16, at=(cx, -5.95, 0), name="_col")
         parts.append(paint(col, "whitewash"))
     parts.append(paint(box((6.8, 2.2, 0.15), at=(0, -5.1, 0.075)), "concrete"))         # porch slab
 

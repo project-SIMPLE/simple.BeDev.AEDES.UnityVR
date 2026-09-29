@@ -56,7 +56,7 @@ public static class Module3PlaceholderPrefabs
         new Entry {
             Model = Models + "/SM_ElectricFan/SM_ElectricFan.fbx",
             Prefab = Prefabs + "/Furniture/PF_ElectricFan.prefab",
-            TriBudget = 8000,
+            TriBudget = 5000,
             Sockets = new[] { "Socket_Mount" },
             Size = new Vector3(0.306f, 0.453f, 0.21f),
             Greybox = false,
@@ -66,7 +66,7 @@ public static class Module3PlaceholderPrefabs
         new Entry {
             Model = Models + "/SM_WindowScreen/SM_WindowScreen.fbx",
             Prefab = Prefabs + "/Buildings/PF_WindowScreen.prefab",
-            TriBudget = 3000,
+            TriBudget = 2000,
             Sockets = new[] { "Socket_Mount" },
             Size = new Vector3(1.5f, 1f, 0.04f),
             Greybox = false,
@@ -77,7 +77,7 @@ public static class Module3PlaceholderPrefabs
         new Entry {
             Model = Models + "/SM_WindowScreenTorn/SM_WindowScreenTorn.fbx",
             Prefab = Prefabs + "/Buildings/PF_WindowScreenTorn.prefab",
-            TriBudget = 4000,
+            TriBudget = 2500,
             Sockets = new[] { "Socket_Mount" },
             Size = new Vector3(1.5f, 1f, 0.086f),
             Greybox = false,
@@ -88,7 +88,7 @@ public static class Module3PlaceholderPrefabs
         new Entry {
             Model = Models + "/SM_MosquitoNet_RolledUp/SM_MosquitoNet_RolledUp.fbx",
             Prefab = Prefabs + "/Props/PF_MosquitoNet_RolledUp.prefab",
-            TriBudget = 5000,
+            TriBudget = 3000,
             Sockets = new[] { "Socket_Mount", "Socket_Hook" },
             Size = new Vector3(0.317f, 0.592f, 0.317f),
             Greybox = false,
@@ -110,7 +110,7 @@ public static class Module3PlaceholderPrefabs
         new Entry {
             Model = Models + "/SM_RepellentBottle/SM_RepellentBottle.fbx",
             Prefab = Prefabs + "/Props/PF_RepellentBottle.prefab",
-            TriBudget = 3000,
+            TriBudget = 2000,
             Sockets = new[] { "Socket_Grip" },
             Size = new Vector3(0.08f, 0.191f, 0.06f),
             Greybox = false,
@@ -120,7 +120,7 @@ public static class Module3PlaceholderPrefabs
         new Entry {
             Model = Models + "/SM_DrinkingVessel/SM_DrinkingVessel.fbx",
             Prefab = Prefabs + "/Props/PF_DrinkingVessel.prefab",
-            TriBudget = 3000,
+            TriBudget = 1500,
             Sockets = new[] { "Socket_Grip" },
             Size = new Vector3(0.119f, 0.107f, 0.087f),   // wider since the handle stands off the cup
             Greybox = false,
@@ -130,7 +130,7 @@ public static class Module3PlaceholderPrefabs
         new Entry {
             Model = Models + "/SM_Cloth/SM_Cloth.fbx",
             Prefab = Prefabs + "/Props/PF_Cloth.prefab",
-            TriBudget = 4000,
+            TriBudget = 2000,
             Sockets = new[] { "Socket_Grip" },
             Size = new Vector3(0.4f, 0.05f, 0.26f),
             Greybox = false,
@@ -140,7 +140,7 @@ public static class Module3PlaceholderPrefabs
         new Entry {
             Model = Models + "/SM_Torch/SM_Torch.fbx",
             Prefab = Prefabs + "/Props/PF_Torch.prefab",
-            TriBudget = 3000,
+            TriBudget = 2500,
             Sockets = new[] { "Socket_Grip", "Socket_Light" },
             Size = new Vector3(0.066f, 0.166f, 0.07f),
             Greybox = false,
@@ -150,7 +150,7 @@ public static class Module3PlaceholderPrefabs
         new Entry {
             Model = Models + "/SM_HealthCentre/SM_HealthCentre.fbx",
             Prefab = Prefabs + "/Buildings/PF_HealthCentre.prefab",
-            TriBudget = 4000,
+            TriBudget = 3000,
             Sockets = new[] { "Socket_Entrance" },
             Size = new Vector3(12.6f, 3.65f, 10.3f),
             Greybox = false,

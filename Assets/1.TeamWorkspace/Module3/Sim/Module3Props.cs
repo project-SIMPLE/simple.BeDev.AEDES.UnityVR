@@ -68,6 +68,13 @@ namespace Aedes.Module3.Sim
         /// <summary>The fan's moving part, spun around its local Z by the view.</summary>
         public const string FanBlade = "Fan_Blade";
 
+        /// <summary>
+        /// Unity layer (ProjectSettings/TagManager, user layer 10) for renderers that are not drawn
+        /// beyond M3DistanceCulling's distance: villagers, beds and room props. Only renderer
+        /// GameObjects go on it, never colliders, so raycasts and teleporting see no difference.
+        /// </summary>
+        public const string DistanceCulledLayer = "DistanceCulled";
+
         public static readonly string[] AllPrefabs =
         {
             ElectricFan, WindowScreenTorn, WindowScreenIntact,

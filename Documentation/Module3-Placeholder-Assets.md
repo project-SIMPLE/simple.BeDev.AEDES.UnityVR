@@ -30,16 +30,16 @@ not asserted from the Blender side. That distinction mattered; see *Axis and uni
 
 | Prefab (bind to this) | Source mesh | Tris / budget | Size (m, Unity XYZ) | Sockets |
 |---|---|---|---|---|
-| `Prefabs/Furniture/PF_ElectricFan.prefab` | `SM_ElectricFan` | 7188 / 8000 | 0.306 × 0.453 × 0.21 | `Socket_Mount` |
-| `Prefabs/Buildings/PF_WindowScreen.prefab` | `SM_WindowScreen` | 1408 / 3000 | 1.5 × 1.0 × 0.04 | `Socket_Mount` |
-| `Prefabs/Buildings/PF_WindowScreenTorn.prefab` | `SM_WindowScreenTorn` | 3202 / 4000 | 1.5 × 1.0 × 0.086 | `Socket_Mount` |
-| `Prefabs/Props/PF_MosquitoNet_RolledUp.prefab` | `SM_MosquitoNet_RolledUp` | 4512 / 5000 | 0.316 × 0.592 × 0.317 | `Socket_Mount`, `Socket_Hook` |
+| `Prefabs/Furniture/PF_ElectricFan.prefab` | `SM_ElectricFan` | 4700 / 5000 | 0.306 × 0.453 × 0.21 | `Socket_Mount` |
+| `Prefabs/Buildings/PF_WindowScreen.prefab` | `SM_WindowScreen` | 1408 / 2000 | 1.5 × 1.0 × 0.04 | `Socket_Mount` |
+| `Prefabs/Buildings/PF_WindowScreenTorn.prefab` | `SM_WindowScreenTorn` | 2152 / 2500 | 1.5 × 1.0 × 0.086 | `Socket_Mount` |
+| `Prefabs/Props/PF_MosquitoNet_RolledUp.prefab` | `SM_MosquitoNet_RolledUp` | 2824 / 3000 | 0.310 × 0.591 × 0.317 | `Socket_Mount`, `Socket_Hook` |
 | `Prefabs/Props/PF_MosquitoNet_Deployed.prefab` | `SM_MosquitoNet` *(existing art)* | 298 | 1.56 × 1.383 × 1.766 | — |
-| `Prefabs/Props/PF_RepellentBottle.prefab` | `SM_RepellentBottle` | 2144 / 3000 | 0.08 × 0.191 × 0.06 | `Socket_Grip` |
-| `Prefabs/Props/PF_DrinkingVessel.prefab` | `SM_DrinkingVessel` | 1532 / 3000 | 0.119 × 0.107 × 0.087 | `Socket_Grip` |
-| `Prefabs/Props/PF_Cloth.prefab` | `SM_Cloth` | 2796 / 4000 | 0.4 × 0.05 × 0.26 | `Socket_Grip` |
-| `Prefabs/Props/PF_Torch.prefab` | `SM_Torch` | 2756 / 3000 | 0.066 × 0.166 × 0.07 | `Socket_Grip`, `Socket_Light` |
-| `Prefabs/Buildings/PF_HealthCentre.prefab` | `SM_HealthCentre` | 1988 / 4000 | 12.6 × 3.65 × 10.3 | `Socket_Entrance` |
+| `Prefabs/Props/PF_RepellentBottle.prefab` | `SM_RepellentBottle` | 1904 / 2000 | 0.08 × 0.191 × 0.06 | `Socket_Grip` |
+| `Prefabs/Props/PF_DrinkingVessel.prefab` | `SM_DrinkingVessel` | 1164 / 1500 | 0.119 × 0.107 × 0.087 | `Socket_Grip` |
+| `Prefabs/Props/PF_Cloth.prefab` | `SM_Cloth` | 1516 / 2000 | 0.4 × 0.05 × 0.26 | `Socket_Grip` |
+| `Prefabs/Props/PF_Torch.prefab` | `SM_Torch` | 2148 / 2500 | 0.066 × 0.166 × 0.07 | `Socket_Grip`, `Socket_Light` |
+| `Prefabs/Buildings/PF_HealthCentre.prefab` | `SM_HealthCentre` | 1796 / 3000 | 12.6 × 3.65 × 10.3 | `Socket_Entrance` |
 
 Paths are relative to `Assets/1.TeamWorkspace/Team Assets/`. Meshes live at
 `Team Assets/Models/<name>/<name>.fbx`, following the existing folder-per-model convention.
@@ -186,9 +186,11 @@ running through them, a bullet-shaped net, a cup whose handle was a ring lying f
 side, an opaque brown board for a window screen, a white block for the health centre. The detail
 pass (2026-09-29) reworked all nine in `make_final_models.py` without touching the contract:
 
-- **Geometry.** Lathes run at 36–56 segments; edges get a small two-segment bevel where it
+- **Geometry.** Lathes run at 28–36 segments; edges get a small two-segment bevel where it
   helps (not on the fan guard's 36 wires or the torch's ribs — a bevel there triples the count for
-  nothing) and everything is shaded smooth-by-angle so flat faces stay flat. The fan has a real
+  nothing) and everything is shaded smooth-by-angle so flat faces stay flat. A first cut ran at
+  40–56 segments and about double these counts; profiling showed the extra triangles on guard
+  rings, wires and lathe walls that a Quest lens cannot resolve at arm's length, so they went. The fan has a real
   wire guard (two rings, a mid ring, a badge plate, 24 front and 12 back wires), three twisted,
   cambered blades on a domed hub, a lathed pedestal with three push buttons and a yoke with pivot
   pins. The rolled net is a rippled lathe (the ripple twists as it climbs) with two tie cords,
@@ -202,9 +204,9 @@ pass (2026-09-29) reworked all nine in `make_final_models.py` without touching t
 - **Screens.** The netting is its own child object, `Screen_Mesh`, on an alpha-cutout wire-grid
   material with coverage-preserving mipmaps; the torn variant's right bay is a lattice with a
   ragged hole and two flaps curling into the room, which is what sets its 0.086 m depth.
-- **Budgets** went from 500–3000 to 3000–8000 per prop (table above); the
+- **Budgets** went from 500–3000 to 1500–5000 per prop (table above); the
   `PlaceholderAssetTests` ceiling of 8000 per prefab is unchanged and every prop is under it.
-  The Quest 3 cost is small: ten houses' worth of fans is ~72k triangles.
+  A house plot with its four villagers is about 17k triangles, of which the props are 3–8k.
 - **Sizes** that moved: the cup is 0.119 m wide because its handle now sticks out; the torn
   screen's flaps reach 0.086 m instead of 0.104 m. Everything else is within 2 cm of before, and
   `Verify Placeholder Contract` reports 0 problems.
@@ -214,6 +216,24 @@ not committed): every prop and the three villager bodies were spawned in a row a
 from fixed cameras before and after, then the village scene itself (a fan, a torn screen and a
 rolled net in a real house) — the shots were compared by eye, and the palette and cutout
 materials render as intended under the scene's lighting.
+
+### Drawing less of it
+
+Two scene-level changes landed with the second cut, because they save more per frame than any
+mesh edit:
+
+- **Distance culling.** The village is built at runtime, so nothing can be baked for occlusion
+  culling, and every villager and prop inside the view cone was drawn whether or not a wall was
+  in the way. `M3DistanceCulling` (added to the builder's GameObject on `Awake`) sets the main
+  camera's per-layer cull distance for the `DistanceCulled` layer (TagManager user layer 10) to
+  22 m, spherical. The builder puts villagers and beds on that layer and `HouseholdView.Place`
+  puts the fan, screens and nets on it; houses, palms, the ground and the yard jars (outdoors,
+  cheap, and they would pop into view on the lane) stay on Default. Only renderer GameObjects are moved, never colliders, so pointing and teleporting are
+  untouched. `DistanceCullingTests` fails if the layer goes missing, since the runtime would
+  silently draw everything again.
+- **Shadows on Android.** `Performance URP Config` (the Low quality level, which Android
+  defaults to) had a 8192×8192 main-light shadow map over 30 m; it is now 2048 over 20 m. See the
+  commit for the exact fields. Modules 1 and 2 share the asset, so they get the same saving.
 
 ## Axis and unit traps (read before touching the exporter)
 

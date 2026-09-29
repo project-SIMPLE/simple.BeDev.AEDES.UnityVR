@@ -180,6 +180,7 @@ public class HouseholdView : MonoBehaviour
         GameObject go = Instantiate(prefab, at.position, at.rotation, at);
         go.transform.localPosition = Vector3.zero;
         go.transform.localRotation = Quaternion.identity;
+        M3DistanceCulling.Mark(go);   // room props are not drawn from two houses away
         return go;
     }
 

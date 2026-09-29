@@ -44,8 +44,8 @@ The health centre was built despite being marked "do not start yet" — it was k
 crude while §13 item 4 is unresolved, and even after the detail pass it is provisional massing.
 
 **Detail pass (2026-09-29).** A second pass over the nine props and the three villager bodies
-raised the triangle budgets in §2 well above what this brief asked for (props 3000–8000, bodies
-7000) and gave every prop several colours through one shared palette texture, still one material
+raised the triangle budgets in §2 above what this brief asked for (props 1500–5000, bodies
+4000) and gave every prop several colours through one shared palette texture, still one material
 per asset. The budgets below stay as they were written, as the floor a hand-made asset must
 clear; the delivered assets and their actual counts are recorded in
 `Module3-Placeholder-Assets.md` and `Module3-Villager-Bodies.md`. One further departure: the

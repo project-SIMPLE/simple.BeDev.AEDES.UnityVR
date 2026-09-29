@@ -82,7 +82,12 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
     /// <summary>The plots of the neighbourhood that is standing now (empty before it is built).</summary>
     public static IReadOnlyList<HouseholdView> HouseholdViews => current != null ? current.Households : none;
 
-    private void Awake() => current = this;
+    private void Awake()
+    {
+        current = this;
+        // Villagers, beds and props beyond a couple of houses are not drawn (see M3DistanceCulling).
+        if (GetComponent<M3DistanceCulling>() == null) gameObject.AddComponent<M3DistanceCulling>();
+    }
 
     private bool built;
 
@@ -155,6 +160,7 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
             ? Instantiate(bedPrefab, plot.transform).transform
             : Anchor(plot.transform, "BedAnchor", bedOffset);
         bed.localPosition = bedOffset * houseScale + Vector3.up * FloorY;
+        M3DistanceCulling.Mark(bed.gameObject);
 
         var screenMount = Anchor(plot.transform, "ScreenMount", screenOffset * houseScale);
         screenMount.localScale = Vector3.one * houseScale;   // the window is scaled with the house
@@ -180,7 +186,7 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
             // In the lane-side yard, in front of the house. At z = -1.8 they were inside the
             // 6.4 m-deep house, where nobody walking the lane could see them.
             var yard = Anchor(plot.transform, $"Container_{h.Id}", new Vector3(-2.5f * houseScale, 0f, yardDepth));
-            Instantiate(containerPrefab, yard);
+            Instantiate(containerPrefab, yard);   // outdoors and cheap: not distance-culled, so it never pops on the lane
         }
 
         for (int r = 0; r < h.ResidentIds.Count; r++)
@@ -241,6 +247,7 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
         var villager = body != null ? Instantiate(body, spot) : new GameObject("Villager");
         if (body == null) villager.transform.SetParent(spot, false);
         ShowOneBody(villager, personId);
+        M3DistanceCulling.Mark(villager);
 
         // The prefab is Module 1's street NPC: its Human component walks waypoints and sets
         // isWalk on Start, so every villager ran on the spot indoors. They stand at home here.

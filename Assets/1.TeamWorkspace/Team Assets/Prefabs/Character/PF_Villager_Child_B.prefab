@@ -493,8 +493,8 @@ SkinnedMeshRenderer:
   m_BlendShapeWeights: []
   m_RootBone: {fileID: 3344375028721167325}
   m_AABB:
-    m_Center: {x: 0, y: 0.163668, z: -0.0067500025}
-    m_Extent: {x: 0.43403503, y: 0.57483184, z: 0.23174994}
+    m_Center: {x: 0, y: 0.16356625, z: -0.0067500323}
+    m_Extent: {x: 0.43404308, y: 0.5749336, z: 0.23174989}
   m_DirtyAABB: 0
 --- !u!1 &4678464708403845343
 GameObject:
@@ -700,10 +700,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.24255335
-  m_Height: 1.1025152
+  m_Radius: 0.24242133
+  m_Height: 1.1019151
   m_Direction: 1
-  m_Center: {x: 0, y: 0.5512576, z: 0}
+  m_Center: {x: 0, y: 0.55095756, z: 0}
 --- !u!114 &7281461391106157382
 MonoBehaviour:
   m_ObjectHideFlags: 0

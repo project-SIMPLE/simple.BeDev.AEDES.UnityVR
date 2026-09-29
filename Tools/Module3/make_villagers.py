@@ -20,8 +20,8 @@ conversational distance, with visible seams where a forearm met an upper arm. Th
 runs every round part at 16-28 segments, fills each joint with a sphere bound to the parent
 bone (so an elbow or knee stays round when the limb bends), gives everyone a neck, mitten
 hands with a thumb, and proper feet, and shades smooth-by-angle so cylinder caps stay crisp
-while everything round reads round. Budget went from 1800 to 7000 triangles per body -- a
-room of five villagers is still cheaper than one Lao house.
+while everything round reads round. Budget is 4000 triangles per body (about 3k used) --
+a room of five villagers is still cheaper than one Lao house.
 
 STYLE MATCH. SK_Character is a super-deformed figure: head about a third of total height,
 short legs (~35%), A-pose arms, hands as small hooks. These follow the same language
@@ -69,14 +69,17 @@ PARENT = {
 }
 
 TRI_BUDGET = {
-    "SK_Villager_Elder":   7000,
-    "SK_Villager_Child_A": 7000,
-    "SK_Villager_Child_B": 7000,
+    "SK_Villager_Elder":   4000,
+    "SK_Villager_Child_A": 4000,
+    "SK_Villager_Child_B": 4000,
 }
 
-# Segment counts for the detail pass. LIMB is the round count for arm/leg tubes, JOINT for
-# the spheres that fill elbows/knees/wrists, HEAD for the head and hair.
-HEAD, LIMB, JOINT, TORSO, SKIRT, RING = 28, 18, 14, 24, 28, 24
+# Segment counts. LIMB is the round count for arm/leg tubes, JOINT for the spheres that fill
+# elbows/knees/ankles and make the hands and feet, HEAD for the head and hair. The first detail
+# pass ran 28/18/14/24/28/24 and cost 6.3-7k triangles a body; profiling showed two thirds of
+# that on 3-9 cm spheres that show no facets at any distance a player stands at, so these are
+# the numbers that keep the head and silhouettes and halve the rest (about 3k a body).
+HEAD, LIMB, JOINT, TORSO, SKIRT, RING = 24, 12, 8, 18, 20, 16
 
 # Flat colours (URP/Lit, one region each). One plain warm-brown skin tone
 # shared by every villager: nothing here codes a specific ethnicity beyond "this village",
@@ -141,6 +144,12 @@ def ball(r, at, seg=JOINT, scale=(1, 1, 1), rot=(0, 0, 0)):
 def ring(major, minor, at, rot=(0, 0, 0), mseg=RING, nseg=6):
     bpy.ops.mesh.primitive_torus_add(major_radius=major, minor_radius=minor, major_segments=mseg,
                                      minor_segments=nseg, location=at, rotation=rot)
+    return _added()
+
+def band(r, h, at, seg=RING):
+    """A flat open band round the body (collar, waistband, tee hem): a capless cylinder. A torus
+    here spent half its triangles on the inner half nobody can see."""
+    bpy.ops.mesh.primitive_cylinder_add(radius=r, depth=h, vertices=seg, location=at, end_fill_type='NOTHING')
     return _added()
 
 def hair_cap(r, at, seg=HEAD, back_rim=-0.50, front_rim=0.30, front_y=0.2):
@@ -328,7 +337,7 @@ def build_body(name, p, o):
     # ---- Skin first: head, ears, neck ----
     add(ball(hr, (0, 0, hc), seg=HEAD), "Head", skin_k, SKIN)
     for sx in (1, -1):
-        add(ball(hr * 0.15, (sx * hr * 0.99, 0, hc - hr * 0.04), seg=10, scale=(0.5, 0.9, 1.0)),
+        add(ball(hr * 0.15, (sx * hr * 0.99, 0, hc - hr * 0.04), seg=8, scale=(0.5, 0.9, 1.0)),
             "Head", skin_k, SKIN)
     add(cyl(hr * 0.30, (hc - hr * 0.75) - (p["chest_z"] - 0.03), (0, 0.01, ((hc - hr * 0.75) + p["chest_z"] - 0.03) / 2),
             seg=JOINT), "Spine", skin_k, SKIN)                                   # neck
@@ -337,9 +346,9 @@ def build_body(name, p, o):
     # Everything hangs BEHIND the head, i.e. towards +Y (the character faces -Y). ----
     if o["hair_style"] == "bun":
         add(hair_cap(hr * 1.06, (0, 0, hc), back_rim=-0.70), "Head", hair_k, hair_c)
-        add(ball(hr * 0.30, (0, hr * 1.02, hc + hr * 0.22), seg=16), "Head", hair_k, hair_c)
+        add(ball(hr * 0.30, (0, hr * 1.02, hc + hr * 0.22), seg=12), "Head", hair_k, hair_c)
         add(ring(hr * 0.30, hr * 0.035, (0, hr * 0.98, hc + hr * 0.22),
-                 rot=(math.radians(90), 0, 0), mseg=20, nseg=6), "Head", hair_k, hair_c)   # the bun's coil
+                 rot=(math.radians(90), 0, 0), mseg=16, nseg=5), "Head", hair_k, hair_c)   # the bun's coil
     elif o["hair_style"] == "pigtails":
         add(hair_cap(hr * 1.06, (0, 0, hc), back_rim=-0.50), "Head", hair_k, hair_c)
         for sx in (1, -1):
@@ -355,8 +364,8 @@ def build_body(name, p, o):
     add(seg_between((0, 0, p["hip_z"] - 0.02), (0, 0, p["chest_z"]), r=trb, r2=trt, seg=TORSO),
         "Spine", cloth_k, cloth_c)
     add(ball(trt, (0, 0, p["chest_z"] - 0.005), seg=TORSO, scale=(1.0, 1.0, 0.35)), "Spine", cloth_k, cloth_c)   # rounded shoulders
-    add(cyl(max(trb * 1.03, p["hip_x"] + lr * 1.12), 0.10, (0, 0, p["hip_z"] + 0.01), seg=TORSO),
-        "Hips", cloth_k, cloth_c)
+    pelvis_r = max(trb * 1.03, p["hip_x"] + lr * 1.12)
+    add(cyl(pelvis_r, 0.10, (0, 0, p["hip_z"] + 0.01), seg=TORSO), "Hips", cloth_k, cloth_c)
 
     for side in ("L", "R"):
         add(ball(ar * 1.3, J[f"sh_out_{side}"], seg=JOINT), f"Shoulder.{side}", cloth_k, cloth_c)
@@ -394,12 +403,11 @@ def build_body(name, p, o):
 
     # ---- Trim: collar, waistband, sash, hems, cuffs (a contrast colour, one material) ----
     if o["collar"]:
-        add(ring(trt * 0.93, 0.024 * (p["head_r"] / 0.26), (0, 0, p["chest_z"] - 0.035), mseg=RING, nseg=6),
-            "Spine", trim_k, trim_c)
+        add(band(trt + 0.008, 0.045 * (p["head_r"] / 0.26), (0, 0, p["chest_z"] - 0.035)), "Spine", trim_k, trim_c)
     if o["waistband"]:
-        add(ring(trb * 1.02, 0.03, (0, 0, p["hip_z"] + 0.055), mseg=RING, nseg=6), "Hips", trim_k, trim_c)
+        add(band(max(trb * 1.02, pelvis_r) + 0.010, 0.06, (0, 0, p["hip_z"] + 0.055)), "Hips", trim_k, trim_c)
     if o["legs"] == "shorts" or (o["legs"] == "skirt_short" and not o["waistband"]):
-        add(ring(trb * 1.02, 0.014, (0, 0, p["hip_z"] - 0.005), mseg=RING, nseg=6), "Hips", trim_k, trim_c)  # tee hem
+        add(band(pelvis_r + 0.006, 0.028, (0, 0, p["hip_z"] - 0.005)), "Hips", trim_k, trim_c)   # tee hem
     if o["sash"]:
         # pha biang: a cloth worn diagonally from one shoulder to the opposite hip. A flattened
         # ring tilted about Y reads as that band from the front without needing a skinned strip.
@@ -431,7 +439,7 @@ def build_body(name, p, o):
                 f"UpperArm.{side}", trim_k, trim_c)                                 # short-sleeve cuff
     if o["hair_style"] == "pigtails":
         for sx in (1, -1):
-            add(ball(hr * 0.13, (sx * hr * 0.92, hr * 0.36, hc + hr * 0.06), seg=10), "Head", trim_k, trim_c)
+            add(ball(hr * 0.13, (sx * hr * 0.92, hr * 0.36, hc + hr * 0.06), seg=8), "Head", trim_k, trim_c)
 
     # ---- Eyes: the same two plain vertical bars SK_Character has, identical on every villager.
     # Nothing else on the face -- no nose, no mouth, no shaping of the eyes. Added after Trim so
@@ -447,12 +455,12 @@ def build_body(name, p, o):
         if not long_sleeves:
             add(ball(ar * 0.92, elbow, seg=JOINT), f"UpperArm.{side}", skin_k, SKIN)      # elbow
             add(seg_between(elbow, wrist, r=ar * 0.85, r2=ar * 0.72, seg=LIMB), f"LowerArm.{side}", skin_k, SKIN)
-        # wrist ball, then a mitten: a flattened ellipsoid along the hand bone, and a thumb
-        add(ball(ar * 0.70, wrist, seg=JOINT), f"LowerArm.{side}", skin_k, SKIN)
+        # a mitten: a flattened ellipsoid along the hand bone, and a thumb (no wrist ball: the
+        # mitten's root covers the joint)
         add(blob_along(wrist, tip + (tip - wrist) * 0.15, r=ar * 0.78, seg=JOINT, flatten=0.62, stretch=1.0),
             f"Hand.{side}", skin_k, SKIN)
         thumb_at = lerp(wrist, tip, 0.35) + Vector((-sx * ar * 0.35, -ar * 0.55, ar * 0.10))
-        add(ball(ar * 0.30, thumb_at, seg=10, scale=(0.9, 1.4, 0.9)), f"Hand.{side}", skin_k, SKIN)
+        add(ball(ar * 0.30, thumb_at, seg=8, scale=(0.9, 1.4, 0.9)), f"Hand.{side}", skin_k, SKIN)
 
         knee, ankle, toe = J[f"knee_{side}"], J[f"ankle_{side}"], J[f"toe_{side}"]
         if bare_shins:

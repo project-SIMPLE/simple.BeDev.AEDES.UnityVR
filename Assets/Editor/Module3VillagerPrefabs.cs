@@ -77,7 +77,7 @@ public static class Module3VillagerPrefabs
         new Entry {
             Model = Models + "/SK_Villager_Elder/SK_Villager_Elder.fbx",
             Prefab = Prefabs + "/PF_Villager_Elder.prefab",
-            TriBudget = 7000, HeightM = 1.58f,
+            TriBudget = 4000, HeightM = 1.58f,
             SkinMat = Materials + "/M_Villager_Elder_Skin.mat",
             SkinUnwellMat = Materials + "/M_Villager_Elder_Skin_Unwell.mat",
             HairMat = Materials + "/M_Villager_Elder_Hair.mat",
@@ -88,7 +88,7 @@ public static class Module3VillagerPrefabs
         new Entry {
             Model = Models + "/SK_Villager_Child_A/SK_Villager_Child_A.fbx",
             Prefab = Prefabs + "/PF_Villager_Child_A.prefab",
-            TriBudget = 7000, HeightM = 1.10f,
+            TriBudget = 4000, HeightM = 1.10f,
             SkinMat = Materials + "/M_Villager_ChildA_Skin.mat",
             SkinUnwellMat = Materials + "/M_Villager_ChildA_Skin_Unwell.mat",
             HairMat = Materials + "/M_Villager_ChildA_Hair.mat",
@@ -99,7 +99,7 @@ public static class Module3VillagerPrefabs
         new Entry {
             Model = Models + "/SK_Villager_Child_B/SK_Villager_Child_B.fbx",
             Prefab = Prefabs + "/PF_Villager_Child_B.prefab",
-            TriBudget = 7000, HeightM = 1.10f,
+            TriBudget = 4000, HeightM = 1.10f,
             SkinMat = Materials + "/M_Villager_ChildB_Skin.mat",
             SkinUnwellMat = Materials + "/M_Villager_ChildB_Skin_Unwell.mat",
             HairMat = Materials + "/M_Villager_ChildB_Hair.mat",
