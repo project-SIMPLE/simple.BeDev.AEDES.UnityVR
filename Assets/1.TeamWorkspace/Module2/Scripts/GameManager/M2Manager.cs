@@ -60,7 +60,7 @@ public class M2Manager : MonoBehaviour
     [Tooltip("Seconds without a bite before energy starts coming back.")]
     public float energyRegenDelay = 4f;
     [Tooltip("Seconds after a bite during which further bites are ignored. Mosquitoes emerge from the very containers the player is working on, so without this a swarm landed 8 bites in 5 seconds while a jar was being covered and ended the round in under 30 seconds.")]
-    public float biteGracePeriod = 2.5f;
+    public float biteGracePeriod = 5f;
 
     [Header("Day Night System")]
     public Light sun;
