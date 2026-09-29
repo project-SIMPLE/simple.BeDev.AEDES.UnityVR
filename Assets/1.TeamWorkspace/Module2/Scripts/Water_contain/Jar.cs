@@ -68,7 +68,12 @@ public class Jar : MonoBehaviour
         if (LidNearMouth()) PutTop(force: true);
         else PutTop();
 
-        if (!_isClosed) _returnAt = Time.time + Mathf.Max(lidReturnDelay, 0.1f);
+        if (_isClosed) return;
+
+        _returnAt = Time.time + Mathf.Max(lidReturnDelay, 0.1f);
+        // XRI restores the kinematic flag on release, so a dropped or thrown lid used to freeze in
+        // mid-air until it teleported home. Let it fall; ReturnLidHome makes it kinematic again.
+        if (_lidBody != null) _lidBody.isKinematic = false;
     }
 
     /// <summary>World-space position the lid is meant to end up at (where Jar_top sits).</summary>
