@@ -378,6 +378,7 @@ namespace Aedes.Module3.Sim
                     m.AcquiredFromPersonId = target.Id;
                     m.AcquiredFromHouseholdId = target.HouseholdId;
                     m.AcquiredOnDay = Day;
+                    m.AcquiredFromNettedSource = target.HasNet;
                     m.InfectiousFromDay = Day + Rng.Range(
                         Config.ExtrinsicIncubationMinDays, Config.ExtrinsicIncubationMaxDays,
                         Seed, 0, RngStream.MosquitoLifespan, m.Id, 7);
@@ -500,7 +501,10 @@ namespace Aedes.Module3.Sim
                 // Judged on the day the mosquito fed, which is the moment the squad could have
                 // acted - not on the day the new case shows up.
                 SourceWasVisiblyIll = source != null && source.IsFebrile(m.AcquiredOnDay),
-                SourceWasProtected = source != null && source.HasNet,
+                // Also judged on the feeding day. Reading the source's HasNet *now* reported a
+                // patient bitten before the squad arrived, and netted later, as "a patient who was
+                // under a net" - blaming the net, and uncounting a case the squad could see.
+                SourceWasProtected = source != null && m.AcquiredFromNettedSource,
             });
         }
 

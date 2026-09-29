@@ -26,6 +26,8 @@ namespace Aedes.Module3.Sim
         public int AcquiredFromPersonId = -1;
         public int AcquiredFromHouseholdId = -1;
         public int AcquiredOnDay = -1;
+        /// <summary>Whether the person it fed on had a net up at that moment.</summary>
+        public bool AcquiredFromNettedSource;
 
         public bool Alive = true;
 
