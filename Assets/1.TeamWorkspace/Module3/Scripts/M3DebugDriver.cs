@@ -23,10 +23,17 @@ public class M3DebugDriver : MonoBehaviour
 
     private M3Session S => M3Session.Instance;
 
+    [Tooltip("Move this camera to the lane in front of the selected house. Without it the desktop "
+             + "view never moved from the spawn point, which faces house 0's wall.")]
+    [SerializeField] private bool frameSelectedHouse = true;
+    private int framedHousehold = -1;
+
     private void Update()
     {
         var k = Keyboard.current;
-        if (k == null || S == null || S.Session == null) return;
+        if (S == null || S.Session == null) return;
+        if (frameSelectedHouse && framedHousehold != selectedHousehold) FrameHousehold(selectedHousehold);
+        if (k == null) return;
 
         if (k.tabKey.wasPressedThisFrame) CycleHousehold(k.leftShiftKey.isPressed ? -1 : 1);
         if (k.qKey.wasPressedThisFrame) CycleResident(-1);
@@ -51,6 +58,20 @@ public class M3DebugDriver : MonoBehaviour
         int count = S.Neighbourhood.Households.Count;
         selectedHousehold = (selectedHousehold + delta + count) % count;
         selectedResident = 0;
+    }
+
+    /// <summary>Stand in the lane in front of the house, looking at it.</summary>
+    private void FrameHousehold(int householdId)
+    {
+        foreach (var view in FindObjectsByType<HouseholdView>(FindObjectsSortMode.None))
+        {
+            if (view.householdId != householdId) continue;
+            var plot = view.transform;
+            transform.position = plot.position + plot.forward * 7f + Vector3.up * 1.6f;
+            transform.rotation = Quaternion.LookRotation(plot.position + Vector3.up * 1.2f - transform.position);
+            framedHousehold = householdId;
+            return;
+        }
     }
 
     private void CycleResident(int delta)
