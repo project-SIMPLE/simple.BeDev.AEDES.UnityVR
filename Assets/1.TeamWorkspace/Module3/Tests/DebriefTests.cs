@@ -27,6 +27,38 @@ namespace Aedes.Module3.Sim.Tests
         // ---- trace-back ------------------------------------------------------------------
 
         [Test]
+        public void ANetPutUpAfterTheBiteIsNotBlamedForTheCase()
+        {
+            // Found in a playtest journal: patients bitten before the squad arrived and netted on
+            // day 0 were later reported as "a patient who was under a net", because the net was
+            // read on the day the new case appeared rather than the day the mosquito fed.
+            for (int seed = 1; seed < 30; seed++)
+            {
+                var n = ScenarioBuilder.Build(seed, Module3Config.Default, ScenarioOptions.Default);
+                var watched = new HashSet<int>();
+                for (int d = 0; d < 60; d++)
+                {
+                    n.AdvanceDay();
+                    foreach (var m in n.Mosquitoes)
+                    {
+                        if (m.AcquiredOnDay != n.Day || m.AcquiredFromNettedSource || watched.Contains(m.Id)) continue;
+                        watched.Add(m.Id);
+                        var source = n.PersonById(m.AcquiredFromPersonId);
+                        if (source != null) source.HasNet = true;   // netted only after the bite
+                    }
+                    foreach (var e in n.Log.Events)
+                    {
+                        if (!watched.Contains(e.MosquitoId)) continue;
+                        Assert.IsFalse(e.SourceWasProtected,
+                            "a case was blamed on a net that went up after the mosquito had fed");
+                        return;
+                    }
+                }
+            }
+            Assert.Inconclusive("no watched mosquito transmitted within the window");
+        }
+
+        [Test]
         public void EveryCaseCanBeTracedBack()
         {
             // Section 5: "When a new case appears, the game traces it back." Every case, not most.
