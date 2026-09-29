@@ -633,7 +633,9 @@ public class Module1HUD : MonoBehaviour
     {
         // Rows are 76 apart: a title (30) plus a two-line hint needs ~74, and at the old 66 each hint
         // crowded the next title while the three-line egg hint ran into the grip footer.
-        var panel = NewRect("Quests", parent, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-20, 20), new Vector2(310, 410));
+        // Centred at +72 so its bottom edge (-133) stays above a two-line action prompt (top -138);
+        // lower, the panel covered the end of prompts like "Blood full - ... Find rainwater".
+        var panel = NewRect("Quests", parent, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-20, 72), new Vector2(310, 410));
         questGroup = panel.gameObject.AddComponent<CanvasGroup>();
         var bg = panel.gameObject.AddComponent<Image>();
         bg.sprite = roundedSprite; bg.type = Image.Type.Sliced; bg.color = panelColor; bg.raycastTarget = false;
