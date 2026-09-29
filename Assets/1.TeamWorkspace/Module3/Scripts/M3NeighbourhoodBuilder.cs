@@ -33,6 +33,10 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
     [SerializeField] private GameObject villagerPrefab;
     [SerializeField] private GameObject containerPrefab;
 
+    [Tooltip("Where the yard containers stand, in front of the house on the lane side. The house "
+             + "footprint ends at z = 3.4.")]
+    [SerializeField] private float yardDepth = 4.6f;
+
     [Header("Anchors inside a plot (local to the house)")]
     [SerializeField] private Vector3 bedOffset = new Vector3(0f, 0f, 2.2f);
     [SerializeField] private Vector3 screenOffset = new Vector3(1.6f, 1.4f, 0.1f);
@@ -113,8 +117,10 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
             for (int c = 0; c < h.Containers.Count; c++)
             {
                 if (!h.Containers[c].IsProductive) continue;
+                // In the lane-side yard, in front of the house. At z = -1.8 they were inside the
+                // 6.4 m-deep house, where nobody walking the lane could see them.
                 var yard = Anchor(plot.transform, $"Container_{h.Containers[c].Id}",
-                    new Vector3(-2.5f + c * 0.9f, 0f, -1.8f));
+                    new Vector3(-2.5f + c * 0.9f, 0f, yardDepth));
                 Instantiate(containerPrefab, yard);
             }
         }
