@@ -317,9 +317,54 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
     private static void ShowOneBody(GameObject villager, int personId)
     {
         var bodies = villager.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+        RepairBones(bodies);
         if (bodies.Length < 2) return;
         int keep = (int)((uint)personId % (uint)bodies.Length);
         for (int i = 0; i < bodies.Length; i++) bodies[i].gameObject.SetActive(i == keep);
+    }
+
+    /// <summary>
+    /// In PF_CharacterV1 only Roger is rigged: fodo and nasa have every entry of their bone list
+    /// empty, and a skinned mesh with no bones draws nothing at all - upright or lying, whatever its
+    /// bounds say. Two thirds of the adults were invisible (a sick one on a bed showed an empty
+    /// mattress). All three meshes are skinned to the same 31-bone skeleton - their bind poses are
+    /// identical - so the unrigged bodies take the rigged one's bones. Done here rather than in the
+    /// prefab because Module 1's street NPCs stack all three bodies from the same prefab, and rigging
+    /// them there would show three overlapping people.
+    /// </summary>
+    private static void RepairBones(SkinnedMeshRenderer[] bodies)
+    {
+        SkinnedMeshRenderer donor = null;
+        foreach (var body in bodies)
+            if (HasAllBones(body)) { donor = body; break; }
+        if (donor == null) return;
+
+        foreach (var body in bodies)
+        {
+            if (HasAllBones(body) || body.sharedMesh == null) continue;
+            if (!SameSkeleton(body.sharedMesh, donor.sharedMesh)) continue;
+            body.bones = donor.bones;
+            if (body.rootBone == null) body.rootBone = donor.rootBone;
+        }
+    }
+
+    private static bool HasAllBones(SkinnedMeshRenderer body)
+    {
+        var bones = body.bones;
+        if (bones == null || bones.Length == 0) return false;
+        foreach (var b in bones) if (b == null) return false;
+        return true;
+    }
+
+    private static bool SameSkeleton(Mesh a, Mesh b)
+    {
+        var pa = a.bindposes;
+        var pb = b.bindposes;
+        if (pa.Length != pb.Length) return false;
+        for (int i = 0; i < pa.Length; i++)
+            for (int k = 0; k < 16; k++)
+                if (Mathf.Abs(pa[i][k] - pb[i][k]) > 1e-5f) return false;
+        return true;
     }
 
     private static Transform Anchor(Transform parent, string name, Vector3 localPosition)
