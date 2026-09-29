@@ -11,7 +11,8 @@ public class GameManager : MonoBehaviour
     public GameObject[] Human;
     public bool IsRain;
 
-    public enum GameOverReason { Starved, Eaten, TimeOut }
+    /// <summary>How the run ended. <see cref="GameOverReason.Victory"/> is the only good one.</summary>
+    public enum GameOverReason { Starved, Eaten, TimeOut, Victory }
 
     /// <summary>True once the player has dismissed the intro. The timer and the nectar drain wait for it.</summary>
     public bool GameStarted { get; private set; }
@@ -118,8 +119,24 @@ public class GameManager : MonoBehaviour
     public void GameOver(GameOverReason reason)
     {
         if (GameEnded) return;
-        GameEnded = true;
         player.Death = true;
+        EndGame(reason);
+    }
+
+    /// <summary>
+    /// The run was won - the player completed the life cycle and laid their clutch. Called by
+    /// <see cref="QuestSystem"/> the moment the egg quest latches, so the game ends there instead
+    /// of leaving the player to fly around until the clock runs out.
+    /// </summary>
+    public void Victory()
+    {
+        if (GameEnded) return;
+        EndGame(GameOverReason.Victory);
+    }
+
+    void EndGame(GameOverReason reason)
+    {
+        GameEnded = true;
         CancelInvoke(nameof(Settime));
         hud.SetDanger(false);
         hud.ShowEnd(reason, score,

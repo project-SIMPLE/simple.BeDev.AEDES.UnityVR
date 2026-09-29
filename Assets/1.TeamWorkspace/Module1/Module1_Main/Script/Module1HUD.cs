@@ -68,6 +68,7 @@ public class Module1HUD : MonoBehaviour
     Image vignette;
 
     TextMeshProUGUI timerText, rainTag, scoreText, objectiveText, promptText;
+    Image promptBg;
     RectTransform promptRect;
     string lastPrompt;
     Image objectiveArrow;
@@ -221,7 +222,9 @@ public class Module1HUD : MonoBehaviour
         endStats.text = Module1Text.EndStats(score, questsDone, questsTotal, eggs);
         endFact.text = Module1Text.RandomFact();
         endFooter.text = Module1Text.EndFooter;
-        endTitle.color = reason == GameManager.GameOverReason.TimeOut ? textColor : warnColor;
+        endTitle.color = reason == GameManager.GameOverReason.Victory ? doneColor
+            : reason == GameManager.GameOverReason.TimeOut ? textColor
+            : warnColor;
         endGroup.alpha = 1f;
         promptGroup.alpha = 0f;
         questGroup.alpha = 0f;
@@ -325,7 +328,7 @@ public class Module1HUD : MonoBehaviour
 
         int objective = gm.quests != null ? gm.quests.CurrentObjective : -1;
         float nec = player.Max_Nec > 0 ? player.Current_Nec / player.Max_Nec : 1f;
-        bool bloodFull = player.Current_Blood >= player.Max_Blood;
+        bool canLay = player.HasBloodForEgg;
 
         // A short hint the first time each objective becomes current (this is where the thermal
         // vision tip lives).
@@ -355,7 +358,7 @@ public class Module1HUD : MonoBehaviour
                 case 2:
                     found = Nearest(humans, out target); label = Module1Text.TargetHuman; break;
                 default:
-                    if (bloodFull && player.isMate)
+                    if (canLay && player.isMate)
                     {
                         found = NearestFilledContainer(out target); label = Module1Text.TargetContainer;
                     }
@@ -397,16 +400,23 @@ public class Module1HUD : MonoBehaviour
         string msg = null;
         Color color = textColor;
 
+        bool dangerStyle = false;
         if (danger)
         {
             msg = Module1Text.DangerPrompt;
-            color = dangerColor;
+            // White on a solid red box: red text on the dark translucent panel was nearly unreadable
+            // against the sky and power lines, on the one message that has to be read instantly.
+            color = Color.white;
+            dangerStyle = true;
         }
         else
         {
-            bool bloodFull = player.Current_Blood >= player.Max_Blood;
-            bool necFull = player.Current_Nec >= player.Max_Nec;
-            bool holding = player.R_primaryValue;
+            // A little slack: nectar starts draining the frame you stop drinking, so an exact
+            // comparison flipped the prompt back to "Hold A to drink nectar" right after the bar
+            // filled and the quest completed.
+            bool bloodFull = player.Current_Blood >= player.Max_Blood - 0.2f;
+            bool necFull = player.Current_Nec >= player.Max_Nec - 0.2f;
+            bool holding = player.PrimaryHeld;
             switch (player.CurrentInteraction)
             {
                 case PlayerMain.Interaction.Flower:
@@ -426,7 +436,7 @@ public class Module1HUD : MonoBehaviour
                     var c = player.CurrentContainer;
                     if (c != null && !c.isFill) { msg = Module1Text.ContainerDry; color = mutedColor; }
                     else if (!player.isMate) { msg = Module1Text.NeedMate; color = mutedColor; }
-                    else if (!bloodFull) { msg = Module1Text.NeedBlood; color = mutedColor; }
+                    else if (!player.HasBloodForEgg) { msg = Module1Text.NeedBlood; color = mutedColor; }
                     else msg = Module1Text.PromptLayEggs;
                     break;
             }
@@ -442,6 +452,8 @@ public class Module1HUD : MonoBehaviour
                 promptRect.sizeDelta = new Vector2(PromptW, Mathf.Max(52f, promptText.GetPreferredValues(msg, PromptW - 28f, 0f).y + 18f));
             }
             promptText.color = color;
+            promptText.fontStyle = dangerStyle ? FontStyles.Bold : FontStyles.Normal;
+            promptBg.color = dangerStyle ? new Color(dangerColor.r, dangerColor.g, dangerColor.b, 0.9f) : panelColor;
         }
         Fade(promptGroup, show, 12f);
     }
@@ -588,7 +600,7 @@ public class Module1HUD : MonoBehaviour
         var prompt = NewRect("Prompt", gameplay, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 92), new Vector2(PromptW, 52));
         promptRect = prompt;
         promptGroup = prompt.gameObject.AddComponent<CanvasGroup>();
-        var promptBg = prompt.gameObject.AddComponent<Image>();
+        promptBg = prompt.gameObject.AddComponent<Image>();
         promptBg.sprite = roundedSprite; promptBg.type = Image.Type.Sliced; promptBg.color = panelColor; promptBg.raycastTarget = false;
         promptText = NewText("Text", prompt, "", 28, textColor, TextAlignmentOptions.Center,
             Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(-28, 0));
@@ -626,7 +638,11 @@ public class Module1HUD : MonoBehaviour
 
     void BuildQuestPanel(Transform parent)
     {
-        var panel = NewRect("Quests", parent, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-20, 20), new Vector2(310, 350));
+        // Rows are 76 apart: a title (30) plus a two-line hint needs ~74, and at the old 66 each hint
+        // crowded the next title while the three-line egg hint ran into the grip footer.
+        // Centred at +72 so its bottom edge (-133) stays above a two-line action prompt (top -138);
+        // lower, the panel covered the end of prompts like "Blood full - ... Find rainwater".
+        var panel = NewRect("Quests", parent, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-20, 72), new Vector2(310, 410));
         questGroup = panel.gameObject.AddComponent<CanvasGroup>();
         var bg = panel.gameObject.AddComponent<Image>();
         bg.sprite = roundedSprite; bg.type = Image.Type.Sliced; bg.color = panelColor; bg.raycastTarget = false;
@@ -639,7 +655,7 @@ public class Module1HUD : MonoBehaviour
         questRows = new QuestRow[QuestSystem.QuestCount];
         for (int i = 0; i < questRows.Length; i++)
         {
-            float y = -52 - i * 66;
+            float y = -52 - i * 76;
             var row = new QuestRow();
             row.box = NewImage("Box" + i, panel, roundedSprite, new Color(1, 1, 1, 0.18f), Image.Type.Sliced,
                 new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(16, y), new Vector2(28, 28));
@@ -650,7 +666,7 @@ public class Module1HUD : MonoBehaviour
             row.title = NewText("Title" + i, panel, "", 24, textColor, TextAlignmentOptions.Left,
                 new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(54, y + 2), new Vector2(-70, 30));
             row.hint = NewText("Hint" + i, panel, "", 18, mutedColor, TextAlignmentOptions.TopLeft,
-                new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(54, y - 26), new Vector2(-70, 40));
+                new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(54, y - 26), new Vector2(-70, 48));
             questRows[i] = row;
         }
     }
@@ -892,7 +908,7 @@ public static class Module1Text
     public const string QuestBlood = "Drink blood";
     public const string QuestBloodHint = "Hold A on a person. Right trigger = thermal vision.";
     public const string QuestEggs = "Lay eggs";
-    public const string QuestEggsHint = "Full blood meal, then press A in a container of rainwater.";
+    public const string QuestEggsHint = "Press A in a container of rainwater. One blood meal makes a full clutch.";
     public const string QuestDone = "Done";
     public static string QuestComplete(string title) => title + " complete";
 
@@ -929,14 +945,14 @@ public static class Module1Text
     public const string EnergyFull = "Energy full";
     public const string PromptDrinkBlood = "Hold A to drink blood";
     public const string DrinkingBlood = "Feeding...";
-    public const string BloodFullMated = "Blood full - find a container of rainwater and lay your eggs";
+    public const string BloodFullMated = "Blood full - that is a whole clutch. Find rainwater and lay your eggs";
     public const string BloodFullNotMated = "Blood full - now find a mate";
     public const string PromptMate = "Press A to mate";
     public const string AlreadyMated = "Already mated";
     public const string FemaleMosquito = "That's a female - you need a male to mate";
     public const string ContainerDry = "This container is dry - wait for the rain";
     public const string NeedMate = "You need a mate before you can lay eggs";
-    public const string NeedBlood = "You need a full blood meal to lay eggs";
+    public const string NeedBlood = "Not enough blood left - drink from a person first";
     public const string PromptLayEggs = "Press A to lay eggs";
     public const string DangerPrompt = "DANGER - get away!";
 
@@ -970,6 +986,7 @@ public static class Module1Text
     {
         switch (reason)
         {
+            case GameManager.GameOverReason.Victory: return "Life cycle complete!";
             case GameManager.GameOverReason.Starved: return "Out of energy";
             case GameManager.GameOverReason.Eaten: return "Eaten!";
             default: return "Time's up";
@@ -979,6 +996,7 @@ public static class Module1Text
     {
         switch (reason)
         {
+            case GameManager.GameOverReason.Victory: return "You fed, mated and laid a full clutch of eggs in standing water. That is how one mosquito becomes hundreds.";
             case GameManager.GameOverReason.Starved: return "Mosquitoes burn nectar to fly. Yours ran out - keep the energy bar topped up from flowers.";
             case GameManager.GameOverReason.Eaten: return "Predators like dragonflies and fish eat mosquitoes - one reason guppies are put in water jars.";
             default: return "A mosquito's day is over. Here is how your life cycle went.";

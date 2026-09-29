@@ -16,6 +16,29 @@ public class PlayerMain : MonoBehaviour
     public GameObject termalcam;
 
     public float Speed, FlyUpSpeed,CamRotSpeed;
+
+    [Tooltip("How much looking up or down steers flight. 1 = fly exactly where you look, 0 = always level.")]
+    [Range(0f, 1f)] public float PitchInfluence = 1f;
+    [Tooltip("Degrees of head pitch ignored around the horizon, so glancing slightly off level still flies level.")]
+    public float PitchDeadZone = 6f;
+
+    [Header("Collision")]
+    [Tooltip("Gap kept between the mosquito and any surface it flies into.")]
+    public float SkinWidth = 0.02f;
+    [Tooltip("Drop below this height and the mosquito is put back where it was last safely above ground. The village floor sits at y = -0.33.")]
+    public float FallThroughY = -3f;
+
+    [Header("Interaction reach")]
+    [Tooltip("How far from the head the mosquito can reach to drink, mate or lay eggs. The proboscis model sticks out about 1.25.")]
+    public float InteractionRange = 1.2f;
+    [Tooltip("Inside this distance a target counts whichever way you happen to be looking.")]
+    public float TouchRange = 0.4f;
+    [Tooltip("How far off your look direction a target may sit and still count, in degrees.")]
+    [Range(10f, 180f)] public float InteractionAngle = 80f;
+    [Tooltip("Extra reach kept while feeding, so drifting a little does not break a drink.")]
+    public float FeedingReachBonus = 0.5f;
+    [Tooltip("A press of A still fires if a target comes into reach this soon afterwards, so you can press just before you arrive.")]
+    public float PrimaryBufferTime = 0.3f;
     public float Current_Blood, Max_Blood;
     public float Current_Nec, Max_Nec;
 
@@ -28,54 +51,422 @@ public class PlayerMain : MonoBehaviour
     public Vector2 L_moveInput, R_moveInput;
     public SendReceiveMessageExample sr;
 
-    /// <summary>What the player is currently touching, for the HUD's contextual prompt.</summary>
+    /// <summary>What the player is currently in reach of, for the HUD's contextual prompt.</summary>
     public enum Interaction { None, Flower, Human, Mate, FemaleMosquito, Container }
     public Interaction CurrentInteraction { get; private set; }
     public WaterContainer CurrentContainer { get; private set; }
+    /// <summary>The flower or person in reach, to ride along with while feeding on it.</summary>
+    public Transform CurrentHost { get; private set; }
     /// <summary>A/X went down this frame (either hand).</summary>
     public bool PrimaryDown { get; private set; }
+    /// <summary>A/X held right now (either hand).</summary>
+    public bool PrimaryHeld { get; private set; }
 
-    private float interactionExpires;
+    /// <summary>
+    /// Blood one egg costs. A single full blood meal is one clutch of
+    /// <see cref="QuestSystem.EggsToLay"/> eggs, so laying spends a quarter of the bar at a time
+    /// instead of emptying it - the player can lay the whole clutch off one feed.
+    /// </summary>
+    public float BloodPerEgg => QuestSystem.EggsToLay > 0 ? Max_Blood / QuestSystem.EggsToLay : Max_Blood;
+    /// <summary>Enough blood left for one more egg. Small tolerance so 4 eggs really fit in one meal.</summary>
+    public bool HasBloodForEgg => Current_Blood >= BloodPerEgg - 0.01f;
+
     private bool primaryHeldLastFrame;
+    /// <summary>When A was last pressed, so a press can be honoured slightly before arrival.</summary>
+    private float primaryPressedAt = float.NegativeInfinity;
+
+    /// <summary>One thing the player can act on, with its collider resolved once.</summary>
+    private struct Target
+    {
+        public Interaction kind;
+        public Transform transform;
+        public Collider collider;
+        public WaterContainer container;
+    }
+
+    private readonly List<Target> targets = new List<Target>();
+    private float targetsRefreshAt;
+    /// <summary>Nothing in the village appears or disappears quickly, so a rescan twice a second is plenty.</summary>
+    private const float TargetRefreshInterval = 2f;
+
+    /// <summary>How fast a surface may push the mosquito back out if it has ended up inside one.</summary>
+    private const float MaxSeparationSpeed = 2f;
+    /// <summary>Corners need more than one pass to resolve; three is plenty for village geometry.</summary>
+    private const int SlideIterations = 3;
+
+    private CapsuleCollider bodyCollider;
+    private Collider[] ownColliders;
+    private readonly Collider[] overlaps = new Collider[16];
+    private readonly RaycastHit[] sweepHits = new RaycastHit[16];
+    private Vector3 desiredVelocity;
+    private Vector3 lastGroundedPosition;
 
     private void Awake()
     {
         canmove = true;
         instance = this;
         rb = GetComponent<Rigidbody>();
+        // The headset camera rides this body. Without interpolation it is only redrawn on the
+        // 50 Hz physics clock while the headset renders at 72-90 Hz, which reads as judder.
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+        // Backstop for the ground probe below: discrete detection can step straight over the
+        // village floor, which is a zero-thickness plane mesh.
+        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+        bodyCollider = GetComponent<CapsuleCollider>();
+        ownColliders = GetComponentsInChildren<Collider>(true);
+        lastGroundedPosition = transform.position;
         Current_Nec = Max_Nec/2;
+        StripDeviceSimulatorFromBuild();
+    }
+
+    /// <summary>
+    /// The XR Device Simulator registers an <c>XRSimulatedHMD</c>, which is an <c>XRHMD</c> just
+    /// like the real headset. Left active in a build, the camera's TrackedPoseDriver can bind to
+    /// that fake HMD instead of the Quest: the view then freezes perfectly level and the world
+    /// appears glued to the player's head. It is an editor-only testing aid, so make sure a stray
+    /// enabled checkbox can never ship it to the device again.
+    /// </summary>
+    private void StripDeviceSimulatorFromBuild()
+    {
+        if (Application.isEditor) return;
+        var sim = FindFirstObjectByType<UnityEngine.XR.Interaction.Toolkit.Inputs.Simulation.XRDeviceSimulator>();
+        if (sim == null) return;
+        sim.gameObject.SetActive(false);
+        Debug.LogWarning("[PlayerMain] XR Device Simulator was active in a build - disabled it so head tracking works.");
     }
 
     void Update()
     {
         
         checkinput();
-        if (Time.time > interactionExpires)
-        {
-            CurrentInteraction = Interaction.None;
-            CurrentContainer = null;
-        }
         // Frozen until the intro is dismissed and after the game ends.
         bool playing = GameManager.instance != null && GameManager.instance.IsPlaying;
         if (playing)
         {
             termalcam.SetActive(R_triggerValue);
+            AcquireTarget();
+            UpdateFeeding();   // sets canmove, so it has to come before Move
+            TryPrimaryAction();
             Move(L_moveInput);
             NectarUpdate();
         }
         else
         {
             termalcam.SetActive(false);
-            rb.linearVelocity = Vector3.zero;
+            desiredVelocity = Vector3.zero;
+            // Do not ride a walking person around on the end screen.
+            canmove = true;
+            Detach();
         }
     }
 
-    /// <summary>Called from trigger callbacks every physics step; the context expires shortly after contact ends.</summary>
-    public void ReportInteraction(Interaction kind, WaterContainer container = null)
+    /// <summary>
+    /// The rigidbody is driven, not accumulated, so it has to be written on the physics clock.
+    /// Writing it from <see cref="Update"/> re-forced the velocity between every physics step and
+    /// so wiped out the contact resolution that pushes the mosquito back out of a surface it had
+    /// begun to sink into - a few steps of that and it was through the floor for good.
+    /// </summary>
+    private void FixedUpdate()
+    {
+        if (!rb.isKinematic)
+            rb.linearVelocity = bodyCollider == null
+                ? desiredVelocity
+                : SlideAlongSurfaces(desiredVelocity) + SeparationVelocity();
+        TrackFallThrough();
+    }
+
+    /// <summary>
+    /// Rides along with what the mosquito is feeding on. The body goes kinematic for the duration:
+    /// a dynamic rigidbody parented to a moving transform is teleported every frame, which jitters
+    /// and pushes straight through anything in the way.
+    /// </summary>
+    public void AttachTo(Transform host)
+    {
+        if (transform.parent == host) return;
+        desiredVelocity = Vector3.zero;
+        rb.linearVelocity = Vector3.zero;
+        rb.isKinematic = true;
+        transform.parent = host;
+    }
+
+    /// <summary>Releases the mosquito from <see cref="AttachTo"/> and hands it back to physics.</summary>
+    public void Detach()
+    {
+        if (transform.parent == null && !rb.isKinematic) return;
+        transform.parent = null;
+        rb.isKinematic = false;
+        rb.linearVelocity = Vector3.zero;
+    }
+
+    /// <summary>
+    /// Takes the part of <paramref name="velocity"/> that would cross a surface this physics step
+    /// and turns it into motion along that surface. Two reasons this cannot be left to the solver:
+    /// the village floor is a zero-thickness single-sided plane mesh that stops generating contacts
+    /// the moment the body is past it, and the velocity here is driven rather than accumulated, so
+    /// anything the solver does to resolve a contact is overwritten on the next step anyway. The
+    /// upshot for the player is sliding along a fence or a wall instead of buzzing against it.
+    /// </summary>
+    private Vector3 SlideAlongSurfaces(Vector3 velocity)
+    {
+        float dt = Time.fixedDeltaTime;
+        for (int i = 0; i < SlideIterations; i++)
+        {
+            float speed = velocity.magnitude;
+            if (speed < 0.0001f) return Vector3.zero;
+
+            Vector3 dir = velocity / speed;
+            float step = speed * dt;
+            if (!SweepAhead(dir, step + SkinWidth, out float hitDistance, out Vector3 normal))
+                break;
+
+            // Travel as far as the surface allows, then spend what is left of the step sliding
+            // along it, so contact costs you the approach but not the rest of your speed.
+            // The probe is SkinWidth thinner than the body, so one SkinWidth here just undoes
+            // that; the second is the clearance the body actually comes to rest with.
+            float allowed = Mathf.Clamp(hitDistance - 2f * SkinWidth, 0f, step);
+            Vector3 next = (dir * allowed + Vector3.ProjectOnPlane(dir * (step - allowed), normal)) / dt;
+            if ((next - velocity).sqrMagnitude < 0.00000001f) break;
+            velocity = next;
+        }
+        return velocity;
+    }
+
+    /// <summary>
+    /// Nearest surface the body would reach travelling <paramref name="dir"/>, ignoring its own
+    /// colliders and triggers. The probe is a hair thinner than the body so a surface already
+    /// being rested against reports a usable normal instead of a zero-distance hit.
+    /// </summary>
+    private bool SweepAhead(Vector3 dir, float distance, out float hitDistance, out Vector3 normal)
+    {
+        hitDistance = 0f;
+        normal = Vector3.zero;
+        BodyCapsule(out Vector3 p0, out Vector3 p1, out float radius);
+        int n = Physics.CapsuleCastNonAlloc(p0, p1, Mathf.Max(0.001f, radius - SkinWidth), dir,
+                                            sweepHits, distance, ~0, QueryTriggerInteraction.Ignore);
+        float best = float.MaxValue;
+        for (int i = 0; i < n; i++)
+        {
+            // Zero distance means the probe began inside that collider, so its normal means
+            // nothing; SeparationVelocity is what deals with that case.
+            if (sweepHits[i].distance <= 0f || sweepHits[i].distance >= best) continue;
+            if (IsOwn(sweepHits[i].collider)) continue;
+            best = sweepHits[i].distance;
+            normal = sweepHits[i].normal;
+        }
+        hitDistance = best;
+        return best < float.MaxValue;
+    }
+
+    /// <summary>
+    /// Lifts the body out of anything it has ended up inside. PhysX does this for a body it owns,
+    /// but writing the velocity every physics step wipes out the separating velocity it applied.
+    /// </summary>
+    private Vector3 SeparationVelocity()
+    {
+        BodyCapsule(out Vector3 p0, out Vector3 p1, out float radius);
+        int n = Physics.OverlapCapsuleNonAlloc(p0, p1, radius, overlaps, ~0, QueryTriggerInteraction.Ignore);
+        Vector3 push = Vector3.zero;
+        for (int i = 0; i < n; i++)
+        {
+            if (IsOwn(overlaps[i])) continue;
+            if (Physics.ComputePenetration(
+                    bodyCollider, bodyCollider.transform.position, bodyCollider.transform.rotation,
+                    overlaps[i], overlaps[i].transform.position, overlaps[i].transform.rotation,
+                    out Vector3 dir, out float depth)
+                && depth > 0.0001f)
+                push += dir * depth;
+        }
+        return Vector3.ClampMagnitude(push / Time.fixedDeltaTime, MaxSeparationSpeed);
+    }
+
+    private bool IsOwn(Collider other)
+    {
+        for (int i = 0; i < ownColliders.Length; i++)
+            if (ownColliders[i] == other) return true;
+        return false;
+    }
+
+    /// <summary>The body capsule in world space: its two sphere centres and its radius.</summary>
+    private void BodyCapsule(out Vector3 p0, out Vector3 p1, out float radius)
+    {
+        Transform t = bodyCollider.transform;
+        Vector3 scale = t.lossyScale;
+        radius = bodyCollider.radius * Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.z));
+        // m_Direction is Y on this collider. Height below twice the radius is just a sphere,
+        // which is what the rig actually ships with, and then both centres coincide.
+        float half = Mathf.Max(0f, bodyCollider.height * 0.5f * Mathf.Abs(scale.y) - radius);
+        Vector3 center = t.TransformPoint(bodyCollider.center);
+        p0 = center - t.up * half;
+        p1 = center + t.up * half;
+    }
+
+    /// <summary>
+    /// Remembers the last position with ground under it, and returns there if the mosquito ends up
+    /// below the world anyway - a scripted teleport, or a spawn point left under the ground.
+    /// </summary>
+    private void TrackFallThrough()
+    {
+        if (transform.position.y < FallThroughY)
+        {
+            Detach();
+            canmove = true;
+            // Interpolation would smear the jump back across the next frame, so turn it off
+            // across the teleport.
+            rb.interpolation = RigidbodyInterpolation.None;
+            rb.position = lastGroundedPosition;
+            transform.position = lastGroundedPosition;
+            rb.interpolation = RigidbodyInterpolation.Interpolate;
+            desiredVelocity = Vector3.zero;
+            return;
+        }
+        if (bodyCollider == null) return;
+        // A ray starting inside a collider does not hit it, so this cannot catch the mosquito.
+        Vector3 center = bodyCollider.transform.TransformPoint(bodyCollider.center);
+        if (Physics.Raycast(center, Vector3.down, out _, 3f, ~0, QueryTriggerInteraction.Ignore))
+            lastGroundedPosition = transform.position;
+    }
+
+    /// <summary>
+    /// Sets the context that the HUD prompt and the primary action both read.
+    /// <see cref="AcquireTarget"/> rewrites it every frame while playing.
+    /// </summary>
+    public void ReportInteraction(Interaction kind, WaterContainer container = null, Transform host = null)
     {
         CurrentInteraction = kind;
         CurrentContainer = container;
-        interactionExpires = Time.time + 0.2f;
+        CurrentHost = host;
+    }
+
+    /// <summary>
+    /// Picks what the player is reaching for: whatever is within <see cref="InteractionRange"/> of
+    /// the head and roughly in front of it.
+    ///
+    /// This replaces the trigger volumes everything used to run on, which are far too tight for a
+    /// fast-moving flyer. Drinking went through the proboscis trigger - a capsule 1.25 long but only
+    /// 0.03 thick in world units - so feeding meant spearing a flower almost exactly through the
+    /// middle, against a person's solid capsule that pushes the mosquito back out. Mating and laying
+    /// eggs needed the head inside the target's own trigger: 0.4 around the male mosquito, 0.46
+    /// around a jar. Hence "I had to be really close and it still would not trigger".
+    /// </summary>
+    private void AcquireTarget()
+    {
+        if (Time.time >= targetsRefreshAt) RefreshTargets();
+
+        Vector3 origin = mainCamera != null ? mainCamera.transform.position : transform.position;
+        Vector3 look = mainCamera != null ? mainCamera.transform.forward : transform.forward;
+        float range = InteractionRange + (transform.parent != null ? FeedingReachBonus : 0f);
+
+        Interaction bestKind = Interaction.None;
+        Transform bestHost = null;
+        WaterContainer bestContainer = null;
+        float bestScore = float.MaxValue;
+
+        for (int i = 0; i < targets.Count; i++)
+        {
+            Target t = targets[i];
+            if (t.transform == null) continue;
+
+            // Bounds, not the exact shape: ClosestPoint throws on a concave mesh collider, and the
+            // bounding box is the forgiving reading, which is the point here. Inside the box this
+            // returns the origin itself, so flying into a jar always counts.
+            Vector3 point = t.collider != null ? t.collider.ClosestPointOnBounds(origin) : t.transform.position;
+            Vector3 to = point - origin;
+            float distance = to.magnitude;
+            if (distance > range) continue;
+
+            float angle = distance > 0.001f ? Vector3.Angle(look, to) : 0f;
+            if (angle > InteractionAngle && distance > TouchRange) continue;
+
+            // Nearest wins, except that something usable right now beats something that is not,
+            // and facing it breaks ties.
+            float score = distance * (1f + angle / 180f) * (IsUseful(t) ? 1f : 2.5f);
+            // Stay locked on to whatever we are already feeding on, so a second flower right next
+            // to the first one cannot steal the drink mid-sip.
+            if (transform.parent == t.transform) score *= 0.5f;
+            if (score >= bestScore) continue;
+
+            bestScore = score;
+            bestKind = t.kind;
+            bestHost = t.transform;
+            bestContainer = t.container;
+        }
+
+        ReportInteraction(bestKind, bestContainer, bestHost);
+    }
+
+    /// <summary>Whether acting on this target would actually do anything right now.</summary>
+    private bool IsUseful(Target t)
+    {
+        switch (t.kind)
+        {
+            case Interaction.Flower: return Current_Nec < Max_Nec;
+            case Interaction.Human: return Current_Blood < Max_Blood;
+            case Interaction.Mate: return !isMate;
+            case Interaction.Container:
+                return t.container != null && t.container.isFill && isMate && HasBloodForEgg;
+            default: return false;
+        }
+    }
+
+    /// <summary>Rebuilds the list of things in the level worth reaching for, resolving each one's collider once.</summary>
+    private void RefreshTargets()
+    {
+        targetsRefreshAt = Time.time + TargetRefreshInterval;
+        targets.Clear();
+
+        foreach (var flower in GameObject.FindGameObjectsWithTag("Flower"))
+            AddTarget(Interaction.Flower, flower.transform, null);
+        foreach (var human in FindObjectsByType<Human>(FindObjectsSortMode.None))
+            AddTarget(Interaction.Human, human.transform, null);
+        foreach (var wild in FindObjectsByType<Wild_Mosquitos>(FindObjectsSortMode.None))
+            AddTarget(wild.Gender == Wild_Mosquitos.genderlist.male ? Interaction.Mate : Interaction.FemaleMosquito,
+                      wild.transform, null);
+        foreach (var container in FindObjectsByType<WaterContainer>(FindObjectsSortMode.None))
+            AddTarget(Interaction.Container, container.transform, container);
+    }
+
+    private void AddTarget(Interaction kind, Transform t, WaterContainer container)
+    {
+        var col = t.GetComponent<Collider>();
+        if (col == null) col = t.GetComponentInChildren<Collider>();
+        targets.Add(new Target { kind = kind, transform = t, collider = col, container = container });
+    }
+
+    /// <summary>
+    /// Hold A on a person or a flower to feed, riding along with them while you do. This used to
+    /// live in <see cref="Drink"/> on the proboscis trigger; it runs off the reach test now.
+    /// </summary>
+    private void UpdateFeeding()
+    {
+        bool feeding = false;
+        if (PrimaryHeld && CurrentHost != null)
+        {
+            if (CurrentInteraction == Interaction.Human && Current_Blood < Max_Blood)
+            {
+                Drink();
+                feeding = true;
+            }
+            else if (CurrentInteraction == Interaction.Flower && Current_Nec < Max_Nec)
+            {
+                DrinkNectar();
+                feeding = true;
+            }
+        }
+
+        if (feeding)
+        {
+            canmove = false;
+            AttachTo(CurrentHost);
+            return;
+        }
+
+        // Not feeding: stay put only while A is still held on the same host - the bar may just have
+        // filled up. Otherwise let go and fly again.
+        if (!PrimaryHeld || CurrentHost == null || transform.parent != CurrentHost)
+        {
+            canmove = true;
+            Detach();
+        }
     }
 
     public void NectarUpdate()
@@ -90,39 +481,45 @@ public class PlayerMain : MonoBehaviour
         }
     }
 
-    private void OnTriggerStay(Collider other)
+    /// <summary>
+    /// One press of A does one thing to whatever is in reach. The cases are mutually exclusive
+    /// because <see cref="CurrentInteraction"/> holds a single target, so a press can never both
+    /// mate and spend a blood meal. The press is buffered for <see cref="PrimaryBufferTime"/> and
+    /// consumed on success, so pressing just before you arrive works and one press lays one egg.
+    /// Feeding is not here: that is a hold, and <see cref="UpdateFeeding"/> handles it.
+    /// </summary>
+    private void TryPrimaryAction()
     {
-        var container = other.gameObject.GetComponent<WaterContainer>();
-        if (container != null)
+        if (Time.time - primaryPressedAt > PrimaryBufferTime) return;
+
+        switch (CurrentInteraction)
         {
-            ReportInteraction(Interaction.Container, container);
-            // Eggs need standing water: containers only count once the rain has filled them.
-            if (container.isFill && Current_Blood >= Max_Blood && isMate)
-            {
-                if (R_primaryValue)
-                {
-                    Current_Blood = 0;
-                    EggLayed++;
-                    GameManager.instance.SetScore(container.Score, Module1Text.EggsLaid);
-                }
-            }
+            case Interaction.Mate:
+                if (isMate) return;
+                isMate = true;
+                break;
+            case Interaction.Container:
+                if (!TryLayEgg(CurrentContainer)) return;
+                break;
+            default:
+                return;
         }
-        var wild = other.gameObject.GetComponent<Wild_Mosquitos>();
-        if (wild != null)
-        {
-            if (wild.Gender == Wild_Mosquitos.genderlist.male)
-            {
-                ReportInteraction(Interaction.Mate);
-                if (!isMate && R_primaryValue)
-                {
-                    isMate = true;
-                }
-            }
-            else
-            {
-                ReportInteraction(Interaction.FemaleMosquito);
-            }
-        }
+        primaryPressedAt = float.NegativeInfinity;
+    }
+
+    /// <summary>
+    /// Lays a single egg, if the player has mated and has blood left for it. Eggs need standing
+    /// water, so containers only count once the rain has filled them.
+    /// </summary>
+    private bool TryLayEgg(WaterContainer container)
+    {
+        if (container == null || !container.isFill) return false;
+        if (!isMate || !HasBloodForEgg) return false;
+
+        Current_Blood = Mathf.Max(0f, Current_Blood - BloodPerEgg);
+        EggLayed++;
+        GameManager.instance.SetScore(container.Score, Module1Text.EggsLaid);
+        return true;
     }
 
     public void checkinput()
@@ -175,8 +572,10 @@ public class PlayerMain : MonoBehaviour
             DesktopDebugInput();
 #endif
         bool primaryHeld = R_primaryValue || L_primaryValue;
+        PrimaryHeld = primaryHeld;
         PrimaryDown = primaryHeld && !primaryHeldLastFrame;
         primaryHeldLastFrame = primaryHeld;
+        if (PrimaryDown) primaryPressedAt = Time.time;
 
         if (RestartAble)
         {
@@ -191,36 +590,53 @@ public class PlayerMain : MonoBehaviour
     {
         if (canmove)
         {
-            Vector3 forward = mainCamera.transform.forward;
+            // A mosquito flies where it looks, so forward keeps the head's pitch instead of being
+            // flattened to the horizon. Strafe stays level, so head roll cannot drag you up or down.
+            Vector3 forward = LookDirection(mainCamera.transform);
             Vector3 right = mainCamera.transform.right;
-            forward.y = 0;
-            forward.Normalize();
+            right.y = 0;
+            right.Normalize();
             Vector3 moveDirection = (forward * direction.y + right * direction.x).normalized;
-            moveDirection.y = R_moveInput.y * FlyUpSpeed;
-            rb.linearVelocity = moveDirection * Speed;
+            // The right stick stays an explicit up/down thruster, added on top of where you point.
+            moveDirection.y += R_moveInput.y * FlyUpSpeed;
+            desiredVelocity = moveDirection * Speed;
             CamRot.transform.Rotate(0, R_moveInput.x * CamRotSpeed, 0);
         }
         else
         {
-            rb.linearVelocity = Vector3.zero;
+            desiredVelocity = Vector3.zero;
         }
+    }
+
+    /// <summary>
+    /// The head's forward with the dead zone taken out of its pitch and the rest scaled by
+    /// <see cref="PitchInfluence"/>. Always unit length, including when looking straight up or down.
+    /// </summary>
+    private Vector3 LookDirection(Transform head)
+    {
+        Vector3 f = head.forward;
+        Vector3 flat = new Vector3(f.x, 0f, f.z);
+        if (flat.sqrMagnitude < 0.000001f)
+            // Looking straight up or down: the heading is carried by the head's up axis instead.
+            flat = new Vector3(head.up.x, 0f, head.up.z) * -Mathf.Sign(f.y);
+        flat.Normalize();
+
+        float pitch = Mathf.Asin(Mathf.Clamp(f.y, -1f, 1f)) * Mathf.Rad2Deg;
+        pitch = Mathf.Sign(pitch) * Mathf.Max(0f, Mathf.Abs(pitch) - PitchDeadZone) * PitchInfluence;
+
+        float rad = pitch * Mathf.Deg2Rad;
+        return flat * Mathf.Cos(rad) + Vector3.up * Mathf.Sin(rad);
     }
 
     public void Drink()
     {
         if (GameManager.instance.IsPlaying)
-        {
-            Current_Blood += Time.deltaTime;
-            canmove = !R_primaryValue;
-        }
+            Current_Blood = Mathf.Min(Max_Blood, Current_Blood + Time.deltaTime);
     }
     public void DrinkNectar()
     {
         if (GameManager.instance.IsPlaying)
-        {
-            Current_Nec += Time.deltaTime;
-            canmove = !R_primaryValue;
-        }
+            Current_Nec = Mathf.Min(Max_Nec, Current_Nec + Time.deltaTime);
     }
 
     private void InitializeInputDevices()
@@ -316,7 +732,7 @@ public class PlayerMain : MonoBehaviour
         string text =
             "DESKTOP DEBUG\n" +
             $"Blood {Current_Blood:0.0}/{Max_Blood}   Nectar {Current_Nec:0.0}/{Max_Nec}   Mated: {isMate}   Eggs: {EggLayed}\n" +
-            $"Space: {(R_primaryValue ? "HELD" : "-")}   Drinking: {(transform.parent != null ? "YES (locked on)" : "no")}   " +
+            $"In reach: {CurrentInteraction}   Space: {(R_primaryValue ? "HELD" : "-")}   Drinking: {(transform.parent != null ? "YES (locked on)" : "no")}   " +
             $"Thermal(T): {(R_triggerValue ? "on" : "off")}   Can move: {canmove}\n" +
             "WASD fly | Q/E down/up | arrows look | RMB drag look | Space drink/mate/lay | T thermal | Tab quests";
         GUI.Box(new Rect(10, 10, 640, 84), text, style);
