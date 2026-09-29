@@ -633,6 +633,10 @@ public class Module2HUD : MonoBehaviour
             new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -214), new Vector2(-60, 160));
         endFact = NewText("Fact", panel, "", 23, accentColor, TextAlignmentOptions.Center,
             new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 72), new Vector2(-80, 136), FontStyles.Italic);
+        // Facts differ in length (and Lao runs longer); shrink to fit instead of spilling onto the footer.
+        endFact.enableAutoSizing = true;
+        endFact.fontSizeMin = 15f;
+        endFact.fontSizeMax = 23f;
         endFooter = NewText("Footer", panel, "", 28, doneColor, TextAlignmentOptions.Center,
             new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 22), new Vector2(-40, 44), FontStyles.Bold);
     }
