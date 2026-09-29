@@ -14,15 +14,10 @@ public class UIHand : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        // The watch is a child of the left hand, so DontDestroyOnLoad never applied (it only works on
+        // root objects) and only logged a warning on every load; the rig and its watch are rebuilt
+        // with the scene. Just track the current one.
+        Instance = this;
     }
 
     public void Start()
