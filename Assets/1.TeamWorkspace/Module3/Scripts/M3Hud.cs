@@ -91,6 +91,15 @@ public class M3Hud : MonoBehaviour
         if (s == null || s.Session == null || statusLine == null) return;
 
         var sim = s.Neighbourhood;
+
+        // After the last handover the session's turn index sits one past the end: the bar read
+        // "Turn 19/18  Round 7" under the debrief, with the clock frozen.
+        if (!s.Running)
+        {
+            statusLine.text = $"<b>Session over</b>   Day {sim.Day}   Nets {sim.NetsRemaining}";
+            return;
+        }
+
         float left = Mathf.Max(0f, s.TurnSecondsRemaining);
 
         // The countdown is the Coach's instrument as much as the Pilot's, so it goes first and
