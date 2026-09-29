@@ -31,6 +31,17 @@ namespace Aedes.Module3.Sim
         public int Id;
         public string Name;
 
+        /// <summary>
+        /// The number painted on the house. Ids count from 0 because they index the neighbourhood;
+        /// people count houses from 1, and a house marked "0" reads as a mistake. Every message that
+        /// names a house - the Coach's handover lines, the field journal - says this number, so what
+        /// the squad hears is what the Pilot can see on the wall.
+        /// </summary>
+        public int Number => NumberOf(Id);
+
+        /// <summary>The number painted on the house with id <paramref name="householdId"/>.</summary>
+        public static int NumberOf(int householdId) => householdId + 1;
+
         /// Plot position along the lanes. Only used for adjacency.
         public int LaneX;
         public int LaneY;

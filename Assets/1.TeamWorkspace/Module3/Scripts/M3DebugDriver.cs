@@ -85,7 +85,7 @@ public class M3DebugDriver : MonoBehaviour
     private void DoHousehold(ActionKind kind)
     {
         var r = S.Do(PlayerAction.OnHousehold(kind, selectedHousehold));
-        lastMessage = $"{kind} on house {selectedHousehold}: {r.Outcome}";
+        lastMessage = $"{kind} on house {Household.NumberOf(selectedHousehold)}: {r.Outcome}";
     }
 
     private void DoPerson(ActionKind kind)
@@ -115,7 +115,7 @@ public class M3DebugDriver : MonoBehaviour
 
         if (h != null)
         {
-            sb.AppendLine($"HOUSE {h.Id}   screens {h.Screens}   fan {(h.HasFan ? "on" : "no")}   "
+            sb.AppendLine($"HOUSE {h.Number}   screens {h.Screens}   fan {(h.HasFan ? "on" : "no")}   "
                           + $"containers {h.ProductiveContainerCount}   "
                           + $"{(h.VisitCount == 0 ? "NEVER VISITED" : $"last visit day {h.LastVisitedDay}")}");
 

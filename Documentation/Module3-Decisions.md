@@ -163,6 +163,24 @@ not to a person, so there is nothing for a direction to feed.
 
 ---
 
+### D13 — Houses are numbered from 1, and the number is painted on the building · *technical*
+
+**In force:** `Household.Id` stays a 0-based index (it is what the neighbourhood, the map and GAMA
+use), and `Household.Number` / `Household.NumberOf(id)` is `Id + 1`. Every sentence that names a
+house — the Coach's handover lines (`m3.brief.*`), the field journal's chains and its "houses we
+never got to" — uses the number, and `M3HouseNumber` paints that same number on each house: a large
+wooden board with cream digits on the wall facing the lane, and a smaller one at the lane end of each
+side wall.
+
+**Why:** the handover screen says "Someone in house 4 is bleeding", and a squad with two to four
+minutes cannot act on that unless the Pilot can see a 4 from the lane. Counting from 1 because a
+house marked "0" reads as a bug to a fourteen-year-old, and the board is a sign rather than part of
+the house so it does not scale with the building. It is painted in the doors' brown with old cream
+paint rather than the blue-and-white of an official plate: the first version was legible but shouted
+over the pale walls, and the number has to sit in the village, not on top of it.
+
+---
+
 ## Still open, from §13 of the design document
 
 | # | Question | Status |

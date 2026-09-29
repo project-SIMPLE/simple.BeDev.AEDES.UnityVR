@@ -147,6 +147,8 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
             house.transform.localScale = Vector3.one * houseScale;
             OpenTheDoors(house);
             AddTeleportFloor(plot.transform);
+            // The number the Coach's lines and the journal name, painted where the Pilot can see it.
+            M3HouseNumber.Attach(plot.transform, house, h.Number);
         }
 
         var bed = bedPrefab != null

@@ -143,7 +143,7 @@ namespace Aedes.Module3.Sim
                 var e = events[i];
                 if (e.IsIndexCase)
                 {
-                    export.Chains.Add($"Day {e.Day}: someone in house {e.TargetHouseholdId} was already ill "
+                    export.Chains.Add($"Day {e.Day}: someone in house {Household.NumberOf(e.TargetHouseholdId)} was already ill "
                                       + "when we arrived.");
                     continue;
                 }
@@ -156,13 +156,13 @@ namespace Aedes.Module3.Sim
 
                 string from = e.SourceHouseholdId == e.TargetHouseholdId
                     ? "from someone in the same house"
-                    : $"from house {e.SourceHouseholdId}";
-                export.Chains.Add($"Day {e.Day}: house {e.TargetHouseholdId} caught it {from}, {how}.");
+                    : $"from house {Household.NumberOf(e.SourceHouseholdId)}";
+                export.Chains.Add($"Day {e.Day}: house {Household.NumberOf(e.TargetHouseholdId)} caught it {from}, {how}.");
             }
 
             for (int i = 0; i < n.Households.Count; i++)
             {
-                if (n.Households[i].VisitCount == 0) export.Unvisited.Add($"House {n.Households[i].Id}");
+                if (n.Households[i].VisitCount == 0) export.Unvisited.Add($"House {n.Households[i].Number}");
             }
 
             return export;

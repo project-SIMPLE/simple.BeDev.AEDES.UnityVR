@@ -16,6 +16,7 @@ namespace Aedes.Module3.Sim
     {
         public BriefUrgency Urgency;
         public string MessageKey;
+        /// <summary>Format arguments. A house is named by the number painted on it (Household.NumberOf).</summary>
         public object[] Args;
         /// <summary>Where to look, for the Coach's map. -1 when it is not about one house.</summary>
         public int HouseholdId;
@@ -54,7 +55,7 @@ namespace Aedes.Module3.Sim
                 {
                     Urgency = BriefUrgency.Now,
                     MessageKey = note.MessageKey,
-                    Args = new object[] { note.HouseholdId },
+                    Args = new object[] { Household.NumberOf(note.HouseholdId) },
                     HouseholdId = note.HouseholdId,
                 });
             }
@@ -69,7 +70,7 @@ namespace Aedes.Module3.Sim
                 {
                     Urgency = BriefUrgency.Soon,
                     MessageKey = note.MessageKey,
-                    Args = new object[] { note.HouseholdId },
+                    Args = new object[] { Household.NumberOf(note.HouseholdId) },
                     HouseholdId = note.HouseholdId,
                 });
             }
@@ -82,7 +83,7 @@ namespace Aedes.Module3.Sim
                 {
                     Urgency = BriefUrgency.Soon,
                     MessageKey = note.MessageKey,
-                    Args = new object[] { note.HouseholdId },
+                    Args = new object[] { Household.NumberOf(note.HouseholdId) },
                     HouseholdId = note.HouseholdId,
                 });
             }

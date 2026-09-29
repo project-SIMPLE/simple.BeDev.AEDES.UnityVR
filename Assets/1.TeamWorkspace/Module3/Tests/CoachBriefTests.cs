@@ -27,6 +27,21 @@ namespace Aedes.Module3.Sim.Tests
         }
 
         [Test]
+        public void ALineNamesTheNumberPaintedOnTheHouse()
+        {
+            // The Coach reads "Someone in house 5 ..." aloud and the Pilot goes looking for a 5 on a
+            // wall, so the format argument is the painted number, not the 0-based id the map uses.
+            var brief = new HandoverBrief();
+            brief.NeedReferralNow.Add(new PersonNote { PersonId = 1, HouseholdId = 4, MessageKey = "m3.brief.bleeding" });
+
+            var lines = CoachBrief.Compose(brief);
+
+            Assert.AreEqual(4, lines[0].HouseholdId, "the map still works in ids");
+            Assert.AreEqual(Household.NumberOf(4), lines[0].Args[0], "the words use the painted number");
+            Assert.AreEqual(5, Household.NumberOf(4), "houses are numbered from 1 - nobody lives at house 0");
+        }
+
+        [Test]
         public void AnyoneNeedingADoctorComesFirst()
         {
             // Section 4 calls the referral rule the heart of the module. If it is third on a list
