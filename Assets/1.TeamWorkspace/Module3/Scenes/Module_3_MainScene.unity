@@ -534,7 +534,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c49cece3445418896358bc6162cd43c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::M3NeighbourhoodBuilder
-  plotWidth: 9
+  plotWidth: 11
   laneSpacing: 16
   housePrefab: {fileID: 6484222673902141143, guid: 908f7032114933a47b79326aa4169a8b, type: 3}
   bedPrefab: {fileID: 8638829071811766795, guid: 5e86aaec090b5034cbda1bc9a0cf13c4, type: 3}

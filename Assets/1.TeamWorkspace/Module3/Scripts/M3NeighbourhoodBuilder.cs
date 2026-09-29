@@ -19,8 +19,10 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
 {
     [Header("Layout (metres)")]
     [Tooltip("Centre-to-centre spacing along a lane. Section 11 wants plots packed close enough "
-             + "that the player can see one house from the next.")]
-    [SerializeField] private float plotWidth = 9f;
+             + "that the player can see one house from the next. The Lao house is 8.55 m wide with a "
+             + "9.6 m roof, so below ~10 m neighbours touch and their roofs intersect. Visual only: "
+             + "adjacency comes from lanes / households_per_lane.")]
+    [SerializeField] private float plotWidth = 11f;
 
     [Tooltip("Distance across the lane, between the two facing rows.")]
     [SerializeField] private float laneSpacing = 16f;
