@@ -59,6 +59,8 @@ public class M2Manager : MonoBehaviour
     public float energyRegenPerSecond = 0.02f;
     [Tooltip("Seconds without a bite before energy starts coming back.")]
     public float energyRegenDelay = 4f;
+    [Tooltip("Seconds after a bite during which further bites are ignored. Mosquitoes emerge from the very containers the player is working on, so without this a swarm landed 8 bites in 5 seconds while a jar was being covered and ended the round in under 30 seconds.")]
+    public float biteGracePeriod = 2.5f;
 
     [Header("Day Night System")]
     public Light sun;
@@ -385,7 +387,7 @@ public class M2Manager : MonoBehaviour
         isOver = 0;
         EndReason = reason;
 
-        if (reason == RoundEndReason.AllSitesCleared) UpdateScore(completionBonus);
+        if (reason == RoundEndReason.AllSitesCleared) AddScore(completionBonus);
 
         _endShownAt = Time.time;
 
@@ -403,6 +405,7 @@ public class M2Manager : MonoBehaviour
     public void NoteBite()
     {
         if (!IsPlaying) return;
+        if (Time.time - _lastBiteAt < Mathf.Max(biteGracePeriod, 0f)) return;
 
         BiteCount++;
         _lastBiteAt = Time.time;
@@ -422,6 +425,7 @@ public class M2Manager : MonoBehaviour
 
     public void NoteMosquitoSwatted()
     {
+        if (_ended) return;
         MosquitoesSwatted++;
         // Scoring lives here rather than on the swatter so the value is decided in one place.
         if (swatScore != 0) UpdateScore(swatScore);
@@ -438,6 +442,7 @@ public class M2Manager : MonoBehaviour
     public void SetSimulationProjection(int value) { _gamaProjection = value; }
     public void NoteTrashBinned()
     {
+        if (_ended) return;
         TrashBinned++;
         if (hud != null) hud.Toast(Module2Text.TrashBinned);
     }
@@ -473,7 +478,15 @@ public class M2Manager : MonoBehaviour
         if (hud != null) hud.Toast(Module2Text.CreamSpawned);
     }
 
+    /// <summary>Award points for a player action. Ignored once the round is over, so what the
+    /// player does after the debrief appears cannot change the numbers it shows.</summary>
     public void UpdateScore(int value)
+    {
+        if (_ended) return;
+        AddScore(value);
+    }
+
+    private void AddScore(int value)
     {
         score += value;
         RefreshScoreText();
@@ -521,7 +534,7 @@ public class M2Manager : MonoBehaviour
 
     public void NeutralizeBreedingSite(Component site)
     {
-        if (site == null || !_openSites.Remove(site)) return;
+        if (_ended || site == null || !_openSites.Remove(site)) return;
 
         if (hud != null) hud.OnSiteCleared(site, _siteCount - _openSites.Count, _siteCount);
         if (_openSites.Count == 0 && IsPlaying) EndRound(RoundEndReason.AllSitesCleared);
