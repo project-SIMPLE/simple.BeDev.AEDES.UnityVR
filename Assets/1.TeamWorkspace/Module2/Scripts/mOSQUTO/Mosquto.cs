@@ -88,6 +88,13 @@ public class Mosquito : MonoBehaviour
         float distance = toHead.magnitude;
         if (distance > attractRadius || distance < 0.0001f) return;
 
+        // Repellent: veer away from the player instead of homing in.
+        if (manager.RepellentActive)
+        {
+            _randomDirection = Vector3.Slerp(_randomDirection, -toHead / distance, seekStrength * Time.deltaTime * 6f).normalized;
+            return;
+        }
+
         // Home in, but keep some wander so the swarm does not become a laser-guided cloud.
         _randomDirection = Vector3.Slerp(_randomDirection, toHead / distance, seekStrength * Time.deltaTime * 3f).normalized;
 

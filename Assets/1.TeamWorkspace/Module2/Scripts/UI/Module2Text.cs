@@ -60,6 +60,9 @@ public static class Module2Text
     public static string SwatterAlreadyOut => L("toast.swatterAlready", "You already have a swatter");
     public static string CreamSpawned => L("toast.creamOut", "Repellent is in front of you - grab it");
     public static string CreamAlreadyOut => L("toast.creamAlready", "You already have repellent");
+    public static string RepellentOn(int seconds) => L("toast.repellentOn", "Repellent on - no bites for {0} s").Replace("{0}", seconds.ToString());
+    public static string RepellentWornOff => L("toast.repellentOff", "Repellent has worn off");
+    public static string RepellentStatus(int seconds) => L("hud.repellent", "Repellent") + " " + seconds + "s";
     public static string SiteCleared(string what, int cleared, int total) =>
         what + " dealt with  -  " + cleared + " / " + total;
 

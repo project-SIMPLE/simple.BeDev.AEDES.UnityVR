@@ -350,6 +350,7 @@ public class Module2HUD : MonoBehaviour
             : doneColor;
 
         biteText.text = Module2Text.Bites(m.BiteCount, m.BiteLimit);
+        if (m.RepellentActive) biteText.text += "   <color=#" + ColorUtility.ToHtmlStringRGB(doneColor) + ">" + Module2Text.RepellentStatus(Mathf.CeilToInt(m.RepellentRemaining)) + "</color>";
         biteText.color = m.BiteCount >= m.BiteLimit - 2 ? dangerColor : textColor;
 
         float alpha = biteFlashUntil > Time.time ? 0.35f * Mathf.InverseLerp(0f, 0.35f, biteFlashUntil - Time.time) : 0f;
