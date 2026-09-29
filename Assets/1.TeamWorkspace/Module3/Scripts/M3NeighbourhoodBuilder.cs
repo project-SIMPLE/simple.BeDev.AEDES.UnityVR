@@ -82,6 +82,15 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
             BuildPlot(sim, sim.Households[i]);
         }
 
+        var surroundings = GetComponent<M3Surroundings>();
+        if (surroundings != null && Households.Count > 0)
+        {
+            var village = new Bounds(Households[0].transform.position, Vector3.zero);
+            foreach (var h in Households) village.Encapsulate(h.transform.position);
+            village.Expand(new Vector3(10f, 0f, 8f)); // the houses themselves, plus their yards
+            surroundings.Build(village);
+        }
+
         Debug.Log($"Module 3: built {Households.Count} plots and {Villagers.Count} villagers "
                   + $"from seed {M3Session.Instance.Seed}.");
     }

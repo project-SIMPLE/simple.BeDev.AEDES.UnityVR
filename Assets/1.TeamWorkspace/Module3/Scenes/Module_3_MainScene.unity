@@ -515,6 +515,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1315144568}
   - component: {fileID: 1315144567}
+  - component: {fileID: 1315144569}
   m_Layer: 0
   m_Name: Neighbourhood
   m_TagString: Untagged
@@ -522,6 +523,29 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &1315144569
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1315144566}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36c690e00f104255ab262692b0e9d8bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::M3Surroundings
+  skybox: {fileID: 2100000, guid: 9ca22510633fbfd4399f1704cd9d5c72, type: 2}
+  nearTrees:
+  - {fileID: 6203155623420049342, guid: 7dcd0f2b9fbd0674c9b6165e61ac25b8, type: 3}
+  - {fileID: 3795862147833374437, guid: b08f169dc6dae7944851f10e81cc2766, type: 3}
+  - {fileID: 6203155623420049342, guid: 7dcd0f2b9fbd0674c9b6165e61ac25b8, type: 3}
+  farTrees:
+  - {fileID: 5422006966436116915, guid: e4b0d659ebb80cc4d9f48d4c96fa109b, type: 3}
+  - {fileID: 6203155623420049342, guid: 7dcd0f2b9fbd0674c9b6165e61ac25b8, type: 3}
+  - {fileID: 3390473397902004910, guid: 918173df8e2d56b4eb9e3a448232c3ed, type: 3}
+  - {fileID: 6272981711262200860, guid: 05b9e9c4dedbc004db82ea74d8b2d9a5, type: 3}
+  - {fileID: 5422006966436116915, guid: e4b0d659ebb80cc4d9f48d4c96fa109b, type: 3}
 --- !u!114 &1315144567
 MonoBehaviour:
   m_ObjectHideFlags: 0

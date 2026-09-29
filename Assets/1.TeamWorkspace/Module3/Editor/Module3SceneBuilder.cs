@@ -110,6 +110,35 @@ public static class Module3SceneBuilder
         Assign(so, "villagerPrefab", Villager);
         Assign(so, "containerPrefab", Container);
         so.ApplyModifiedPropertiesWithoutUndo();
+
+        // Sky, paddies, tree line and hills, built at runtime around the neighbourhood.
+        var surroundings = new SerializedObject(root.AddComponent<M3Surroundings>());
+        surroundings.FindProperty("skybox").objectReferenceValue =
+            AssetDatabase.LoadAssetAtPath<Material>(SkyboxMaterial);
+        AssignArray(surroundings, "nearTrees", CoconutTree, BananaTree, CoconutTree);
+        AssignArray(surroundings, "farTrees", BroadTree, CoconutTree, Bush1, Bush2, BroadTree);
+        surroundings.ApplyModifiedPropertiesWithoutUndo();
+    }
+
+    private const string Nature = "Assets/1.TeamWorkspace/Team Assets/Prefabs/Neture/";
+    private const string CoconutTree = Nature + "PF_CoconutTree.prefab";
+    private const string BananaTree = Nature + "PF_BananaTree.prefab";
+    private const string BroadTree = Nature + "PF_Tree.prefab";
+    private const string Bush1 = Nature + "PF_Bush_1.prefab";
+    private const string Bush2 = Nature + "PF_Bush_2.prefab";
+    private const string SkyboxMaterial = "Assets/Packages/Fantasy Skybox FREE/Panoramics/FS002/FS002_Day.mat";
+
+    private static void AssignArray(SerializedObject so, string field, params string[] assetPaths)
+    {
+        var prop = so.FindProperty(field);
+        if (prop == null) return;
+        prop.arraySize = assetPaths.Length;
+        for (int i = 0; i < assetPaths.Length; i++)
+        {
+            var asset = AssetDatabase.LoadAssetAtPath<GameObject>(assetPaths[i]);
+            if (asset == null) Debug.LogWarning($"Module 3: no prefab at {assetPaths[i]}; '{field}' entry left empty.");
+            prop.GetArrayElementAtIndex(i).objectReferenceValue = asset;
+        }
     }
 
     private static void BuildPlayer()
