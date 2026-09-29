@@ -19,7 +19,9 @@ using UnityEngine.XR.Interaction.Toolkit.UI;
 ///   - grabbables used Discrete collision detection and no interpolation, so thin objects sank into
 ///     the floor and jittered once released;
 ///   - colliders were much smaller than the objects they belong to (the vase's flowers had none at
-///     all), so only a small part of each object responded to touch.
+///     all), so only a small part of each object responded to touch;
+///   - the litter on the lawn (tag Trash) had no Rigidbody or XRGrabInteractable, so it could not be
+///     picked up and TrashBin could never fire (found by playtesting through the harness).
 /// </summary>
 public class Module2Interaction : MonoBehaviour
 {
@@ -34,6 +36,9 @@ public class Module2Interaction : MonoBehaviour
 
     [Tooltip("Radius of each hand's grab sphere. The authored 0.1 m demands precision that children with no VR experience do not have; 0 leaves it alone. A proper far/ray interactor is the real fix and needs a prefab change.")]
     public float interactorRadius = 0.14f;
+
+    [Tooltip("Make litter (tag Trash) grabbable so it can be carried to the bin.")]
+    public bool makeTrashGrabbable = true;
 
     readonly List<XRGrabInteractable> _hooked = new List<XRGrabInteractable>();
 
@@ -53,6 +58,8 @@ public class Module2Interaction : MonoBehaviour
     {
         FixEventSystem();
         if (forceInteractorTriggers) FixDirectInteractors();
+        // Before TuneGrabbables, so the litter gets the same collider/attach/first-grab treatment.
+        if (makeTrashGrabbable) MakeTrashGrabbable();
         TuneGrabbables();
     }
 
@@ -99,6 +106,21 @@ public class Module2Interaction : MonoBehaviour
             }
         }
         if (fixedCount > 0) Debug.Log($"[Module2Interaction] Made {fixedCount} interactor collider(s) triggers.");
+    }
+
+    void MakeTrashGrabbable()
+    {
+        int count = 0;
+        foreach (var go in GameObject.FindGameObjectsWithTag("Trash"))
+        {
+            if (go.GetComponent<XRGrabInteractable>() != null) continue;
+            var body = go.GetComponent<Rigidbody>();
+            if (body == null) body = go.AddComponent<Rigidbody>();
+            body.mass = 0.2f;
+            go.AddComponent<XRGrabInteractable>();
+            count++;
+        }
+        if (count > 0) Debug.Log($"[Module2Interaction] Made {count} piece(s) of litter grabbable.");
     }
 
     void TuneGrabbables()
