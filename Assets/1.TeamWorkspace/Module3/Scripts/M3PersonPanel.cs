@@ -39,6 +39,7 @@ public class M3PersonPanel : MonoBehaviour
     private RectTransform stack;
     private TextMeshProUGUI feedback;
     private Transform villager;
+    private Vector3 conversationAt;   // where the villager stood when it began
     private string lastFeedbackKey;
 
     private M3Session S => M3Session.Instance;
@@ -84,6 +85,7 @@ public class M3PersonPanel : MonoBehaviour
         if (S == null || S.Session == null || !S.Running) return;
         PersonId = personId;
         villager = body;
+        conversationAt = body.position;
         lastFeedbackKey = null;
 
         // Talking to someone is looking in on their household.
@@ -107,7 +109,11 @@ public class M3PersonPanel : MonoBehaviour
         if (!IsOpen) return;
         var head = Camera.main != null ? Camera.main.transform : null;
         if (head == null || villager == null) return;
-        Vector3 d = villager.position - head.position;
+        // Measured from where the conversation began, not from the body: helping someone rest or
+        // sending them to the health centre moves their body (to the bed, back to their spot in the
+        // room), and a panel that closed itself the moment the referral went through never showed
+        // the reply to it.
+        Vector3 d = conversationAt - head.position;
         d.y = 0f;
         if (d.magnitude > closeDistance) Close();
     }
