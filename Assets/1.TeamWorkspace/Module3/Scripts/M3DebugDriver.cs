@@ -50,6 +50,7 @@ public class M3DebugDriver : MonoBehaviour
         if (k.cKey.wasPressedThisFrame) DoHousehold(ActionKind.RepairScreen);
         if (k.xKey.wasPressedThisFrame) DoHousehold(ActionKind.AdviseClosingHours);
 
+        if (k.enterKey.wasPressedThisFrame) S.PilotReady();
         if (k.spaceKey.wasPressedThisFrame) S.EndTurn();
     }
 
@@ -133,7 +134,7 @@ public class M3DebugDriver : MonoBehaviour
 
         sb.AppendLine();
         sb.AppendLine("TAB house  Q/E person  V visit  N net  B take net back  R refer");
-        sb.AppendLine("W water  T rest  G repellent  F fan  C fix screen  X closing hours  SPACE end turn");
+        sb.AppendLine("W water  T rest  G repellent  F fan  C fix screen  X closing hours  ENTER ready  SPACE end turn");
         if (lastMessage.Length > 0) sb.AppendLine($"> {lastMessage}");
 
         GUI.Label(new Rect(12, 12, 900, 460), sb.ToString());

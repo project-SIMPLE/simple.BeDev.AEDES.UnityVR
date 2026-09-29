@@ -155,7 +155,24 @@ public static class Module3SceneBuilder
         // Keyboard driver so a whole session can be played without a headset. It compiles out of
         // a release build, so leaving it in the scene costs nothing.
         player.AddComponent<M3DebugDriver>();
+
+        // The Pilot in the headset. At runtime this swaps the plain camera above for the XR rig
+        // and turns each turn's clock over to the person wearing it; the camera stays as the
+        // desktop fallback if the rig prefab is ever missing.
+        var xr = new SerializedObject(player.AddComponent<M3XRPlayer>());
+        var rig = AssetDatabase.LoadAssetAtPath<GameObject>(XRRigPrefab);
+        if (rig == null) Debug.LogWarning($"Module 3: no XR rig at {XRRigPrefab}; the scene will run on the desktop camera.");
+        xr.FindProperty("rigPrefab").objectReferenceValue = rig;
+        xr.ApplyModifiedPropertiesWithoutUndo();
+
+        // The conversation panel and the "walking in counts as a visit" tracker.
+        var pilot = new GameObject("Pilot Interaction");
+        pilot.AddComponent<M3PersonPanel>();
+        pilot.AddComponent<M3VisitTracker>();
     }
+
+    private const string XRRigPrefab =
+        "Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/Prefabs/XR Origin (XR Rig).prefab";
 
     private static void BuildSquadScreens()
     {

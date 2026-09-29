@@ -22,10 +22,10 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
              + "that the player can see one house from the next. The Lao house is 8.55 m wide with a "
              + "9.6 m roof, so below ~10 m neighbours touch and their roofs intersect. Visual only: "
              + "adjacency comes from lanes / households_per_lane.")]
-    [SerializeField] private float plotWidth = 11f;
+    [SerializeField] private float plotWidth = 14.5f;
 
     [Tooltip("Distance across the lane, between the two facing rows.")]
-    [SerializeField] private float laneSpacing = 16f;
+    [SerializeField] private float laneSpacing = 18f;
 
     [Header("Prefabs")]
     [SerializeField] private GameObject housePrefab;
@@ -35,7 +35,20 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
 
     [Tooltip("Where the yard containers stand, in front of the house on the lane side. The house "
              + "footprint ends at z = 3.4.")]
-    [SerializeField] private float yardDepth = 4.6f;
+    [SerializeField] private float yardDepth = 6.2f;
+
+    [Header("House size")]
+    [Tooltip("How much the Lao house model is scaled up. As modelled its doorway is 1.53 m clear - lower "
+             + "than the 1.7 m villagers who live in it, and lower than a standing adult's head - so the "
+             + "Pilot's headset pushed through the wall above the door. 1.4 makes it 2.1 m, with the "
+             + "house 12 x 9 m inside. Everything placed in house space (bed, screen, fan, villagers, "
+             + "yard) is multiplied by this too; plotWidth and laneSpacing are metres and already allow for it.")]
+    [SerializeField] private float houseScale = 1.4f;
+
+    [Tooltip("Height of the house floor above the ground in the model (0.178 m); scaled with the house. "
+             + "Things standing inside - beds, villagers - sit on it, not on the ground under it.")]
+    [SerializeField] private float modelFloorHeight = 0.178f;
+    private float FloorY => modelFloorHeight * houseScale;
 
     [Tooltip("Share of houses that show a water jar in the yard - never more than one each.")]
     [Range(0, 100)]
@@ -53,6 +66,15 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
 
     public readonly List<HouseholdView> Households = new List<HouseholdView>();
     public readonly List<VillagerView> Villagers = new List<VillagerView>();
+
+    private static M3NeighbourhoodBuilder current;
+    /// <summary>How much larger than its model the house stands (1 before the neighbourhood exists).</summary>
+    public static float HouseScale => current != null ? current.houseScale : 1f;
+    private static readonly List<HouseholdView> none = new List<HouseholdView>();
+    /// <summary>The plots of the neighbourhood that is standing now (empty before it is built).</summary>
+    public static IReadOnlyList<HouseholdView> HouseholdViews => current != null ? current.Households : none;
+
+    private void Awake() => current = this;
 
     private bool built;
 
@@ -91,7 +113,7 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
         {
             var village = new Bounds(Households[0].transform.position, Vector3.zero);
             foreach (var h in Households) village.Encapsulate(h.transform.position);
-            village.Expand(new Vector3(10f, 0f, 8f)); // the houses themselves, plus their yards
+            village.Expand(new Vector3(16f, 0f, 14f)); // the houses themselves, plus their yards
             surroundings.Build(village);
         }
 
@@ -111,16 +133,22 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
         plot.transform.SetParent(transform, false);
         plot.transform.SetPositionAndRotation(plotPosition, facing);
 
-        if (housePrefab != null) Instantiate(housePrefab, plot.transform);
+        if (housePrefab != null)
+        {
+            var house = Instantiate(housePrefab, plot.transform);
+            house.transform.localScale = Vector3.one * houseScale;
+            OpenTheDoors(house);
+        }
 
         var bed = bedPrefab != null
             ? Instantiate(bedPrefab, plot.transform).transform
             : Anchor(plot.transform, "BedAnchor", bedOffset);
-        bed.localPosition = bedOffset;
+        bed.localPosition = bedOffset * houseScale + Vector3.up * FloorY;
 
-        var screenMount = Anchor(plot.transform, "ScreenMount", screenOffset);
-        var fanStand = Anchor(plot.transform, "FanStand", fanOffset);
-        var netAnchor = Anchor(plot.transform, "NetAnchor", bedOffset);
+        var screenMount = Anchor(plot.transform, "ScreenMount", screenOffset * houseScale);
+        screenMount.localScale = Vector3.one * houseScale;   // the window is scaled with the house
+        var fanStand = Anchor(plot.transform, "FanStand", fanOffset * houseScale + Vector3.up * FloorY);
+        var netAnchor = Anchor(plot.transform, "NetAnchor", bedOffset * houseScale + Vector3.up * FloorY);
 
         var view = plot.AddComponent<HouseholdView>();
         view.householdId = h.Id;
@@ -140,7 +168,7 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
         {
             // In the lane-side yard, in front of the house. At z = -1.8 they were inside the
             // 6.4 m-deep house, where nobody walking the lane could see them.
-            var yard = Anchor(plot.transform, $"Container_{h.Id}", new Vector3(-2.5f, 0f, yardDepth));
+            var yard = Anchor(plot.transform, $"Container_{h.Id}", new Vector3(-2.5f * houseScale, 0f, yardDepth));
             Instantiate(containerPrefab, yard);
         }
 
@@ -150,17 +178,36 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// The Lao house model has its doors closed: each is a solid slab, with a collider, filling a
+    /// real opening in the wall - so a Pilot walking up to a house was stopped dead at the door
+    /// (found by walking in with the thumbstick; a fly-through camera never touched them). The
+    /// pivot of each leaf is its hinge edge, so swinging it 90 degrees about the vertical opens the
+    /// doorway and leaves the leaf standing flat against the wall.
+    /// </summary>
+    private static void OpenTheDoors(GameObject house)
+    {
+        foreach (var t in house.GetComponentsInChildren<Transform>(true))
+        {
+            if (t.name.StartsWith("Door"))
+                t.localRotation = Quaternion.Euler(0f, -90f, 0f) * t.localRotation;
+        }
+    }
+
     private void BuildVillager(Neighbourhood sim, Transform plot, int personId, int index, Transform bed)
     {
         // A loose fan facing the side door the volunteer comes in by, rather than a single-file
         // row across the room facing a wall, which read as a queue.
         int count = sim.HouseholdById(sim.PersonById(personId).HouseholdId).ResidentIds.Count;
-        Vector3 door = new Vector3(3.0f, 0f, -1.27f);
+        Vector3 door = new Vector3(3.0f, 0f, -1.27f) * houseScale;
         Vector3 away = new Vector3(-0.84f, 0f, 0.54f);   // from the door towards the middle of the room
-        float angle = (index - (count - 1) * 0.5f) * 32f;
-        Vector3 local = door + Quaternion.Euler(0f, angle, 0f) * away * 2.6f;
+        float angle = (index - (count - 1) * 0.5f) * 22f;
+        Vector3 local = door + Quaternion.Euler(0f, angle, 0f) * away * (2.6f * houseScale);
+        local.y = FloorY;   // on the floor, not the ground beneath it
         var spot = Anchor(plot, $"Villager_{personId}", local);
-        spot.localRotation = Quaternion.LookRotation(door - local, Vector3.up);
+        var faceDoor = door - local;
+        faceDoor.y = 0f;
+        spot.localRotation = Quaternion.LookRotation(faceDoor, Vector3.up);
 
         var villager = villagerPrefab != null ? Instantiate(villagerPrefab, spot) : new GameObject("Villager");
         if (villagerPrefab == null) villager.transform.SetParent(spot, false);
@@ -188,6 +235,18 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
         // there looking well until the next turn. Refresh now that it knows who it is.
         view.Refresh();
         Villagers.Add(view);
+
+        // Someone to talk to: point at them and pull the trigger, or reach out. Same on every
+        // villager, sick or well (section 5 - nothing marks a sick person).
+        if (villager.GetComponentInChildren<Collider>() == null)
+        {
+            var capsule = villager.AddComponent<CapsuleCollider>();
+            capsule.center = new Vector3(0f, 0.85f, 0f);
+            capsule.height = 1.7f;
+            capsule.radius = 0.32f;
+        }
+        var target = villager.GetComponent<M3VillagerTarget>() ?? villager.AddComponent<M3VillagerTarget>();
+        target.personId = personId;
     }
 
     private static Transform Anchor(Transform parent, string name, Vector3 localPosition)

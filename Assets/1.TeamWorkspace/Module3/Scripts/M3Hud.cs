@@ -14,9 +14,12 @@ using UnityEngine.UI;
 /// or a laptop screen mirroring the play. Section 8 adds that the countdown "should be visible to
 /// the Coach, not only to the Pilot".
 ///
-/// So this is a screen-space overlay with large type. A HUD that only works inside the headset
-/// would leave two thirds of the squad watching, which is the failure mode the squad structure
-/// exists to prevent.
+/// So this is large type. On a desktop it is a screen-space overlay. In the headset an overlay is
+/// not drawn at all, so there it becomes a world-space canvas that follows the Pilot's head at
+/// arm's length - and because casting mirrors the headset view, the Coach and the Analyst still
+/// read the same countdown on their screens. A HUD that only works inside the headset would leave
+/// two thirds of the squad watching, which is the failure mode the squad structure exists to
+/// prevent.
 ///
 /// The canvas is built in code so the scene file stays small enough to merge - see
 /// Module3SceneBuilder.
@@ -26,8 +29,16 @@ public class M3Hud : MonoBehaviour
     [SerializeField] private TMP_FontAsset font;
     [SerializeField] private int baseFontSize = 28;
 
-    [Tooltip("Seconds the handover screen stays up before the next turn can start.")]
+    [Tooltip("Seconds the handover screen stays up when the session does not wait for the Pilot.")]
     [SerializeField] private float handoverSeconds = 12f;
+
+    [Header("In the headset")]
+    [Tooltip("How far in front of the Pilot the HUD floats.")]
+    [SerializeField] private float vrDistance = 1.7f;
+    [Tooltip("Width of the HUD in metres at that distance (the canvas is 1280 x 720 units).")]
+    [SerializeField] private float vrWidth = 2.3f;
+    [Tooltip("How quickly the HUD catches up when the Pilot turns their head.")]
+    [SerializeField] private float vrFollowSpeed = 4f;
 
     private TMP_Text statusLine;
     private TMP_Text coachPanel;
@@ -35,12 +46,17 @@ public class M3Hud : MonoBehaviour
     private TMP_Text handoverText;
     private GameObject debriefPanel;
     private TMP_Text debriefText;
+    private TMP_Text banner;
+    private Canvas canvas;
+    private bool worldSpace;
+    private Vector3 smoothForward = Vector3.forward;
 
     private float handoverShownAt = -1f;
     private readonly StringBuilder sb = new StringBuilder();
 
     private void Awake()
     {
+        M3Ui.Font = font;   // shared with the conversation panel and the other in-world UI
         BuildCanvas();
     }
 
@@ -51,7 +67,13 @@ public class M3Hud : MonoBehaviour
     private M3Session subscribedTo;
 
     private void OnEnable() => Subscribe();
-    private void Start() => Subscribe();
+
+    private void Start()
+    {
+        Subscribe();
+        // The XR player builds its rig in its own Awake, so by Start there is a headset camera.
+        if (M3XRPlayer.Instance != null && M3XRPlayer.Instance.Rig != null) MakeWorldSpace();
+    }
 
     private void Subscribe()
     {
@@ -75,12 +97,86 @@ public class M3Hud : MonoBehaviour
     private void Update()
     {
         UpdateStatusLine();
+        UpdateBanner();
 
-        if (handoverShownAt > 0f && Time.time - handoverShownAt > handoverSeconds)
+        var s = M3Session.Instance;
+        if (s == null || s.Session == null || handoverPanel == null) return;
+
+        if (s.Running && s.WaitingForPilot)
+        {
+            // The turn is held until the Pilot presses A. The first turn has no handover to show,
+            // so it gets a plain "you are player N" card instead.
+            if (!handoverPanel.activeSelf) ShowStartCard();
+        }
+        else if (handoverPanel.activeSelf && handoverShownAt >= 0f
+                 && (!waitedForPilot || Time.time - handoverShownAt > 0.25f)
+                 && (waitedForPilot || Time.time - handoverShownAt > handoverSeconds))
         {
             handoverShownAt = -1f;
-            if (handoverPanel != null) handoverPanel.SetActive(false);
+            handoverPanel.SetActive(false);
         }
+    }
+
+    private bool waitedForPilot;
+
+    private void LateUpdate()
+    {
+        if (!worldSpace || Camera.main == null) return;
+
+        // Float at arm's length, catching up with the head a little behind it - glued to the eyes a
+        // HUD is uncomfortable, and it makes the whole view feel like a screen stuck to the face.
+        var head = Camera.main.transform;
+        Vector3 flat = head.forward;
+        flat.y = 0f;
+        if (flat.sqrMagnitude < 0.01f) flat = smoothForward;
+        smoothForward = Vector3.Slerp(smoothForward, flat.normalized, 1f - Mathf.Exp(-vrFollowSpeed * Time.deltaTime));
+        Vector3 at = head.position + smoothForward * vrDistance;
+        at.y = head.position.y - 0.05f;
+        canvas.transform.position = at;
+        canvas.transform.rotation = Quaternion.LookRotation(smoothForward, Vector3.up);
+    }
+
+    private void MakeWorldSpace()
+    {
+        if (worldSpace || canvas == null) return;
+        worldSpace = true;
+        canvas.renderMode = RenderMode.WorldSpace;
+        canvas.worldCamera = Camera.main;
+        canvas.sortingOrder = 20;
+        var rt = (RectTransform)canvas.transform;
+        rt.sizeDelta = new Vector2(1280f, 720f);
+        rt.localScale = Vector3.one * (vrWidth / 1280f);
+        var scaler = canvas.GetComponent<CanvasScaler>();
+        if (scaler != null) scaler.enabled = false;   // a world canvas is sized by its transform
+        canvas.transform.SetParent(null, true);
+        smoothForward = Camera.main.transform.forward;
+        smoothForward.y = 0f;
+        if (smoothForward.sqrMagnitude < 0.01f) smoothForward = Vector3.forward;
+        smoothForward.Normalize();
+    }
+
+    private void UpdateBanner()
+    {
+        if (banner == null) return;
+        var xr = M3XRPlayer.Instance;
+        bool asking = xr != null && xr.ConfirmingEndTurn;
+        banner.text = asking ? $"<b>{Localized("m3.ui.endTurnAsk")}</b>" : "";
+        banner.transform.parent.gameObject.SetActive(asking);
+    }
+
+    private void ShowStartCard()
+    {
+        var s = M3Session.Instance;
+        sb.Clear();
+        sb.AppendLine($"<size={baseFontSize + 26}><b>{Localized("m3.ui.playerN", s.Session.PilotIndex + 1)}</b></size>");
+        sb.AppendLine();
+        sb.AppendLine(Localized("m3.ui.startCard"));
+        sb.AppendLine();
+        sb.AppendLine($"<size={baseFontSize - 2}><color=#E5B25D>{Localized("m3.ui.pressAReady")}</color></size>");
+        handoverText.text = sb.ToString();
+        handoverPanel.SetActive(true);
+        handoverShownAt = Time.time;
+        waitedForPilot = true;
     }
 
     // -------------------------------------------------------------------------------------
@@ -96,7 +192,7 @@ public class M3Hud : MonoBehaviour
         // "Turn 19/18  Round 7" under the debrief, with the clock frozen.
         if (!s.Running)
         {
-            statusLine.text = $"<b>Session over</b>   Day {sim.Day}   Nets {sim.NetsRemaining}";
+            statusLine.text = Localized("m3.hud.sessionOver", sim.Day, sim.NetsRemaining);
             return;
         }
 
@@ -107,11 +203,10 @@ public class M3Hud : MonoBehaviour
         string clock = $"{Mathf.FloorToInt(left / 60f)}:{Mathf.FloorToInt(left % 60f):00}";
         string colour = left <= 30f ? "#E4572E" : "#F2F2F2";
 
-        statusLine.text =
-            $"<color={colour}><b>{clock}</b></color>   "
-            + $"Turn {s.Session.TurnIndex + 1}/{s.Session.TotalTurns}   "
-            + $"Round {s.Session.RoundIndex + 1}   Player {s.Session.PilotIndex + 1}   "
-            + $"Day {sim.Day}   Nets {sim.NetsRemaining}";
+        statusLine.text = Localized("m3.hud.status",
+            $"<color={colour}><b>{clock}</b></color>",
+            s.Session.TurnIndex + 1, s.Session.TotalTurns, s.Session.RoundIndex + 1,
+            s.Session.PilotIndex + 1, sim.Day, sim.NetsRemaining);
     }
 
     private void ShowActionFeedback(ActionResult result)
@@ -151,11 +246,20 @@ public class M3Hud : MonoBehaviour
         sb.AppendLine();
         sb.AppendLine($"<size={baseFontSize - 6}><color=#9AA5B1>{Localized("m3.coach.handItOver")}</color></size>");
 
+        var session = M3Session.Instance;
+        waitedForPilot = session != null && session.WaitingForPilot;
+        if (waitedForPilot)
+        {
+            // The next Pilot presses A once the headset is on; the clock starts then, not before.
+            sb.AppendLine();
+            sb.AppendLine($"<size={baseFontSize - 2}><color=#E5B25D>{Localized("m3.ui.pressAReady")}</color></size>");
+        }
+
         handoverText.text = sb.ToString();
         handoverPanel.SetActive(true);
         handoverShownAt = Time.time;
-        // The next Pilot's turn starts when they can see, not while the old one is still reading.
-        if (M3Session.Instance != null) M3Session.Instance.HoldTurnClock(handoverSeconds);
+        // Without a ready press, hold the clock for the length of the screen instead.
+        if (!waitedForPilot && session != null) session.HoldTurnClock(handoverSeconds);
     }
 
     private void ShowDebrief(HandoverBrief finalBrief)
@@ -229,7 +333,7 @@ public class M3Hud : MonoBehaviour
         var canvasGo = new GameObject("M3 HUD Canvas");
         canvasGo.transform.SetParent(transform, false);
 
-        var canvas = canvasGo.AddComponent<Canvas>();
+        canvas = canvasGo.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
 
         var scaler = canvasGo.AddComponent<CanvasScaler>();
@@ -241,6 +345,15 @@ public class M3Hud : MonoBehaviour
 
         coachPanel = Text(canvasGo.transform, "Feedback", new Vector2(0f, 0f), new Vector2(1f, 0f),
             new Vector2(24f, 16f), new Vector2(-24f, 72f), TextAlignmentOptions.BottomLeft, baseFontSize - 4);
+
+        var bannerPanel = Panel(canvasGo.transform, "Banner", new Color(0.05f, 0.06f, 0.08f, 0.95f));
+        var bannerRt = (RectTransform)bannerPanel.transform;
+        bannerRt.anchorMin = new Vector2(0.5f, 0.5f);
+        bannerRt.anchorMax = new Vector2(0.5f, 0.5f);
+        bannerRt.sizeDelta = new Vector2(760f, 120f);
+        banner = Text(bannerPanel.transform, "BannerText", Vector2.zero, Vector2.one,
+            new Vector2(20f, 10f), new Vector2(-20f, -10f), TextAlignmentOptions.Center, baseFontSize + 4);
+        bannerPanel.SetActive(false);
 
         handoverPanel = Panel(canvasGo.transform, "Handover", new Color(0.04f, 0.05f, 0.07f, 0.94f));
         handoverText = Text(handoverPanel.transform, "HandoverText", Vector2.zero, Vector2.one,

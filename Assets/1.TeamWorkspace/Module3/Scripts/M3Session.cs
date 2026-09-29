@@ -40,6 +40,23 @@ public class M3Session : MonoBehaviour
     /// <summary>The turn clock does not run before this time - the handover screen is still up.</summary>
     private float clockHeldUntil;
 
+    [Tooltip("Hold each turn's clock until the Pilot says they are ready (A). In a headset the next "
+             + "Pilot still has to put it on; a fixed delay either wastes their turn or starts it "
+             + "while they are fumbling with the strap.")]
+    [SerializeField] private bool waitForPilot = true;
+
+    /// <summary>True while a turn is waiting for its Pilot to press ready.</summary>
+    public bool WaitingForPilot { get; private set; }
+    public event Action OnPilotReady;
+
+    /// <summary>The Pilot is in the headset and ready: start the clock.</summary>
+    public void PilotReady()
+    {
+        if (!WaitingForPilot) return;
+        WaitingForPilot = false;
+        OnPilotReady?.Invoke();
+    }
+
     public event Action<int> OnTurnStarted;              // turn index
     public event Action<HandoverBrief> OnHandover;
     public event Action<HandoverBrief> OnSessionFinished;
@@ -82,13 +99,14 @@ public class M3Session : MonoBehaviour
                   + $"{parameters.Config.Rounds} rounds x {parameters.Config.TurnsPerRound} turns of "
                   + $"{TurnSecondsTotal:0}s, parameters from {parameters.Origin}.");
 
+        WaitingForPilot = waitForPilot;
         OnTurnStarted?.Invoke(0);
     }
 
     private void Update()
     {
         if (!Running) return;
-        if (Time.time < clockHeldUntil) return;
+        if (WaitingForPilot || Time.time < clockHeldUntil) return;
 
         TurnSecondsRemaining -= Time.deltaTime;
         if (TurnSecondsRemaining > 0f) return;
@@ -118,6 +136,7 @@ public class M3Session : MonoBehaviour
         }
 
         TurnSecondsRemaining = TurnSecondsTotal;
+        WaitingForPilot = waitForPilot;
         OnHandover?.Invoke(brief);
         OnTurnStarted?.Invoke(Session.TurnIndex);
     }
