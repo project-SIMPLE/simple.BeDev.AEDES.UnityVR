@@ -74,7 +74,7 @@ namespace Aedes.Module3.Sim
                     if (p.WentToHospitalUnaided) card.MissedWarningSigns++;
                     else if (p.Referred) card.CorrectReferrals++;
                 }
-                else if (p.Referred)
+                else if (p.ReferredWithoutNeed)
                 {
                     card.UnnecessaryReferrals++;
                 }

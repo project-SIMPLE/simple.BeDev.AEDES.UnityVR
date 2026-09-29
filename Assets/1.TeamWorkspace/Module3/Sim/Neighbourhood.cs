@@ -159,17 +159,22 @@ namespace Aedes.Module3.Sim
                 {
                     var p = PersonById(action.PersonId);
                     if (p == null) return Fail(action);
-                    bool needed = p.HasVisibleWarningSign(Day);
-                    p.Referred = true;
-                    p.ReferredDay = Day;
-                    if (needed)
+                    if (p.HasVisibleWarningSign(Day))
                     {
+                        p.Referred = true;
+                        p.ReferredDay = Day;
                         p.State = HealthState.Hospitalised;
                         return Result(action, ActionOutcome.ReferralCorrect, "m3.action.referralCorrect");
                     }
                     // Section 10: gently corrected, never punished. The person stays at home,
-                    // which is where someone with a fever and no warning signs belongs.
-                    return Result(action, ActionOutcome.ReferralNotNeeded, "m3.action.referralNotNeeded");
+                    // which is where someone with a fever and no warning signs belongs - so they
+                    // are NOT marked Referred. That flag used to be set here too, and it then
+                    // greyed out the referral action, kept their warning sign out of the handover
+                    // brief, stopped the unreferred-warning consequence from ever firing, and
+                    // scored them as a correct referral when the sign did come.
+                    p.ReferredWithoutNeed = true;
+                    return Result(action, ActionOutcome.ReferralNotNeeded,
+                        p.IsFebrile(Day) ? "m3.action.referralNotNeeded" : "m3.action.referralNotNeededWell");
                 }
             }
 

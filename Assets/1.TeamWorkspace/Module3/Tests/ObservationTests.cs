@@ -173,6 +173,40 @@ namespace Aedes.Module3.Sim.Tests
         }
 
         [Test]
+        public void AnEarlyReferralDoesNotSilenceALaterWarningSign()
+        {
+            // Section 10: an unnecessary referral is "gently corrected, never punished". Found in
+            // a playtest: referring someone before they needed it marked them Referred, which then
+            // greyed out the referral button and hid their warning sign when it came.
+            for (int seed = 1; seed < 40; seed++)
+            {
+                var n = Build(seed);
+                Person p = null;
+                for (int d = 0; d < 40 && p == null; d++)
+                {
+                    foreach (var q in n.People)
+                        if (q.Warning != WarningSign.None && q.WarningOnsetDay > n.Day && q.State != HealthState.Hospitalised)
+                        { p = q; break; }
+                    if (p == null) n.AdvanceDay();
+                }
+                if (p == null) continue;
+
+                var early = n.Apply(PlayerAction.OnPerson(ActionKind.ReferToHealthCentre, p.Id));
+                Assert.AreEqual(ActionOutcome.ReferralNotNeeded, early.Outcome);
+
+                while (n.Day < p.WarningOnsetDay) n.AdvanceDay();
+                Assert.IsTrue(p.HasVisibleWarningSign(n.Day), "the warning sign never appeared");
+
+                var referral = Observe.ActionsFor(n, p.Id).Find(a => a.Kind == ActionKind.ReferToHealthCentre);
+                Assert.IsTrue(referral.Enabled, "an early, unneeded referral greyed out the one that was needed");
+                Assert.AreEqual(ActionOutcome.ReferralCorrect,
+                    n.Apply(PlayerAction.OnPerson(ActionKind.ReferToHealthCentre, p.Id)).Outcome);
+                return;
+            }
+            Assert.Inconclusive("no seed produced a warning sign to test with");
+        }
+
+        [Test]
         public void AHouseholdObservationShowsTheYardWithoutOfferingToClearIt()
         {
             var n = Build();

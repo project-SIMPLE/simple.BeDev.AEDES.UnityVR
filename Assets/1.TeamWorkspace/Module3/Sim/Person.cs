@@ -50,8 +50,11 @@ namespace Aedes.Module3.Sim
         public bool HasNet;
         public bool WearsLongSleeves;
         public int RepellentUntilDay = -1;
+        /// <summary>Set only when the person actually went to the health centre.</summary>
         public bool Referred;
         public int ReferredDay = -1;
+        /// <summary>Referred while they did not need it: gently corrected, and they stayed home.</summary>
+        public bool ReferredWithoutNeed;
         public bool WentToHospitalUnaided;
         public bool HasRested;
         public bool HasFluids;
