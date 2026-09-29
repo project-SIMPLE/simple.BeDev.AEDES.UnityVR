@@ -541,7 +541,7 @@ MonoBehaviour:
   villagerPrefab: {fileID: 5270409977889807214, guid: 79fdf6a8b358f664f92b8fa1ae1d67bd, type: 3}
   containerPrefab: {fileID: 7376524743313560442, guid: 56df000b2c3087b448db7963fd9f2578, type: 3}
   bedOffset: {x: 0, y: 0, z: 2.2}
-  screenOffset: {x: 1.6, y: 1.4, z: 0.1}
+  screenOffset: {x: 1.1, y: 0.54, z: -2.78}
   fanOffset: {x: -1.4, y: 0, z: 2}
   villagerSpacing: 0.9
 --- !u!4 &1315144568

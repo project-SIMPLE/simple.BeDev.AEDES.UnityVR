@@ -39,7 +39,11 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
 
     [Header("Anchors inside a plot (local to the house)")]
     [SerializeField] private Vector3 bedOffset = new Vector3(0f, 0f, 2.2f);
-    [SerializeField] private Vector3 screenOffset = new Vector3(1.6f, 1.4f, 0.1f);
+
+    // In the window on the back wall (SM_WindowLeft (1), centred at 1.10, 1.04, -2.87 in house
+    // space); the screen's pivot is its bottom edge. It was at (1.6, 1.4, 0.1) - the middle of the
+    // room - where it hung at head height as a black panel with no window behind it.
+    [SerializeField] private Vector3 screenOffset = new Vector3(1.1f, 0.54f, -2.78f);
     [SerializeField] private Vector3 fanOffset = new Vector3(-1.4f, 0f, 2.0f);
     [SerializeField] private float villagerSpacing = 0.9f;
 
