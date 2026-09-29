@@ -614,7 +614,9 @@ public class Module2HUD : MonoBehaviour
 
     void BuildEndPanel(Transform parent)
     {
-        var panel = NewRect("End", parent, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(820, 560));
+        // 640 tall: the consequence line plus a random fact runs to four lines, which overflowed a
+        // 90-high box into the stats above and the footer below on a 560 panel.
+        var panel = NewRect("End", parent, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(820, 640));
         endGroup = panel.gameObject.AddComponent<CanvasGroup>();
         var bg = panel.gameObject.AddComponent<Image>();
         bg.sprite = roundedSprite; bg.type = Image.Type.Sliced; bg.color = endPanelColor; bg.raycastTarget = false;
@@ -630,7 +632,7 @@ public class Module2HUD : MonoBehaviour
         endStats = NewText("Stats", panel, "", 30, textColor, TextAlignmentOptions.Center,
             new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -214), new Vector2(-60, 160));
         endFact = NewText("Fact", panel, "", 23, accentColor, TextAlignmentOptions.Center,
-            new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 76), new Vector2(-80, 90), FontStyles.Italic);
+            new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 72), new Vector2(-80, 136), FontStyles.Italic);
         endFooter = NewText("Footer", panel, "", 28, doneColor, TextAlignmentOptions.Center,
             new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 22), new Vector2(-40, 44), FontStyles.Bold);
     }
