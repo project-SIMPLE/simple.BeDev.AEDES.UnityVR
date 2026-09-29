@@ -18,6 +18,8 @@ public class Mosquito : MonoBehaviour
     public float biteDistance = 0.35f;
     [Tooltip("Seconds before the same mosquito can bite again.")]
     public float biteCooldown = 4f;
+    [Tooltip("Seconds after emerging before a mosquito can bite. They emerge just above open containers, i.e. in the face of a player who is covering one.")]
+    public float firstBiteDelay = 3f;
 
     private Vector3 _randomDirection;
     private int _wallMask;
@@ -40,6 +42,7 @@ public class Mosquito : MonoBehaviour
     void Start()
     {
         _wallMask = LayerMask.GetMask("Wall");
+        _nextBiteAt = Time.time + Mathf.Max(firstBiteDelay, 0f);
         GenerateRandomDirection();
     }
 
