@@ -73,6 +73,24 @@ public class M3XRPlayer : MonoBehaviour
         foreach (var move in Rig.GetComponentsInChildren<UnityEngine.XR.Interaction.Toolkit.Locomotion.Movement.ContinuousMoveProvider>(true))
             move.moveSpeed = walkSpeed;
 
+        // The starter rig brings locomotion this module does not want. A is "ready" and "yes" here,
+        // and the rig binds it to a 1.25 m JUMP (a hop in a headset is nauseating, and it happened
+        // the moment a Pilot pressed ready); grip is how you reach for a villager, and the rig binds
+        // it to grab-move, which would drag the Pilot along; nothing here is climbable.
+        foreach (var provider in Rig.GetComponentsInChildren<UnityEngine.XR.Interaction.Toolkit.Locomotion.LocomotionProvider>(true))
+        {
+            string kind = provider.GetType().Name;
+            if (kind == "JumpProvider" || kind == "GrabMoveProvider" || kind == "TwoHandedGrabMoveProvider" || kind == "ClimbProvider")
+                provider.enabled = false;
+        }
+
+        // Stand on the real floor. The starter rig leaves this unspecified, which falls back to a fixed
+        // 1.36 m camera offset instead of the wearer's own height - and doorways, panel heights and the
+        // hand positions all assume true standing height.
+        var origin = Rig.GetComponent<Unity.XR.CoreUtils.XROrigin>();
+        if (origin != null)
+            origin.RequestedTrackingOriginMode = Unity.XR.CoreUtils.XROrigin.TrackingOriginMode.Floor;
+
         var controller = Rig.GetComponentInChildren<CharacterController>(true);
         if (controller != null) controller.stepOffset = stepOffset;
 
@@ -138,7 +156,19 @@ public class M3XRPlayer : MonoBehaviour
     private static void MakeGroundTeleportable()
     {
         var ground = GameObject.Find("Ground");
-        if (ground != null && ground.GetComponent<TeleportationArea>() == null)
-            ground.AddComponent<TeleportationArea>();
+        if (ground != null) MakeTeleportArea(ground);
+    }
+
+    /// <summary>
+    /// Makes a surface something the right stick can teleport onto. The teleport ray only sees
+    /// areas on the XRI "Teleport" interaction layer (31); a TeleportationArea left on the default
+    /// layer is silently ignored, which is how the first version of this did nothing.
+    /// </summary>
+    public static void MakeTeleportArea(GameObject surface)
+    {
+        var area = surface.GetComponent<TeleportationArea>() ?? surface.AddComponent<TeleportationArea>();
+        int bits = UnityEngine.XR.Interaction.Toolkit.InteractionLayerMask.GetMask("Teleport");
+        if (bits == 0) bits = unchecked((int)0x80000000);   // layer 31 is XRI's "Teleport" by default
+        area.interactionLayers = bits;
     }
 }

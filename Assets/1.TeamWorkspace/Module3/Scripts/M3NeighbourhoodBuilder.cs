@@ -138,6 +138,7 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
             var house = Instantiate(housePrefab, plot.transform);
             house.transform.localScale = Vector3.one * houseScale;
             OpenTheDoors(house);
+            AddTeleportFloor(plot.transform);
         }
 
         var bed = bedPrefab != null
@@ -176,6 +177,21 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
         {
             BuildVillager(sim, plot.transform, h.ResidentIds[r], r, bed);
         }
+    }
+
+    /// <summary>
+    /// A thin floor-only surface inside the house that the teleport ray can land on. The house's own
+    /// floor mesh includes the walls, so making that teleportable would let the ray put a Pilot on a
+    /// wall or in the doorway.
+    /// </summary>
+    private void AddTeleportFloor(Transform plot)
+    {
+        var go = new GameObject("Teleport Floor");
+        go.transform.SetParent(plot, false);
+        var box = go.AddComponent<BoxCollider>();
+        box.size = new Vector3(8.0f * houseScale, 0.04f, 5.8f * houseScale);
+        box.center = new Vector3(0.1f * houseScale, FloorY - 0.02f, 0.2f * houseScale);
+        M3XRPlayer.MakeTeleportArea(go);
     }
 
     /// <summary>
