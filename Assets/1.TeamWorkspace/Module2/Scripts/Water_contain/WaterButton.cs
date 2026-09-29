@@ -41,9 +41,8 @@ public class WaterButton : MonoBehaviour
         if (waterPrefab != null) waterPrefab.SetActive(false);
         if (_source != null && waterSplash != null) _source.PlayOneShot(waterSplash);
 
-        // The splash lands on whatever is under the container: the ground mask first, then any
-        // non-trigger surface (house floor, furniture) that is not the container itself.
-        // PF_VaseWithFlowers was serialised before waterSplashEffect existed, so it can be null.
+        // The splash lands on the nearest surface under the container (ground, house floor or
+        // furniture). PF_VaseWithFlowers was serialised before waterSplashEffect existed, so it can be null.
         if (waterSplashEffect != null && FindSplashPoint(out RaycastHit hit))
             Instantiate(waterSplashEffect, hit.point, Quaternion.LookRotation(hit.normal));
 
@@ -52,15 +51,15 @@ public class WaterButton : MonoBehaviour
         if (!isSave) M2Manager.Instance.NeutralizeBreedingSite(this);
     }
 
+    // Nearest non-trigger surface below, ignoring the container and the player's own capsule. Preferring groundLayerMask
+    // put indoor splashes on the terrain under the house floor, where nobody could see them.
     bool FindSplashPoint(out RaycastHit best)
     {
         best = default;
-        if (Physics.Raycast(transform.position, Vector3.down, out best, 5f, groundLayerMask, QueryTriggerInteraction.Ignore))
-            return true;
         float nearest = float.MaxValue;
         foreach (var h in Physics.RaycastAll(transform.position, Vector3.down, 5f, ~0, QueryTriggerInteraction.Ignore))
         {
-            if (h.collider.transform.IsChildOf(transform) || h.distance >= nearest) continue;
+            if (h.collider.transform.IsChildOf(transform) || h.collider is CharacterController || h.distance >= nearest) continue;
             nearest = h.distance;
             best = h;
         }
