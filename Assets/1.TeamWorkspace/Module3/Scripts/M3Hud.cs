@@ -358,12 +358,27 @@ public class M3Hud : MonoBehaviour
         handoverPanel = Panel(canvasGo.transform, "Handover", new Color(0.04f, 0.05f, 0.07f, 0.94f));
         handoverText = Text(handoverPanel.transform, "HandoverText", Vector2.zero, Vector2.one,
             new Vector2(96f, 72f), new Vector2(-96f, -72f), TextAlignmentOptions.TopLeft, baseFontSize + 4);
+        FitToPanel(handoverText);
         handoverPanel.SetActive(false);
 
         debriefPanel = Panel(canvasGo.transform, "Debrief", new Color(0.04f, 0.05f, 0.07f, 0.97f));
         debriefText = Text(debriefPanel.transform, "DebriefText", Vector2.zero, Vector2.one,
             new Vector2(96f, 56f), new Vector2(-96f, -56f), TextAlignmentOptions.TopLeft, baseFontSize);
+        FitToPanel(debriefText);
         debriefPanel.SetActive(false);
+    }
+
+    /// <summary>
+    /// The handover and debrief run to different lengths (and Lao runs longer than English), and
+    /// text that outgrows the panel spilled onto the scene below it - the debrief's closing
+    /// question ended up outside the box. Shrink to fit instead.
+    /// </summary>
+    private void FitToPanel(TMP_Text text)
+    {
+        text.enableAutoSizing = true;
+        text.fontSizeMax = text.fontSize;
+        text.fontSizeMin = Mathf.Max(14f, text.fontSize * 0.55f);
+        text.overflowMode = TextOverflowModes.Truncate;
     }
 
     private static GameObject Panel(Transform parent, string name, Color colour)
