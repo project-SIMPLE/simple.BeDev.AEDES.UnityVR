@@ -274,8 +274,26 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
             capsule.height = 1.7f;
             capsule.radius = 0.32f;
         }
+        SlimTalkCollider(villager);
         var target = villager.GetComponent<M3VillagerTarget>() ?? villager.AddComponent<M3VillagerTarget>();
         target.personId = personId;
+    }
+
+    /// <summary>
+    /// Keeps a villager's collider about body-sized. The street-NPC prefab ships a 0.5 m-radius
+    /// capsule (a metre wide), the villagers stand 0.7 m apart, so their colliders overlapped and
+    /// pointing at one person opened whoever was nearer along the ray - found when the second
+    /// conversation of a visit kept opening the first person's panel. Only the person you point
+    /// at should respond.
+    /// </summary>
+    private static void SlimTalkCollider(GameObject villager)
+    {
+        foreach (var capsule in villager.GetComponentsInChildren<CapsuleCollider>(true))
+        {
+            if (capsule.isTrigger) continue;
+            capsule.radius = Mathf.Min(capsule.radius, 0.28f);
+            capsule.height = Mathf.Max(capsule.height, capsule.radius * 2f);
+        }
     }
 
     /// <summary>The body for this person: a purpose-built one for their age band if the scene has any.</summary>
