@@ -628,7 +628,9 @@ public class Module1HUD : MonoBehaviour
 
     void BuildQuestPanel(Transform parent)
     {
-        var panel = NewRect("Quests", parent, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-20, 20), new Vector2(310, 350));
+        // Rows are 76 apart: a title (30) plus a two-line hint needs ~74, and at the old 66 each hint
+        // crowded the next title while the three-line egg hint ran into the grip footer.
+        var panel = NewRect("Quests", parent, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-20, 20), new Vector2(310, 410));
         questGroup = panel.gameObject.AddComponent<CanvasGroup>();
         var bg = panel.gameObject.AddComponent<Image>();
         bg.sprite = roundedSprite; bg.type = Image.Type.Sliced; bg.color = panelColor; bg.raycastTarget = false;
@@ -641,7 +643,7 @@ public class Module1HUD : MonoBehaviour
         questRows = new QuestRow[QuestSystem.QuestCount];
         for (int i = 0; i < questRows.Length; i++)
         {
-            float y = -52 - i * 66;
+            float y = -52 - i * 76;
             var row = new QuestRow();
             row.box = NewImage("Box" + i, panel, roundedSprite, new Color(1, 1, 1, 0.18f), Image.Type.Sliced,
                 new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(16, y), new Vector2(28, 28));
@@ -652,7 +654,7 @@ public class Module1HUD : MonoBehaviour
             row.title = NewText("Title" + i, panel, "", 24, textColor, TextAlignmentOptions.Left,
                 new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(54, y + 2), new Vector2(-70, 30));
             row.hint = NewText("Hint" + i, panel, "", 18, mutedColor, TextAlignmentOptions.TopLeft,
-                new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(54, y - 26), new Vector2(-70, 40));
+                new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(54, y - 26), new Vector2(-70, 48));
             questRows[i] = row;
         }
     }
