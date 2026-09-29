@@ -37,6 +37,10 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
              + "footprint ends at z = 3.4.")]
     [SerializeField] private float yardDepth = 4.6f;
 
+    [Tooltip("Share of houses that show a water jar in the yard - never more than one each.")]
+    [Range(0, 100)]
+    [SerializeField] private int yardJarPercent = 50;
+
     [Header("Anchors inside a plot (local to the house)")]
     [SerializeField] private Vector3 bedOffset = new Vector3(0f, 0f, 2.2f);
 
@@ -125,17 +129,19 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
 
         // The containers are scenery and the visible reason there are mosquitoes here. Section 5:
         // they are "not a button, not a task, not a score" - nothing here is interactive.
-        if (containerPrefab != null)
+        //
+        // The model gives every household two to five productive containers (and always at least
+        // two, so a cleared yard is never a promise - section 5), but drawing one jar per container
+        // lined every yard with identical pots. Scenery only needs to say "water stands here": one
+        // jar at most, and a stable per-house roll leaves some yards bare. This is presentation
+        // only - the simulation's container counts are untouched.
+        if (containerPrefab != null && h.ProductiveContainerCount > 0
+            && (int)(((uint)h.Id * 2654435761u >> 16) % 100u) < yardJarPercent)
         {
-            for (int c = 0; c < h.Containers.Count; c++)
-            {
-                if (!h.Containers[c].IsProductive) continue;
-                // In the lane-side yard, in front of the house. At z = -1.8 they were inside the
-                // 6.4 m-deep house, where nobody walking the lane could see them.
-                var yard = Anchor(plot.transform, $"Container_{h.Containers[c].Id}",
-                    new Vector3(-2.5f + c * 0.9f, 0f, yardDepth));
-                Instantiate(containerPrefab, yard);
-            }
+            // In the lane-side yard, in front of the house. At z = -1.8 they were inside the
+            // 6.4 m-deep house, where nobody walking the lane could see them.
+            var yard = Anchor(plot.transform, $"Container_{h.Id}", new Vector3(-2.5f, 0f, yardDepth));
+            Instantiate(containerPrefab, yard);
         }
 
         for (int r = 0; r < h.ResidentIds.Count; r++)

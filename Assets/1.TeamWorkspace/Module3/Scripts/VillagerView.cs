@@ -44,7 +44,11 @@ public class VillagerView : MonoBehaviour
     /// </summary>
     public Transform RestingPlace { get; set; }
 
+    [Tooltip("Height of the mattress surface above the bed anchor (measured on PF_Bed; the body's own thickness is added on top).")]
+    [SerializeField] private float mattressHeight = 0.6f;
+
     private Vector3 standingPosition;
+    private Quaternion standingRotation;
     private bool capturedStandingPosition;
 
     public VisibleCondition Condition { get; private set; }
@@ -138,6 +142,14 @@ public class VillagerView : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// NpcAnimationController has only an idle pose and a walk cycle - there is no lying-down
+    /// clip for this rig yet, so a resting villager is laid down by tipping the standing pose flat
+    /// rather than by switching animation states. The rig is tipped onto its back (a +90 pitch
+    /// would leave the chest facing the mattress) along the bed's own orientation, and shifted half
+    /// a body length because the rig's origin is at the feet - without that the body hangs off the
+    /// end of the bed. Once a real lying animation exists this can go back to a plain position move.
+    /// </summary>
     private void MoveToRestingPlace(bool resting)
     {
         if (RestingPlace == null) return;
@@ -145,10 +157,22 @@ public class VillagerView : MonoBehaviour
         if (!capturedStandingPosition)
         {
             standingPosition = transform.position;
+            standingRotation = transform.rotation;
             capturedStandingPosition = true;
         }
 
-        transform.position = resting ? RestingPlace.position : standingPosition;
+        if (resting)
+        {
+            float s = transform.lossyScale.y;   // children are smaller, so the offsets scale with them
+            Vector3 feetOffset = RestingPlace.rotation * new Vector3(0f, 0f, 0.85f * s);
+            transform.SetPositionAndRotation(
+                RestingPlace.position + feetOffset + Vector3.up * (mattressHeight + 0.12f * s),
+                RestingPlace.rotation * Quaternion.Euler(-90f, 0f, 0f));
+        }
+        else
+        {
+            transform.SetPositionAndRotation(standingPosition, standingRotation);
+        }
     }
 
     private bool HasSign(string key)

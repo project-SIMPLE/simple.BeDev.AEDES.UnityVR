@@ -20,6 +20,11 @@ public class HouseholdView : MonoBehaviour
     [SerializeField] private Transform fanStand;
     [SerializeField] private Transform bedNetAnchor;
 
+    [Tooltip("PF_ElectricFan is a 0.3 m table fan; stood on the floor it looks like a toy beside a "
+             + "full-size door. Scaled uniformly (a non-uniform scale would skew the spinning blade) "
+             + "up to a floor-standing fan.")]
+    [SerializeField] private float fanScale = 2.5f;
+
     [Header("Prefabs (leave empty to load from Module3Props)")]
     [SerializeField] private GameObject screenIntactPrefab;
     [SerializeField] private GameObject screenTornPrefab;
@@ -124,7 +129,11 @@ public class HouseholdView : MonoBehaviour
 
         if (fanStand == null || fanInstance != null) return;
         fanInstance = Place(Resolve(ref fanPrefab, Module3Props.ElectricFan), fanStand);
-        if (fanInstance != null) fanInstance.AddComponent<FanBladeSpin>();
+        if (fanInstance != null)
+        {
+            fanInstance.transform.localScale = Vector3.one * fanScale;
+            fanInstance.AddComponent<FanBladeSpin>();
+        }
     }
 
     private void ShowNet(bool deployed)
