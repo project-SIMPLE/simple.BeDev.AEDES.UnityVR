@@ -40,8 +40,17 @@ One thing this brief asked for that turned out not to be needed: **the fan has n
 socket.** The simulation models a fan at household level (`SetFan` applies to the room, not to a
 person), so there is nothing for a direction to feed. `Socket_Mount` is sufficient.
 
-The health centre was built despite being marked "do not start yet" — kept deliberately crude at
-84 triangles, which is the right call while §13 item 4 is unresolved.
+The health centre was built despite being marked "do not start yet" — it was kept deliberately
+crude while §13 item 4 is unresolved, and even after the detail pass it is provisional massing.
+
+**Detail pass (2026-09-29).** A second pass over the nine props and the three villager bodies
+raised the triangle budgets in §2 well above what this brief asked for (props 3000–8000, bodies
+7000) and gave every prop several colours through one shared palette texture, still one material
+per asset. The budgets below stay as they were written, as the floor a hand-made asset must
+clear; the delivered assets and their actual counts are recorded in
+`Module3-Placeholder-Assets.md` and `Module3-Villager-Bodies.md`. One further departure: the
+screens' netting is a separate child mesh (`Screen_Mesh`) on an alpha-cutout material, so the
+brief's "one material per asset" is one material per asset plus that shared netting material.
 
 **Still outstanding:** the villager animation clips in §D — now specified in full in
 `Module3-Animation-Brief.md`, which supersedes §D of this document. That is the remaining art

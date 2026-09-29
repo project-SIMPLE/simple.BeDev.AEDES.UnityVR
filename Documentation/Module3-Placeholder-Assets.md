@@ -6,14 +6,16 @@ Implements the **Unblocking pattern** from `Module3-Roadmap.md` §4:
 > of Phase 0. Code binds to the path and the sockets; art replaces the mesh inside the prefab later.
 > Nothing in Phases 1–5 ever waits for a model, and the swap is a one-file change with no scene churn.
 
-**Status (2026-09-29): the swap described above has happened.** All nine assets are now final,
-detailed meshes from `Tools/Module3/make_final_models.py`, each with its own material from
-`Tools/Module3/make_final_materials.py`, built exactly per the "Handing these to whoever makes the
-real models" section below: same paths, same node names, same `Socket_*` empties, same envelope,
-same `.fbx.meta` GUIDs. `Tools/Module3/make_placeholders.py` (the original flat-grey greybox
-generator) and `M_Module3Placeholder.mat` are left in the repo for any *future* placeholder — the
-prefab builder still supports binding a still-greybox entry to it — but none of the nine current
-assets use them any more.
+**Status (2026-09-29): the swap described above has happened, and a detail pass followed it.**
+All nine assets are final meshes from `Tools/Module3/make_final_models.py`, each with its own
+material from `Tools/Module3/make_final_materials.py`, built exactly per the "Handing these to
+whoever makes the real models" section below: same paths, same node names, same `Socket_*`
+empties, same origins, same `.fbx.meta` GUIDs. The detail pass (see *The detail pass* below)
+raised the triangle budgets, gave every prop several colours through one shared palette texture,
+and made the window screens see-through. `Tools/Module3/make_placeholders.py` (the original
+flat-grey greybox generator) and `M_Module3Placeholder.mat` are left in the repo for any *future*
+placeholder — the prefab builder still supports binding a still-greybox entry to it — but none of
+the nine current assets use them any more.
 
 The **dimensions, origins, pivots and socket names are still the deliverable that matters most**,
 because code and scenes bind to them, and the final meshes keep every one exactly as the greybox
@@ -28,26 +30,33 @@ not asserted from the Blender side. That distinction mattered; see *Axis and uni
 
 | Prefab (bind to this) | Source mesh | Tris / budget | Size (m, Unity XYZ) | Sockets |
 |---|---|---|---|---|
-| `Prefabs/Furniture/PF_ElectricFan.prefab` | `SM_ElectricFan` | 2268 / 3000 | 0.302 × 0.449 × 0.21 | `Socket_Mount` |
-| `Prefabs/Buildings/PF_WindowScreen.prefab` | `SM_WindowScreen` | 308 / 500 | 1.5 × 1.0 × 0.04 | `Socket_Mount` |
-| `Prefabs/Buildings/PF_WindowScreenTorn.prefab` | `SM_WindowScreenTorn` | 440 / 500 | 1.5 × 1.0 × 0.104 | `Socket_Mount` |
-| `Prefabs/Props/PF_MosquitoNet_RolledUp.prefab` | `SM_MosquitoNet_RolledUp` | 1164 / 1500 | 0.319 × 0.59 × 0.311 | `Socket_Mount`, `Socket_Hook` |
+| `Prefabs/Furniture/PF_ElectricFan.prefab` | `SM_ElectricFan` | 7188 / 8000 | 0.306 × 0.453 × 0.21 | `Socket_Mount` |
+| `Prefabs/Buildings/PF_WindowScreen.prefab` | `SM_WindowScreen` | 1408 / 3000 | 1.5 × 1.0 × 0.04 | `Socket_Mount` |
+| `Prefabs/Buildings/PF_WindowScreenTorn.prefab` | `SM_WindowScreenTorn` | 3202 / 4000 | 1.5 × 1.0 × 0.086 | `Socket_Mount` |
+| `Prefabs/Props/PF_MosquitoNet_RolledUp.prefab` | `SM_MosquitoNet_RolledUp` | 4512 / 5000 | 0.316 × 0.592 × 0.317 | `Socket_Mount`, `Socket_Hook` |
 | `Prefabs/Props/PF_MosquitoNet_Deployed.prefab` | `SM_MosquitoNet` *(existing art)* | 298 | 1.56 × 1.383 × 1.766 | — |
-| `Prefabs/Props/PF_RepellentBottle.prefab` | `SM_RepellentBottle` | 548 / 1500 | 0.077 × 0.192 × 0.06 | `Socket_Grip` |
-| `Prefabs/Props/PF_DrinkingVessel.prefab` | `SM_DrinkingVessel` | 830 / 1500 | 0.091 × 0.106 × 0.084 | `Socket_Grip` |
-| `Prefabs/Props/PF_Cloth.prefab` | `SM_Cloth` | 464 / 1500 | 0.4 × 0.063 × 0.26 | `Socket_Grip` |
-| `Prefabs/Props/PF_Torch.prefab` | `SM_Torch` | 940 / 1500 | 0.066 × 0.166 × 0.066 | `Socket_Grip`, `Socket_Light` |
-| `Prefabs/Buildings/PF_HealthCentre.prefab` | `SM_HealthCentre` | 1028 / 2000 | 12.6 × 3.65 × 10.3 | `Socket_Entrance` |
+| `Prefabs/Props/PF_RepellentBottle.prefab` | `SM_RepellentBottle` | 2144 / 3000 | 0.08 × 0.191 × 0.06 | `Socket_Grip` |
+| `Prefabs/Props/PF_DrinkingVessel.prefab` | `SM_DrinkingVessel` | 1532 / 3000 | 0.119 × 0.107 × 0.087 | `Socket_Grip` |
+| `Prefabs/Props/PF_Cloth.prefab` | `SM_Cloth` | 2796 / 4000 | 0.4 × 0.05 × 0.26 | `Socket_Grip` |
+| `Prefabs/Props/PF_Torch.prefab` | `SM_Torch` | 2756 / 3000 | 0.066 × 0.166 × 0.07 | `Socket_Grip`, `Socket_Light` |
+| `Prefabs/Buildings/PF_HealthCentre.prefab` | `SM_HealthCentre` | 1988 / 4000 | 12.6 × 3.65 × 10.3 | `Socket_Entrance` |
 
 Paths are relative to `Assets/1.TeamWorkspace/Team Assets/`. Meshes live at
 `Team Assets/Models/<name>/<name>.fbx`, following the existing folder-per-model convention.
 
-Each asset now has its own material (`M_ElectricFan`, `M_WindowScreen` — shared by the intact and
-torn screen, per Asset Brief A3 — `M_MosquitoNet_RolledUp`, `M_RepellentBottle`,
-`M_DrinkingVessel`, `M_Cloth`, `M_Torch`, `M_HealthCentre`), one flat colour each on URP/Lit
-(see the caveat below for why not the toon graph), no texture — Asset Brief §2: "one material per asset, not one per
-part", no PBR sets. `M_Module3Placeholder.mat` still exists for any future greybox placeholder but
-nothing here references it any more.
+Each asset has its own material (`M_ElectricFan`, `M_WindowScreen` — shared by the intact and
+torn screen frames, per Asset Brief A3 — `M_MosquitoNet_RolledUp`, `M_RepellentBottle`,
+`M_DrinkingVessel`, `M_Cloth`, `M_Torch`, `M_HealthCentre`), on URP/Lit (see the caveat below for
+why not the toon graph) — Asset Brief §2: "one material per asset, not one per part", no PBR sets.
+Since the detail pass every one of them samples the same 8×8 swatch texture,
+`Team Assets/Textures/T_M3_PropPalette.png`, and each part of a mesh has all of its UVs parked on
+the centre of one swatch: that is how a fan is cream, blue and grey in one draw call. The swatch
+list lives in `Tools/Module3/m3_palette.py` (append, never reorder — the index is baked into the
+committed FBX UVs). The one exception is the screens' netting, `Screen_Mesh`, a child object that
+gets `M_WindowScreenMesh` — an alpha-cutout, two-sided wire grid (`T_M3_ScreenMesh.png`, one tile
+per 15 mm) — so a screen is something you see through, not a board over the window.
+`M_Module3Placeholder.mat` still exists for any future greybox placeholder but nothing here
+references it any more.
 
 Every asset maps to a Phase 1 player action, which is why this is the list and not a longer one:
 
@@ -127,10 +136,11 @@ scale. **Animate its local Z.** The fan faces Unity +Z.
 ## Regenerating
 
 ```bash
-# 1. meshes — writes Team Assets/Models/<name>/<name>.fbx, enforces the §4 tri budgets
+# 1. meshes — writes Team Assets/Models/<name>/<name>.fbx, enforces the tri budgets
+#    (add "-- --out DIR" to stage them elsewhere first, "-- --only SM_Torch" for one asset)
 blender -b --factory-startup --python Tools/Module3/make_final_models.py
 
-# 2. per-asset materials (M_ElectricFan.mat, M_WindowScreen.mat, ...)
+# 2. the palette + screen-mesh textures and the per-asset materials that sample them
 python3 Tools/Module3/make_final_materials.py
 
 # 3. prefabs, in Unity:   AEDES ▸ Module 3 ▸ Build Placeholder Prefabs
@@ -139,7 +149,7 @@ python3 Tools/Module3/make_final_materials.py
 
 (The menu items keep their original names — they still build/verify prop prefabs against the same
 §4 contract — but they now assign each asset's own material rather than forcing the shared grey
-one. `Tools/Module3/make_placeholders.py` + `make_unity_assets.py` are the original greybox
+one, and a named child such as `Screen_Mesh` its own part material (`Entry.PartMaterials`). `Tools/Module3/make_placeholders.py` + `make_unity_assets.py` are the original greybox
 generators; keep them for any *future* placeholder, but they are not part of regenerating the nine
 current assets.)
 
@@ -167,6 +177,43 @@ are `md5("aedes-m3-final:" + asset path)`, a different salt so they cannot colli
 GUIDs. Blender is only needed to *regenerate*; the FBXes are committed.
 
 ---
+
+## The detail pass
+
+The first final meshes were built from 14–18-segment primitives with one flat colour each, and
+in the game they read as faceted greybox with a coat of paint: box fan blades with guard bars
+running through them, a bullet-shaped net, a cup whose handle was a ring lying flat against its
+side, an opaque brown board for a window screen, a white block for the health centre. The detail
+pass (2026-09-29) reworked all nine in `make_final_models.py` without touching the contract:
+
+- **Geometry.** Lathes run at 36–56 segments; edges get a small two-segment bevel where it
+  helps (not on the fan guard's 36 wires or the torch's ribs — a bevel there triples the count for
+  nothing) and everything is shaded smooth-by-angle so flat faces stay flat. The fan has a real
+  wire guard (two rings, a mid ring, a badge plate, 24 front and 12 back wires), three twisted,
+  cambered blades on a domed hub, a lathed pedestal with three push buttons and a yoke with pivot
+  pins. The rolled net is a rippled lathe (the ripple twists as it climbs) with two tie cords,
+  knots and loose ends. The cup is enamelware with a blue rim, water inside and a D handle that
+  stands off the wall. The cloth is a checked pha khao ma with soft folds. The torch has a
+  knurled grip, a silver bezel and a red button. The health centre has a hipped roof, a porch on
+  columns, twelve framed windows, a painted door and a sign with a red cross.
+- **Colour.** One material per prop still, but each samples the shared palette texture (above),
+  so parts carry their own colour. The palette is point-filtered, uncompressed and mip-free so a
+  swatch centre samples exactly the listed sRGB value.
+- **Screens.** The netting is its own child object, `Screen_Mesh`, on an alpha-cutout wire-grid
+  material with coverage-preserving mipmaps; the torn variant's right bay is a lattice with a
+  ragged hole and two flaps curling into the room, which is what sets its 0.086 m depth.
+- **Budgets** went from 500–3000 to 3000–8000 per prop (table above); the
+  `PlaceholderAssetTests` ceiling of 8000 per prefab is unchanged and every prop is under it.
+  The Quest 3 cost is small: ten houses' worth of fans is ~72k triangles.
+- **Sizes** that moved: the cup is 0.119 m wide because its handle now sticks out; the torn
+  screen's flaps reach 0.086 m instead of 0.104 m. Everything else is within 2 cm of before, and
+  `Verify Placeholder Contract` reports 0 problems.
+
+Checked in the running game with the playtest harness (a throwaway extract of `Assets/Playtest`,
+not committed): every prop and the three villager bodies were spawned in a row and photographed
+from fixed cameras before and after, then the village scene itself (a fan, a torn screen and a
+rolled net in a real house) — the shots were compared by eye, and the palette and cutout
+materials render as intended under the scene's lighting.
 
 ## Axis and unit traps (read before touching the exporter)
 

@@ -15,6 +15,14 @@ today). Two new rigs:
     the way fodo/nasa/Roger share one adult skeleton -- the second is nearly free.
   - an elder skeleton (adult-scale but shorter, SK_Villager_Elder).
 
+DETAIL PASS. The first version was built from 10-14 segment primitives and read faceted at
+conversational distance, with visible seams where a forearm met an upper arm. This version
+runs every round part at 16-28 segments, fills each joint with a sphere bound to the parent
+bone (so an elbow or knee stays round when the limb bends), gives everyone a neck, mitten
+hands with a thumb, and proper feet, and shades smooth-by-angle so cylinder caps stay crisp
+while everything round reads round. Budget went from 1800 to 7000 triangles per body -- a
+room of five villagers is still cheaper than one Lao house.
+
 STYLE MATCH. SK_Character is a super-deformed figure: head about a third of total height,
 short legs (~35%), A-pose arms, hands as small hooks. These follow the same language
 (measured from its bones, see the proportion tables) so a villager of each age can share a
@@ -61,10 +69,14 @@ PARENT = {
 }
 
 TRI_BUDGET = {
-    "SK_Villager_Elder":   1800,
-    "SK_Villager_Child_A": 1800,
-    "SK_Villager_Child_B": 1800,
+    "SK_Villager_Elder":   7000,
+    "SK_Villager_Child_A": 7000,
+    "SK_Villager_Child_B": 7000,
 }
+
+# Segment counts for the detail pass. LIMB is the round count for arm/leg tubes, JOINT for
+# the spheres that fill elbows/knees/wrists, HEAD for the head and hair.
+HEAD, LIMB, JOINT, TORSO, SKIRT, RING = 28, 18, 14, 24, 28, 24
 
 # Flat colours (URP/Lit, one region each). One plain warm-brown skin tone
 # shared by every villager: nothing here codes a specific ethnicity beyond "this village",
@@ -97,10 +109,15 @@ def reset():
 def _added():
     return bpy.context.active_object
 
+def select_only(o):
+    bpy.ops.object.select_all(action='DESELECT')
+    o.select_set(True)
+    bpy.context.view_layer.objects.active = o
+
 def lerp(a, b, t):
     return Vector(a) * (1 - t) + Vector(b) * t
 
-def cyl(r, h, at, rot=(0, 0, 0), seg=12, r2=None):
+def cyl(r, h, at, rot=(0, 0, 0), seg=LIMB, r2=None):
     if r2 is None:
         bpy.ops.mesh.primitive_cylinder_add(radius=r, depth=h, vertices=seg, location=at, rotation=rot)
     else:
@@ -113,26 +130,27 @@ def box(size, at):
     o.scale = size
     return o
 
-def ball(r, at, seg=14, scale=(1, 1, 1)):
-    bpy.ops.mesh.primitive_uv_sphere_add(radius=r, segments=seg, ring_count=max(5, seg // 2), location=at)
+def ball(r, at, seg=JOINT, scale=(1, 1, 1), rot=(0, 0, 0)):
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=r, segments=seg, ring_count=max(5, seg // 2),
+                                         location=at, rotation=rot)
     o = _added()
     if scale != (1, 1, 1):
         o.scale = scale
     return o
 
-def ring(major, minor, at, rot=(0, 0, 0), mseg=16, nseg=6):
+def ring(major, minor, at, rot=(0, 0, 0), mseg=RING, nseg=6):
     bpy.ops.mesh.primitive_torus_add(major_radius=major, minor_radius=minor, major_segments=mseg,
                                      minor_segments=nseg, location=at, rotation=rot)
     return _added()
 
-def hair_cap(r, at, seg=16, back_rim=-0.72, front_rim=0.30, front_y=0.2):
+def hair_cap(r, at, seg=HEAD, back_rim=-0.50, front_rim=0.30, front_y=0.2):
     """A hair shell over the head: the top of a sphere, kept down to `back_rim` (a fraction of
     r, negative = below the equator) at the sides and back, but only down to `front_rim` across
     the front (-Y, where the character faces), which is what gives a forehead hairline instead of
     a visor. Vertices are kept or dropped by sphere latitude, so the thresholds sit between rings
-    (a 16x8 UV sphere has rings at z/r = +-0.92, +-0.71, +-0.38, 0). An open shell, not a solid
-    dome with a lid: no lower hemisphere to poke through the scalp, and no cap face sunk inside
-    the head to cost triangles."""
+    (a 28-segment sphere has 14 rings, at z/r = cos(k*pi/14): 0.97, 0.90, 0.78, 0.62, 0.43,
+    0.22, 0, -0.22, -0.43, -0.62 ...). An open shell, not a solid dome with a lid: no lower
+    hemisphere to poke through the scalp, and no cap face sunk inside the head to cost triangles."""
     o = ball(r, at=(0, 0, 0), seg=seg)
     bm = bmesh.new()
     bm.from_mesh(o.data)
@@ -145,7 +163,7 @@ def hair_cap(r, at, seg=16, back_rim=-0.72, front_rim=0.30, front_y=0.2):
     o.location = at
     return o
 
-def seg_between(p0, p1, r, seg=12, r2=None):
+def seg_between(p0, p1, r, seg=LIMB, r2=None):
     """A cylinder (optionally tapered) spanning two joint points, oriented automatically."""
     p0, p1 = Vector(p0), Vector(p1)
     d = p1 - p0
@@ -153,17 +171,26 @@ def seg_between(p0, p1, r, seg=12, r2=None):
     rot = Vector((0, 0, 1)).rotation_difference(d.normalized()).to_euler()
     return cyl(r, d.length, at=mid, rot=rot, seg=seg, r2=r2)
 
-def band_on(a, b, t0, t1, r, seg=10):
+def band_on(a, b, t0, t1, r, seg=LIMB):
     """A short wide cylinder wrapped around the limb between fractions t0..t1 of a->b
     (a hem band, a cuff): trim colour, bound to whichever bone the limb belongs to."""
     return seg_between(lerp(a, b, t0), lerp(a, b, t1), r, seg=seg)
+
+def blob_along(p0, p1, r, seg=JOINT, flatten=1.0, stretch=1.0):
+    """An ellipsoid whose long axis runs p0 -> p1 (a mitten, a foot): a sphere scaled along its
+    local Z and rotated onto the segment, `flatten` squashing its local Y."""
+    p0, p1 = Vector(p0), Vector(p1)
+    d = p1 - p0
+    rot = Vector((0, 0, 1)).rotation_difference(d.normalized()).to_euler()
+    return ball(r, at=(p0 + p1) / 2, seg=seg, scale=(1.0, flatten, stretch * d.length / (2 * r)), rot=rot)
 
 def rigid_group(obj, bone_name):
     """Every vertex of `obj` -> a vertex group named after `bone_name`, full weight. Blender's
     join merges same-named groups, so each source object's binding survives as that part's
     rigid skin. Predictable for a blocky low-poly character (no heat-map artefacts), and these
     are idle-class poses (Animation Brief §4) with small joint rotations, so a hard bind reads
-    fine."""
+    fine. The joint spheres are bound to the PARENT bone of the joint, so a bending forearm
+    turns around a ball that stays put -- which is what keeps the elbow round."""
     vg = obj.vertex_groups.new(name=bone_name)
     vg.add(range(len(obj.data.vertices)), 1.0, 'REPLACE')
 
@@ -179,9 +206,10 @@ def join(parts, name):
     o.data.name = name
     return o
 
-def shade_smooth(o):
-    for p in o.data.polygons:
-        p.use_smooth = True
+def shade_smooth_by_angle(o, deg=45):
+    """Smooth everything round, keep cylinder caps and box edges crisp."""
+    select_only(o)
+    bpy.ops.object.shade_smooth_by_angle(angle=math.radians(deg))
 
 def material(o, key, color):
     m = bpy.data.materials.get(key) or bpy.data.materials.new(key)
@@ -293,55 +321,65 @@ def build_body(name, p, o):
     cloth_c, hair_c, trim_c = o["cloth_color"], o["hair_color"], o["trim_color"]
     hr = p["head_r"]
     hc = (p["chest_z"] + p["head_top_z"]) / 2
+    lr, ar = p["leg_r"], p["arm_r"]
+    long_sleeves = o["sleeves"] == "long"
+    bare_shins = o["legs"] != "skirt_long"
 
-    # ---- Skin first: head and ears ----
-    add(ball(hr, (0, 0, hc), seg=14), "Head", skin_k, SKIN)
+    # ---- Skin first: head, ears, neck ----
+    add(ball(hr, (0, 0, hc), seg=HEAD), "Head", skin_k, SKIN)
     for sx in (1, -1):
-        add(ball(hr * 0.15, (sx * hr * 0.99, 0, hc - hr * 0.04), seg=6, scale=(0.5, 0.9, 1.0)),
+        add(ball(hr * 0.15, (sx * hr * 0.99, 0, hc - hr * 0.04), seg=10, scale=(0.5, 0.9, 1.0)),
             "Head", skin_k, SKIN)
+    add(cyl(hr * 0.30, (hc - hr * 0.75) - (p["chest_z"] - 0.03), (0, 0.01, ((hc - hr * 0.75) + p["chest_z"] - 0.03) / 2),
+            seg=JOINT), "Spine", skin_k, SKIN)                                   # neck
 
     # ---- Hair. A true hemispherical cap (no nested sphere to poke through the head).
     # Everything hangs BEHIND the head, i.e. towards +Y (the character faces -Y). ----
     if o["hair_style"] == "bun":
-        add(hair_cap(hr * 1.06, (0, 0, hc), back_rim=-0.60), "Head", hair_k, hair_c)
-        add(ball(hr * 0.30, (0, hr * 1.02, hc + hr * 0.22), seg=10), "Head", hair_k, hair_c)
+        add(hair_cap(hr * 1.06, (0, 0, hc), back_rim=-0.70), "Head", hair_k, hair_c)
+        add(ball(hr * 0.30, (0, hr * 1.02, hc + hr * 0.22), seg=16), "Head", hair_k, hair_c)
+        add(ring(hr * 0.30, hr * 0.035, (0, hr * 0.98, hc + hr * 0.22),
+                 rot=(math.radians(90), 0, 0), mseg=20, nseg=6), "Head", hair_k, hair_c)   # the bun's coil
     elif o["hair_style"] == "pigtails":
-        add(hair_cap(hr * 1.06, (0, 0, hc), back_rim=-0.45), "Head", hair_k, hair_c)
+        add(hair_cap(hr * 1.06, (0, 0, hc), back_rim=-0.50), "Head", hair_k, hair_c)
         for sx in (1, -1):
             add(seg_between((sx * hr * 0.90, hr * 0.35, hc + hr * 0.04),
-                            (sx * hr * 1.22, hr * 0.55, hc - hr * 0.70), r=hr * 0.15, seg=10),
+                            (sx * hr * 1.22, hr * 0.55, hc - hr * 0.70), r=hr * 0.15, seg=JOINT),
                 "Head", hair_k, hair_c)
+            add(ball(hr * 0.16, (sx * hr * 1.24, hr * 0.56, hc - hr * 0.74), seg=JOINT), "Head", hair_k, hair_c)
     else:
-        add(hair_cap(hr * 1.05, (0, 0, hc), back_rim=-0.45), "Head", hair_k, hair_c)
+        add(hair_cap(hr * 1.05, (0, 0, hc), back_rim=-0.50), "Head", hair_k, hair_c)
 
-    # ---- Cloth: torso, pelvis, sleeves, legs ----
+    # ---- Cloth: torso, pelvis, shoulders, sleeves, legs ----
     trb, trt = p["torso_rb"], p["torso_rt"]
-    add(seg_between((0, 0, p["hip_z"] - 0.02), (0, 0, p["chest_z"]), r=trb, r2=trt, seg=12),
+    add(seg_between((0, 0, p["hip_z"] - 0.02), (0, 0, p["chest_z"]), r=trb, r2=trt, seg=TORSO),
         "Spine", cloth_k, cloth_c)
-    add(cyl(max(trb * 1.03, p["hip_x"] + p["leg_r"] * 1.12), 0.10, (0, 0, p["hip_z"] + 0.01), seg=12),
+    add(ball(trt, (0, 0, p["chest_z"] - 0.005), seg=TORSO, scale=(1.0, 1.0, 0.35)), "Spine", cloth_k, cloth_c)   # rounded shoulders
+    add(cyl(max(trb * 1.03, p["hip_x"] + lr * 1.12), 0.10, (0, 0, p["hip_z"] + 0.01), seg=TORSO),
         "Hips", cloth_k, cloth_c)
 
     for side in ("L", "R"):
-        add(ball(p["arm_r"] * 1.3, J[f"sh_out_{side}"], seg=10), f"Shoulder.{side}", cloth_k, cloth_c)
-        add(seg_between(J[f"sh_out_{side}"], J[f"elbow_{side}"], r=p["arm_r"], seg=10),
+        add(ball(ar * 1.3, J[f"sh_out_{side}"], seg=JOINT), f"Shoulder.{side}", cloth_k, cloth_c)
+        add(seg_between(J[f"sh_out_{side}"], J[f"elbow_{side}"], r=ar, seg=LIMB),
             f"UpperArm.{side}", cloth_k, cloth_c)
-        if o["sleeves"] == "long":
-            add(seg_between(J[f"elbow_{side}"], J[f"wrist_{side}"], r=p["arm_r"] * 0.92,
-                            r2=p["arm_r"] * 0.82, seg=10), f"LowerArm.{side}", cloth_k, cloth_c)
+        if long_sleeves:
+            add(ball(ar * 0.98, J[f"elbow_{side}"], seg=JOINT), f"UpperArm.{side}", cloth_k, cloth_c)   # elbow
+            add(seg_between(J[f"elbow_{side}"], J[f"wrist_{side}"], r=ar * 0.92,
+                            r2=ar * 0.82, seg=LIMB), f"LowerArm.{side}", cloth_k, cloth_c)
 
-    lr = p["leg_r"]
     for side in ("L", "R"):
         hip, knee, ankle = J[f"hip_{side}"], J[f"knee_{side}"], J[f"ankle_{side}"]
-        if o["legs"] == "skirt_long":            # tubes sit inside the skirt cone below
-            add(seg_between(hip, knee, r=lr * 1.10, r2=lr * 1.05, seg=10), f"UpperLeg.{side}", cloth_k, cloth_c)
-            add(seg_between(knee, ankle, r=lr * 1.02, r2=lr * 0.95, seg=10), f"LowerLeg.{side}", cloth_k, cloth_c)
+        if o["legs"] == "skirt_long":
+            # No leg tubes: the skirt cone is closed at both ends, and tubes hidden inside it
+            # poked through the hem whenever the idle clip splayed the legs a few degrees.
+            pass
         elif o["legs"] == "skirt_short":
-            add(seg_between(hip, knee, r=lr * 1.10, r2=lr * 1.05, seg=10), f"UpperLeg.{side}", cloth_k, cloth_c)
+            add(seg_between(hip, knee, r=lr * 1.00, r2=lr * 0.96, seg=LIMB), f"UpperLeg.{side}", cloth_k, cloth_c)
         else:                                    # shorts
-            add(seg_between(hip, knee, r=lr * 1.12, r2=lr * 1.08, seg=10), f"UpperLeg.{side}", cloth_k, cloth_c)
+            add(seg_between(hip, knee, r=lr * 1.12, r2=lr * 1.08, seg=LIMB), f"UpperLeg.{side}", cloth_k, cloth_c)
 
-    # A wrapped skirt (sinh) is ONE tube round both legs; two separate leg tubes read as wide
-    # trousers. The cone is bound to the hips: it hangs from the waist, and while the whole
+    # A wrapped skirt (sinh) is ONE closed cone round both legs; two separate leg tubes read as
+    # wide trousers. The cone is bound to the hips: it hangs from the waist, and while the whole
     # rig is tipped flat to lie on a bed (VillagerView) it goes with the body. A future seated
     # clip would leave it standing round the pelvis with the thighs coming out of the front --
     # an A-line drape, acceptable, and animation-safe (nothing pulls it through the legs).
@@ -351,21 +389,23 @@ def build_body(name, p, o):
         z_bot = (p["ankle_z"] + 0.03) if o["legs"] == "skirt_long" else (p["knee_z"] - 0.03)
         r_top = p["hip_x"] + lr * 1.10 + 0.006
         r_bot = p["skirt_r"]
-        add(seg_between((0, 0, z_top), (0, 0, z_bot), r=r_top, r2=r_bot, seg=14), "Hips", cloth_k, cloth_c)
+        add(seg_between((0, 0, z_top), (0, 0, z_bot), r=r_top, r2=r_bot, seg=SKIRT), "Hips", cloth_k, cloth_c)
         skirt_bottom = (z_top, z_bot, r_top, r_bot)
 
     # ---- Trim: collar, waistband, sash, hems, cuffs (a contrast colour, one material) ----
     if o["collar"]:
-        add(ring(trt * 0.93, 0.024 * (p["head_r"] / 0.26), (0, 0, p["chest_z"] - 0.035), mseg=14, nseg=5),
+        add(ring(trt * 0.93, 0.024 * (p["head_r"] / 0.26), (0, 0, p["chest_z"] - 0.035), mseg=RING, nseg=6),
             "Spine", trim_k, trim_c)
     if o["waistband"]:
-        add(ring(trb * 1.02, 0.03, (0, 0, p["hip_z"] + 0.055), mseg=14, nseg=5), "Hips", trim_k, trim_c)
+        add(ring(trb * 1.02, 0.03, (0, 0, p["hip_z"] + 0.055), mseg=RING, nseg=6), "Hips", trim_k, trim_c)
+    if o["legs"] == "shorts" or (o["legs"] == "skirt_short" and not o["waistband"]):
+        add(ring(trb * 1.02, 0.014, (0, 0, p["hip_z"] - 0.005), mseg=RING, nseg=6), "Hips", trim_k, trim_c)  # tee hem
     if o["sash"]:
         # pha biang: a cloth worn diagonally from one shoulder to the opposite hip. A flattened
         # ring tilted about Y reads as that band from the front without needing a skinned strip.
         rmid = (trb + trt) / 2 * 1.06
         sash = ring(rmid, 0.028, (0, 0, (p["hip_z"] + p["chest_z"]) / 2 + 0.02),
-                    rot=(0, math.radians(38), 0), mseg=16, nseg=5)
+                    rot=(0, math.radians(38), 0), mseg=RING, nseg=6)
         sash.scale = (1.0, 1.0, 1.15)
         add(sash, "Spine", trim_k, trim_c)
     if skirt_bottom:
@@ -373,18 +413,25 @@ def build_body(name, p, o):
         def skirt_r(t):                         # cone radius, t=0 at the waist, 1 at the hem
             return r_top * (1 - t) + r_bot * t
         add(seg_between((0, 0, z_top + (z_bot - z_top) * 0.84), (0, 0, z_bot),
-                        r=skirt_r(0.84) * 1.03, r2=skirt_r(1.0) * 1.03, seg=14),
+                        r=skirt_r(0.84) * 1.03, r2=skirt_r(1.0) * 1.03, seg=SKIRT),
             "Hips", trim_k, trim_c)
+        if o["legs"] == "skirt_long":           # a second, thinner stripe above the hem band
+            add(seg_between((0, 0, z_top + (z_bot - z_top) * 0.76), (0, 0, z_top + (z_bot - z_top) * 0.79),
+                            r=skirt_r(0.76) * 1.03, r2=skirt_r(0.79) * 1.03, seg=SKIRT),
+                "Hips", trim_k, trim_c)
     for side in ("L", "R"):
         hip, knee = J[f"hip_{side}"], J[f"knee_{side}"]
         if o["legs"] == "shorts":
             add(band_on(hip, knee, 0.86, 1.0, r=lr * 1.14), f"UpperLeg.{side}", trim_k, trim_c)
-        if o["sleeves"] == "long":
-            add(band_on(J[f"elbow_{side}"], J[f"wrist_{side}"], 0.80, 0.98, r=p["arm_r"] * 0.86 * 1.16),
+        if long_sleeves:
+            add(band_on(J[f"elbow_{side}"], J[f"wrist_{side}"], 0.80, 0.98, r=ar * 0.86 * 1.16),
                 f"LowerArm.{side}", trim_k, trim_c)
+        else:
+            add(band_on(J[f"sh_out_{side}"], J[f"elbow_{side}"], 0.84, 1.0, r=ar * 1.10),
+                f"UpperArm.{side}", trim_k, trim_c)                                 # short-sleeve cuff
     if o["hair_style"] == "pigtails":
         for sx in (1, -1):
-            add(ball(hr * 0.13, (sx * hr * 0.92, hr * 0.36, hc + hr * 0.06), seg=8), "Head", trim_k, trim_c)
+            add(ball(hr * 0.13, (sx * hr * 0.92, hr * 0.36, hc + hr * 0.06), seg=10), "Head", trim_k, trim_c)
 
     # ---- Eyes: the same two plain vertical bars SK_Character has, identical on every villager.
     # Nothing else on the face -- no nose, no mouth, no shaping of the eyes. Added after Trim so
@@ -393,25 +440,34 @@ def build_body(name, p, o):
         add(box((0.09 * hr, 0.05 * hr, 0.26 * hr), (sx * 0.24 * hr, -0.955 * hr, hc + 0.10 * hr)),
             "Head", EYE_KEY, EYE)
 
-    # ---- Bare skin below the clothing: forearms (short sleeves), hands, feet ----
+    # ---- Bare skin below the clothing: forearms (short sleeves), hands, shins, feet ----
     for side in ("L", "R"):
-        if o["sleeves"] == "short":
-            add(seg_between(J[f"elbow_{side}"], J[f"wrist_{side}"], r=p["arm_r"] * 0.85,
-                            r2=p["arm_r"] * 0.72, seg=10), f"LowerArm.{side}", skin_k, SKIN)
-        add(seg_between(J[f"wrist_{side}"], J[f"hand_{side}"], r=p["arm_r"] * 0.78,
-                        r2=p["arm_r"] * 0.62, seg=10), f"Hand.{side}", skin_k, SKIN)
-        if o["legs"] != "skirt_long":
-            add(seg_between(J[f"knee_{side}"], J[f"ankle_{side}"], r=lr * 0.90, r2=lr * 0.66, seg=10),
-                f"LowerLeg.{side}", skin_k, SKIN)
-        ankle, toe = J[f"ankle_{side}"], J[f"toe_{side}"]
-        heel = Vector((ankle.x, ankle.y + 0.03, ankle.z * 0.5))
-        add(seg_between(heel, Vector((toe.x, toe.y * 0.85, 0.028)), r=lr * 0.70, r2=lr * 0.55, seg=10),
+        sx = 1 if side == "L" else -1
+        elbow, wrist, tip = J[f"elbow_{side}"], J[f"wrist_{side}"], J[f"hand_{side}"]
+        if not long_sleeves:
+            add(ball(ar * 0.92, elbow, seg=JOINT), f"UpperArm.{side}", skin_k, SKIN)      # elbow
+            add(seg_between(elbow, wrist, r=ar * 0.85, r2=ar * 0.72, seg=LIMB), f"LowerArm.{side}", skin_k, SKIN)
+        # wrist ball, then a mitten: a flattened ellipsoid along the hand bone, and a thumb
+        add(ball(ar * 0.70, wrist, seg=JOINT), f"LowerArm.{side}", skin_k, SKIN)
+        add(blob_along(wrist, tip + (tip - wrist) * 0.15, r=ar * 0.78, seg=JOINT, flatten=0.62, stretch=1.0),
+            f"Hand.{side}", skin_k, SKIN)
+        thumb_at = lerp(wrist, tip, 0.35) + Vector((-sx * ar * 0.35, -ar * 0.55, ar * 0.10))
+        add(ball(ar * 0.30, thumb_at, seg=10, scale=(0.9, 1.4, 0.9)), f"Hand.{side}", skin_k, SKIN)
+
+        knee, ankle, toe = J[f"knee_{side}"], J[f"ankle_{side}"], J[f"toe_{side}"]
+        if bare_shins:
+            add(ball(lr * 0.96, knee, seg=JOINT), f"UpperLeg.{side}", skin_k, SKIN)       # knee
+            add(seg_between(knee, ankle, r=lr * 0.90, r2=lr * 0.66, seg=LIMB), f"LowerLeg.{side}", skin_k, SKIN)
+        add(ball(lr * 0.62, ankle, seg=JOINT), f"LowerLeg.{side}", skin_k, SKIN)         # ankle
+        heel = Vector((ankle.x, ankle.y + 0.035, 0.030))
+        toe_end = Vector((toe.x, toe.y * 0.95, 0.026))
+        add(blob_along(heel, toe_end, r=lr * 0.62, seg=JOINT, flatten=0.55 / 0.62 * 0.95, stretch=1.0),
             f"Foot.{side}", skin_k, SKIN)
-        add(ball(lr * 0.52, Vector((toe.x, toe.y * 0.92, 0.030)), seg=6, scale=(1.0, 0.85, 0.7)),
+        add(ball(lr * 0.50, Vector((toe.x, toe.y * 0.94, 0.028)), seg=JOINT, scale=(1.05, 0.9, 0.62)),
             f"Foot.{side}", skin_k, SKIN)
 
     body = join(parts, name)
-    shade_smooth(body)
+    shade_smooth_by_angle(body, 45)
     body.parent = arm_obj
     mod = body.modifiers.new("Armature", 'ARMATURE')
     mod.object = arm_obj

@@ -493,8 +493,8 @@ SkinnedMeshRenderer:
   m_BlendShapeWeights: []
   m_RootBone: {fileID: 3344375028721167325}
   m_AABB:
-    m_Center: {x: 0, y: 0.15277082, z: -0.009000003}
-    m_Extent: {x: 0.4255993, y: 0.585729, z: 0.22949994}
+    m_Center: {x: 0, y: 0.163668, z: -0.0067500025}
+    m_Extent: {x: 0.43403503, y: 0.57483184, z: 0.23174994}
   m_DirtyAABB: 0
 --- !u!1 &4678464708403845343
 GameObject:
@@ -700,10 +700,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.24461676
-  m_Height: 1.1118944
+  m_Radius: 0.24255335
+  m_Height: 1.1025152
   m_Direction: 1
-  m_Center: {x: 0, y: 0.5559472, z: 0}
+  m_Center: {x: 0, y: 0.5512576, z: 0}
 --- !u!114 &7281461391106157382
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -725,7 +725,7 @@ MonoBehaviour:
   drinkingVessel: {fileID: 0}
   bucket: {fileID: 0}
   mattressHeight: 0.6
-  bodyHeight: 1.11
+  bodyHeight: 1.1
 --- !u!1 &8364651143580278327
 GameObject:
   m_ObjectHideFlags: 0

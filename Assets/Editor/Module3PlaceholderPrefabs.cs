@@ -11,13 +11,13 @@ using UnityEngine;
 /// inside the prefab with no scene or prefab-path churn.
 ///
 /// The meshes come from Tools/Module3/make_final_models.py (Blender); their
-/// materials from Tools/Module3/make_final_materials.py, one flat colour per
-/// asset per Asset Brief §2. This script only does the Unity half:
-/// instantiate each model, assign its material, save the prefab, and check
-/// the §4 contract held on import (sockets present, triangles within
-/// budget). Eight of the nine entries were greybox placeholders (forced onto
-/// the shared M_Module3Placeholder.mat) before the final art pass; Entry.
-/// Material is what changed -- paths, sockets and budgets did not.
+/// materials from Tools/Module3/make_final_materials.py, one material per
+/// asset per Asset Brief §2 -- since the detail pass each of those samples a
+/// shared palette texture, and the colour of a part lives in its UVs. This
+/// script only does the Unity half: instantiate each model, assign its
+/// material (and, for a named child such as the screens' Screen_Mesh, that
+/// part's own material), save the prefab, and check the §4 contract held on
+/// import (sockets present, triangles within budget, size as expected).
 ///
 /// Re-running is safe and idempotent -- it overwrites the prefabs in place, so
 /// the GUIDs and every scene reference to them survive.
@@ -42,6 +42,7 @@ public static class Module3PlaceholderPrefabs
         public Vector3 Size;        // expected size in metres, Unity axes (Y = up)
         public bool Greybox = true; // true = force M_Module3Placeholder (no Material set)
         public string Material;     // finished art's own material; null = use Greybox rule
+        public Dictionary<string, string> PartMaterials;   // child object name -> its own material
         public string Note;
     }
 
@@ -55,7 +56,7 @@ public static class Module3PlaceholderPrefabs
         new Entry {
             Model = Models + "/SM_ElectricFan/SM_ElectricFan.fbx",
             Prefab = Prefabs + "/Furniture/PF_ElectricFan.prefab",
-            TriBudget = 3000,
+            TriBudget = 8000,
             Sockets = new[] { "Socket_Mount" },
             Size = new Vector3(0.306f, 0.453f, 0.21f),
             Greybox = false,
@@ -65,29 +66,31 @@ public static class Module3PlaceholderPrefabs
         new Entry {
             Model = Models + "/SM_WindowScreen/SM_WindowScreen.fbx",
             Prefab = Prefabs + "/Buildings/PF_WindowScreen.prefab",
-            TriBudget = 500,
+            TriBudget = 3000,
             Sockets = new[] { "Socket_Mount" },
             Size = new Vector3(1.5f, 1f, 0.04f),
             Greybox = false,
             Material = Materials + "/M_WindowScreen.mat",
+            PartMaterials = new Dictionary<string, string> { ["Screen_Mesh"] = Materials + "/M_WindowScreenMesh.mat" },
             Note = "1.50 x 1.00 m, sized to the measured Lao house window opening.",
         },
         new Entry {
             Model = Models + "/SM_WindowScreenTorn/SM_WindowScreenTorn.fbx",
             Prefab = Prefabs + "/Buildings/PF_WindowScreenTorn.prefab",
-            TriBudget = 500,
+            TriBudget = 4000,
             Sockets = new[] { "Socket_Mount" },
-            Size = new Vector3(1.5f, 1f, 0.099f),
+            Size = new Vector3(1.5f, 1f, 0.086f),
             Greybox = false,
             Material = Materials + "/M_WindowScreen.mat",   // same material as intact (Asset Brief A3)
+            PartMaterials = new Dictionary<string, string> { ["Screen_Mesh"] = Materials + "/M_WindowScreenMesh.mat" },
             Note = "Repair target for RepairScreen(householdId). Same opening as PF_WindowScreen.",
         },
         new Entry {
             Model = Models + "/SM_MosquitoNet_RolledUp/SM_MosquitoNet_RolledUp.fbx",
             Prefab = Prefabs + "/Props/PF_MosquitoNet_RolledUp.prefab",
-            TriBudget = 1500,
+            TriBudget = 5000,
             Sockets = new[] { "Socket_Mount", "Socket_Hook" },
-            Size = new Vector3(0.32f, 0.589f, 0.32f),
+            Size = new Vector3(0.317f, 0.592f, 0.317f),
             Greybox = false,
             Material = Materials + "/M_MosquitoNet_RolledUp.mat",
             Note = "The 'up' state. Shares an origin with PF_MosquitoNet_Deployed -- swap at one transform.",
@@ -107,9 +110,9 @@ public static class Module3PlaceholderPrefabs
         new Entry {
             Model = Models + "/SM_RepellentBottle/SM_RepellentBottle.fbx",
             Prefab = Prefabs + "/Props/PF_RepellentBottle.prefab",
-            TriBudget = 1500,
+            TriBudget = 3000,
             Sockets = new[] { "Socket_Grip" },
-            Size = new Vector3(0.071f, 0.191f, 0.06f),
+            Size = new Vector3(0.08f, 0.191f, 0.06f),
             Greybox = false,
             Material = Materials + "/M_RepellentBottle.mat",
             Note = "GiveRepellent(personId).",
@@ -117,9 +120,9 @@ public static class Module3PlaceholderPrefabs
         new Entry {
             Model = Models + "/SM_DrinkingVessel/SM_DrinkingVessel.fbx",
             Prefab = Prefabs + "/Props/PF_DrinkingVessel.prefab",
-            TriBudget = 1500,
+            TriBudget = 3000,
             Sockets = new[] { "Socket_Grip" },
-            Size = new Vector3(0.084f, 0.11f, 0.084f),
+            Size = new Vector3(0.119f, 0.107f, 0.087f),   // wider since the handle stands off the cup
             Greybox = false,
             Material = Materials + "/M_DrinkingVessel.mat",
             Note = "BringWater(personId).",
@@ -127,9 +130,9 @@ public static class Module3PlaceholderPrefabs
         new Entry {
             Model = Models + "/SM_Cloth/SM_Cloth.fbx",
             Prefab = Prefabs + "/Props/PF_Cloth.prefab",
-            TriBudget = 1500,
+            TriBudget = 4000,
             Sockets = new[] { "Socket_Grip" },
-            Size = new Vector3(0.4f, 0.06f, 0.26f),
+            Size = new Vector3(0.4f, 0.05f, 0.26f),
             Greybox = false,
             Material = Materials + "/M_Cloth.mat",
             Note = "HelpRest(personId) dressing. §5: dresses the scene, never flags the person.",
@@ -137,9 +140,9 @@ public static class Module3PlaceholderPrefabs
         new Entry {
             Model = Models + "/SM_Torch/SM_Torch.fbx",
             Prefab = Prefabs + "/Props/PF_Torch.prefab",
-            TriBudget = 1500,
+            TriBudget = 3000,
             Sockets = new[] { "Socket_Grip", "Socket_Light" },
-            Size = new Vector3(0.064f, 0.171f, 0.066f),
+            Size = new Vector3(0.066f, 0.166f, 0.07f),
             Greybox = false,
             Material = Materials + "/M_Torch.mat",
             Note = "Parent a Light to Socket_Light with identity rotation; its forward is the beam.",
@@ -147,7 +150,7 @@ public static class Module3PlaceholderPrefabs
         new Entry {
             Model = Models + "/SM_HealthCentre/SM_HealthCentre.fbx",
             Prefab = Prefabs + "/Buildings/PF_HealthCentre.prefab",
-            TriBudget = 2000,
+            TriBudget = 4000,
             Sockets = new[] { "Socket_Entrance" },
             Size = new Vector3(12.6f, 3.65f, 10.3f),
             Greybox = false,
@@ -260,8 +263,20 @@ public static class Module3PlaceholderPrefabs
             {
                 foreach (var r in instance.GetComponentsInChildren<MeshRenderer>(true))
                 {
+                    // A named child can carry its own material -- the screens' netting is
+                    // an alpha-cutout wire grid while the frame is on the palette.
+                    Material m = assign;
+                    if (e.PartMaterials != null && e.PartMaterials.TryGetValue(r.name, out var partPath))
+                    {
+                        m = AssetDatabase.LoadAssetAtPath<Material>(partPath);
+                        if (m == null)
+                        {
+                            log.Append($"  MISSING MATERIAL {partPath} (for {r.name})\n");
+                            return false;
+                        }
+                    }
                     var mats = new Material[Mathf.Max(1, r.sharedMaterials.Length)];
-                    for (int i = 0; i < mats.Length; i++) mats[i] = assign;
+                    for (int i = 0; i < mats.Length; i++) mats[i] = m;
                     r.sharedMaterials = mats;
                 }
             }

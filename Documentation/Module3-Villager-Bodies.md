@@ -9,14 +9,29 @@ records what it delivered, what it cost, and the rules the bodies follow.
 
 | Prefab | Mesh | Tris | Height | Skeleton |
 |---|---|---|---|---|
-| `Prefabs/Character/PF_Villager_Elder` | `SK_Villager_Elder` | 1732 | 1.58 m | elder (shorter adult-scale) |
-| `Prefabs/Character/PF_Villager_Child_A` | `SK_Villager_Child_A` | 1388 | 1.10 m | child |
-| `Prefabs/Character/PF_Villager_Child_B` | `SK_Villager_Child_B` | 1760 | 1.10 m | child (same rig as A) |
+| `Prefabs/Character/PF_Villager_Elder` | `SK_Villager_Elder` | 6352 | 1.58 m | elder (shorter adult-scale) |
+| `Prefabs/Character/PF_Villager_Child_A` | `SK_Villager_Child_A` | 6280 | 1.10 m | child |
+| `Prefabs/Character/PF_Villager_Child_B` | `SK_Villager_Child_B` | 6960 | 1.10 m | child (same rig as A) |
 
 For comparison the three existing adult bodies (`fodo`/`nasa`/`Roger`, in `SK_Character.fbx`) are
-592–712 tris and one shared material. These are about twice that and use five materials each
-(Skin, Hair, Cloth, Trim, and one dark Eye material shared by all three). Budget cap 1800. Paths are under `Assets/1.TeamWorkspace/Team Assets/`;
-meshes live at `Models/<name>/<name>.fbx`, materials at `Materials/M_Villager_*` (16 materials, all URP/Lit).
+592–712 tris and one shared material. These are around ten times that since the detail pass (they
+were 1.4–1.8k) and use five materials each (Skin, Hair, Cloth, Trim, and one dark Eye material
+shared by all three). Budget cap 7000 — a room of five villagers is still cheaper than one Lao
+house. Paths are under `Assets/1.TeamWorkspace/Team Assets/`; meshes live at
+`Models/<name>/<name>.fbx`, materials at `Materials/M_Villager_*` (16 materials, all URP/Lit).
+
+**The detail pass (2026-09-29).** The first bodies were 10–14-segment primitives and read faceted
+at conversational distance, with a visible step where a forearm met an upper arm and hands that
+were tapered sticks. `make_villagers.py` now runs every round part at 16–28 segments, fills each
+joint (shoulders, elbows, wrists, knees, ankles) with a sphere bound to the joint's *parent* bone
+so a bent limb turns around a ball that stays put, gives everyone a neck, mitten hands with a
+thumb, and an ellipsoid foot with a toe bump, and shades smooth-by-angle so cylinder caps and the
+eye bars stay crisp while everything round reads round. Dress detail grew with it: a coil on the
+elder's bun and a second stripe above the sinh's hem band, short-sleeve cuffs and a tee hem on the
+children, hair-tie bobbles on the pigtails. Faces are unchanged: the same two plain eye bars, and
+nothing else (see the next section for why). One thing the harness close-ups caught: the leg tubes
+hidden inside the elder's long skirt poked through its hem whenever the idle clip splayed the legs a
+few degrees, so a long skirt now has none (the cone is closed at both ends anyway).
 
 Child B costs almost nothing beyond A because it reuses the child skeleton — the same way the
 three adult bodies share one rig. More variants of an age band are a new mesh, not a new rig.
