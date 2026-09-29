@@ -137,11 +137,31 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
 
     private void BuildVillager(Neighbourhood sim, Transform plot, int personId, int index, Transform bed)
     {
-        var spot = Anchor(plot, $"Villager_{personId}",
-            new Vector3(-1.2f + index * villagerSpacing, 0f, 1.0f));
+        // A loose fan facing the side door the volunteer comes in by, rather than a single-file
+        // row across the room facing a wall, which read as a queue.
+        int count = sim.HouseholdById(sim.PersonById(personId).HouseholdId).ResidentIds.Count;
+        Vector3 door = new Vector3(3.0f, 0f, -1.27f);
+        Vector3 away = new Vector3(-0.84f, 0f, 0.54f);   // from the door towards the middle of the room
+        float angle = (index - (count - 1) * 0.5f) * 32f;
+        Vector3 local = door + Quaternion.Euler(0f, angle, 0f) * away * 2.6f;
+        var spot = Anchor(plot, $"Villager_{personId}", local);
+        spot.localRotation = Quaternion.LookRotation(door - local, Vector3.up);
 
         var villager = villagerPrefab != null ? Instantiate(villagerPrefab, spot) : new GameObject("Villager");
         if (villagerPrefab == null) villager.transform.SetParent(spot, false);
+
+        // The prefab is Module 1's street NPC: its Human component walks waypoints and sets
+        // isWalk on Start, so every villager ran on the spot indoors. They stand at home here.
+        var walker = villager.GetComponent<Human>();
+        if (walker != null) walker.enabled = false;
+        var animator = villager.GetComponentInChildren<Animator>();
+        if (animator != null) animator.SetBool("isWalk", false);
+
+        // One body for everyone until the art arrives, so at least size them by age.
+        var person = sim.PersonById(personId);
+        float size = person.Age == AgeBand.Child ? 0.65f : person.Age == AgeBand.Elder ? 0.94f : 1f;
+        size *= 1f + ((personId * 37) % 7 - 3) * 0.012f;  // a little natural variation
+        villager.transform.localScale = Vector3.one * size;
 
         var view = villager.GetComponent<VillagerView>();
         if (view == null) view = villager.AddComponent<VillagerView>();
