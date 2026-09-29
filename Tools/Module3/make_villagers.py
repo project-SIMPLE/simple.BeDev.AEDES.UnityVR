@@ -70,6 +70,8 @@ TRI_BUDGET = {
 # shared by every villager: nothing here codes a specific ethnicity beyond "this village",
 # and there is no facial geometry that could caricature one. "Unwell" is the same tone made
 # paler and a little greyer -- tired, not diseased (Animation Brief §2).
+# Preview colours only: Unity ignores the FBX's materials (materialImportMode 0). The shipped skin tone is in
+# make_villager_materials.py, where it is deliberately warmer to survive the scene's cyan ambient light.
 SKIN            = (0.78, 0.58, 0.43)
 SKIN_UNWELL     = (0.84, 0.70, 0.60)
 EYE             = (0.06, 0.05, 0.05)   # the same two plain dark bars on everyone
