@@ -21,10 +21,20 @@ public class Mosquito : MonoBehaviour
     [Tooltip("Seconds after emerging before a mosquito can bite. They emerge just above open containers, i.e. in the face of a player who is covering one.")]
     public float firstBiteDelay = 3f;
 
+    [Header("Retiring")]
+    [Tooltip("Seconds a retired mosquito spends flying off before it is removed.")]
+    public float retireSeconds = 2.5f;
+    [Tooltip("Speed multiplier while flying off.")]
+    public float retireSpeedFactor = 1.5f;
+
     private Vector3 _randomDirection;
     private int _wallMask;
     private float _directionChangeTimer;
     private float _nextBiteAt;
+    private float _retireAt = -1f;
+
+    /// <summary>True once the mosquito has been told to leave. It no longer seeks or bites.</summary>
+    public bool Retired => _retireAt >= 0f;
 
     // Camera.main walks the scene graph, and there can be fifty of these alive at once, so the head
     // transform is resolved once and shared.
@@ -43,12 +53,39 @@ public class Mosquito : MonoBehaviour
     {
         _wallMask = LayerMask.GetMask("Wall");
         _nextBiteAt = Time.time + Mathf.Max(firstBiteDelay, 0f);
-        GenerateRandomDirection();
+        if (!Retired) GenerateRandomDirection();
     }
 
     void Update()
     {
+        if (Retired) { FlyOff(); return; }
         FlyRandomly();
+    }
+
+    /// <summary>
+    /// Send this mosquito away from the player and remove it shortly after. The swarm follows the open
+    /// breeding sites, so clearing one has to thin it: mosquitoes used to live until they were swatted,
+    /// which left the swarm the same size after every container was dealt with.
+    /// </summary>
+    public void Retire()
+    {
+        if (Retired) return;
+        _retireAt = Time.time + Mathf.Max(retireSeconds, 0.1f);
+
+        var head = Head();
+        Vector3 away = head != null ? transform.position - head.position : Random.onUnitSphere;
+        away.y = Mathf.Abs(away.y) * 0.5f + 0.4f;
+        _randomDirection = away.normalized;
+    }
+
+    private void FlyOff()
+    {
+        if (Time.time >= _retireAt) { Destroy(gameObject); return; }
+
+        BounceOffWalls();
+        transform.position += _randomDirection * (flySpeed * retireSpeedFactor * Time.deltaTime);
+        if (_randomDirection.sqrMagnitude > 0.0001f)
+            transform.rotation = Quaternion.LookRotation(_randomDirection);
     }
 
     public void FlyRandomly()

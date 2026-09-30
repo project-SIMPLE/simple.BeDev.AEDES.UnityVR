@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MosquitoSpawn : MonoBehaviour
@@ -14,11 +15,14 @@ public class MosquitoSpawn : MonoBehaviour
     public float spawnInterval = 0.5f;
     [Tooltip("Mosquitoes added per check, so the house fills in a few seconds rather than a few frames.")]
     public int spawnsPerCheck = 3;
+    [Tooltip("Mosquitoes sent away per check when the swarm is bigger than the open sites support, so clearing a container thins it over a couple of seconds instead of all at once.")]
+    public int retiresPerCheck = 2;
     [Tooltip("Height above a container that its mosquitoes appear at.")]
     public float emergeHeight = 0.3f;
     public GameObject[] spawnPoint;
 
     private float _nextSpawnTime;
+    private readonly List<Mosquito> _live = new List<Mosquito>();
 
     private void Update()
     {
@@ -64,7 +68,11 @@ public class MosquitoSpawn : MonoBehaviour
         M2Manager manager = M2Manager.Instance;
         if (manager == null || !manager.IsPlaying) return;
 
-        currentMosquitoInMap = GameObject.FindGameObjectsWithTag("Mosquito").Length;
+        // Ones already flying off do not count towards the swarm.
+        _live.Clear();
+        foreach (var mosquito in FindObjectsByType<Mosquito>(FindObjectsSortMode.None))
+            if (!mosquito.Retired) _live.Add(mosquito);
+        currentMosquitoInMap = _live.Count;
 
         // The swarm is sustained by the breeding sites that are still open, so dealing with a
         // container visibly thins it out. This is what the old unused
@@ -75,7 +83,8 @@ public class MosquitoSpawn : MonoBehaviour
             : maxMosquitoInMap;
 
         int room = target - currentMosquitoInMap;
-        if (room <= 0) return;
+        if (room < 0) { RetireExcess(-room); return; }
+        if (room == 0) return;
 
         int toSpawn = Mathf.Min(room, Mathf.Max(spawnsPerCheck, 1));
         for (int i = 0; i < toSpawn; i++)
@@ -85,5 +94,21 @@ public class MosquitoSpawn : MonoBehaviour
             Instantiate(mosquitoPrefab, position, Quaternion.identity);
             currentMosquitoInMap++;
         }
+    }
+
+    // The ones nearest the player go first: they are the ones biting, so dealing with a container eases
+    // the buzzing round your head, and they fly off rather than popping out of existence.
+    private void RetireExcess(int excess)
+    {
+        var camera = Camera.main;
+        if (camera != null)
+        {
+            Vector3 head = camera.transform.position;
+            _live.Sort((a, b) =>
+                (a.transform.position - head).sqrMagnitude.CompareTo((b.transform.position - head).sqrMagnitude));
+        }
+
+        int count = Mathf.Min(excess, Mathf.Max(retiresPerCheck, 1));
+        for (int i = 0; i < count && i < _live.Count; i++) _live[i].Retire();
     }
 }
