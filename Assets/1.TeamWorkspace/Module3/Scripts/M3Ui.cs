@@ -114,6 +114,7 @@ public static class M3Ui
         colours.colorMultiplier = 1.2f;
         button.colors = colours;
         if (onClick != null) button.onClick.AddListener(onClick);
+        rt.gameObject.AddComponent<M3ButtonJuice>();   // eased hover/press, and a buzz in the hand
         var text = Label(rt, "Text", fontSize, enabled ? Text : Muted, TextAlignmentOptions.Center);
         text.rectTransform.offsetMin = new Vector2(16f, 4f);
         text.rectTransform.offsetMax = new Vector2(-16f, -4f);

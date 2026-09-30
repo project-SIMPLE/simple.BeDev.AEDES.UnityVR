@@ -95,6 +95,7 @@ public class M3PersonPanel : MonoBehaviour
         Place();
         root.gameObject.SetActive(true);
         Rebuild();
+        if (IsOpen) M3PanelPop.Play(root);
     }
 
     public void Close()
