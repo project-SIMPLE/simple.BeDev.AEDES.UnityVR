@@ -1,10 +1,35 @@
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 public class SwatterHand : MonoBehaviour
 {
     [Tooltip("Unused: swat scoring moved to M2Manager.swatScore so the value is decided in one place.")]
     public int scoreValue = 0;
     public bool isHandActive = false;
+
+    XRGrabInteractable _grab;
+
+    /// <summary>True while a hand is holding the racket.</summary>
+    public bool Held => _grab != null && _grab.isSelected;
+
+    void Awake()
+    {
+        _grab = GetComponent<XRGrabInteractable>();
+
+        // The racket prefab has gravity off, and XRI puts that back on release, so a dropped racket kept
+        // whatever speed it left the hand with and drifted out of the house for good - and M2Manager
+        // refused to spawn another because one "already" existed.
+        if (_grab != null) _grab.forceGravityOnDetach = true;
+
+        // Spawned after Module2Interaction ran, so it never got the tuning the scene's grabbables did.
+        // Without it a dropped racket can tunnel through the floor.
+        var body = GetComponent<Rigidbody>();
+        if (body != null)
+        {
+            body.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+            body.interpolation = RigidbodyInterpolation.Interpolate;
+        }
+    }
 
     private void OnTriggerEnter(Collider other)
     {
