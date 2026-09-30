@@ -181,12 +181,18 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
         // lined every yard with identical pots. Scenery only needs to say "water stands here": one
         // jar at most, and a stable per-house roll leaves some yards bare. This is presentation
         // only - the simulation's container counts are untouched.
+        uint roll = (uint)h.Id * 2654435761u;
         if (containerPrefab != null && h.ProductiveContainerCount > 0
-            && (int)(((uint)h.Id * 2654435761u >> 16) % 100u) < yardJarPercent)
+            && (int)((roll >> 16) % 100u) < yardJarPercent)
         {
             // In the lane-side yard, in front of the house. At z = -1.8 they were inside the
             // 6.4 m-deep house, where nobody walking the lane could see them.
-            var yard = Anchor(plot.transform, $"Container_{h.Id}", new Vector3(-2.5f * houseScale, 0f, yardDepth));
+            // Not the same spot in every yard, or the jars line up down the lane like fence posts: a
+            // stable per-house nudge, 1.2 m outward or 0.6 m inward along the front (a motorbike may
+            // be parked further in, see M3RoomDresser), and from 0.9 m nearer the house to 0.3 m
+            // further out (the walkers' verge runs 1.1 m beyond that).
+            float nudgeX = ((roll >> 8) % 100u) / 100f * 1.8f - 1.2f, nudgeZ = ((roll >> 20) % 100u) / 100f * 1.2f - 0.9f;
+            var yard = Anchor(plot.transform, $"Container_{h.Id}", new Vector3(-2.5f * houseScale + nudgeX, 0f, yardDepth + nudgeZ));
             Instantiate(containerPrefab, yard);   // outdoors and cheap: not distance-culled, so it never pops on the lane
         }
 
