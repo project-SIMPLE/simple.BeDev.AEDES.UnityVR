@@ -84,6 +84,7 @@ public class M3Surroundings : MonoBehaviour
         BuildPaddies(village);
         BuildTrees(village);
         BuildHills(village.center);
+        M3WorldBounds.Build(root, village);   // walking is the only way to move: keep the Pilot on the ground
         // Wind in the trees, drifting clouds, animals and a few walkers: decoration, from the same seed.
         M3OutdoorLife.Build(root, village, plots, seed);
 
