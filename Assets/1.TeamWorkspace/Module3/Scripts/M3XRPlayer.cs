@@ -2,16 +2,19 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
-using UnityEngine.XR.Interaction.Toolkit.Locomotion.Teleportation;
+using UnityEngine.XR.Interaction.Toolkit.Inputs.Readers;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
+using UnityEngine.XR.Interaction.Toolkit.Locomotion.Movement;
+using UnityEngine.XR.Interaction.Toolkit.Locomotion.Turning;
 using UnityEngine.XR.Interaction.Toolkit.UI;
 
 /// <summary>
 /// The Pilot in the headset. Spawns the XR Interaction Toolkit starter rig at the head of the
 /// lane and sets up what it needs, replacing the scene's plain desktop camera.
 ///
-/// Controls (the XRI defaults, so they match every other Quest app a class will have seen):
-///   Left stick           walk
-///   Right stick          left/right snap turn, push forward and release to teleport
+/// Controls:
+///   Right stick          walk (forward is where you look)
+///   Left stick           turn left/right, smoothly
 ///   Point + trigger      talk to a villager, press a button on a panel
 ///   Grip (reach out)     talk to a villager within arm's reach
 ///   A                    "I'm ready" at the start of a turn (also the A key on a keyboard)
@@ -26,9 +29,11 @@ public class M3XRPlayer : MonoBehaviour
     [Tooltip("Where the Pilot stands at the start of the session: the head of the lane.")]
     [SerializeField] private Vector3 spawnPosition = new Vector3(-8f, 0f, 8f);
     [SerializeField] private float spawnYaw = 90f;
-    [Tooltip("Walking pace with the left stick, metres per second. The starter rig ships at 2.5, a jog, "
+    [Tooltip("Walking pace with the right stick, metres per second. The starter rig ships at 2.5, a jog, "
              + "which is uncomfortable in a headset - especially for children - and overshoots doorways.")]
     [SerializeField] private float walkSpeed = 1.4f;
+    [Tooltip("How fast the left stick turns the Pilot, degrees per second.")]
+    [SerializeField] private float turnSpeed = 60f;
     [Tooltip("Tallest the body capsule may be. Keeps the body clear of low beams and eaves for a tall "
              + "wearer; the doorways themselves are 2.1 m clear, so nobody needs to duck.")]
     [SerializeField] private float maxBodyHeight = 1.6f;
@@ -74,8 +79,7 @@ public class M3XRPlayer : MonoBehaviour
         EnsureInteractionManager();
         Rig = Instantiate(rigPrefab, spawnPosition, Quaternion.Euler(0f, spawnYaw, 0f));
         Rig.name = "XR Origin (Module 3 Pilot)";
-        foreach (var move in Rig.GetComponentsInChildren<UnityEngine.XR.Interaction.Toolkit.Locomotion.Movement.ContinuousMoveProvider>(true))
-            move.moveSpeed = walkSpeed;
+        SetUpSticks();
 
         // The starter rig brings locomotion this module does not want. A is "ready" and "yes" here,
         // and the rig binds it to a 1.25 m JUMP (a hop in a headset is nauseating, and it happened
@@ -106,7 +110,43 @@ public class M3XRPlayer : MonoBehaviour
             body.constrainedBodyManipulator = capped;
         }
         EnsureEventSystem();
-        MakeGroundTeleportable();
+    }
+
+    /// <summary>
+    /// Right stick walks, left stick turns, and nothing teleports.
+    ///
+    /// The starter rig splits the sticks the other way round: the left walks, and the right snap-turns
+    /// 45 degrees on a flick, spins 180 degrees when pulled back and aims a teleport when pushed
+    /// forward - which is what playtesting called the right stick "sending me to a random view or
+    /// location". Each controller's ControllerInputActionManager switches those actions on and off
+    /// again as the hand points at UI, and it can only give a hand either walking or teleport-and-turn,
+    /// never turning alone, so both are switched off here (before their Start) and the providers read
+    /// the one stick each is meant to. The rig's InputActionManager keeps every action enabled.
+    /// </summary>
+    private void SetUpSticks()
+    {
+        foreach (var manager in Rig.GetComponentsInChildren<MonoBehaviour>(true))
+            if (manager.GetType().Name == "ControllerInputActionManager") manager.enabled = false;
+
+        foreach (var move in Rig.GetComponentsInChildren<ContinuousMoveProvider>(true))
+        {
+            move.moveSpeed = walkSpeed;
+            move.leftHandMoveInput.inputSourceMode = XRInputValueReader.InputSourceMode.Unused;
+        }
+        foreach (var turn in Rig.GetComponentsInChildren<ContinuousTurnProvider>(true))
+        {
+            turn.enabled = true;
+            turn.turnSpeed = turnSpeed;
+            turn.enableTurnAround = false;
+            turn.rightHandTurnInput.inputSourceMode = XRInputValueReader.InputSourceMode.Unused;
+        }
+        foreach (var snap in Rig.GetComponentsInChildren<SnapTurnProvider>(true))
+            snap.enabled = false;
+
+        foreach (var teleport in Rig.GetComponentsInChildren<UnityEngine.XR.Interaction.Toolkit.Locomotion.Teleportation.TeleportationProvider>(true))
+            teleport.enabled = false;
+        foreach (var ray in Rig.GetComponentsInChildren<XRRayInteractor>(true))
+            if (ray.name.Contains("Teleport")) ray.gameObject.SetActive(false);
     }
 
     /// <summary>
@@ -165,24 +205,5 @@ public class M3XRPlayer : MonoBehaviour
         foreach (var module in es.GetComponents<BaseInputModule>())
             if (!(module is XRUIInputModule)) module.enabled = false;
         if (es.GetComponent<XRUIInputModule>() == null) es.gameObject.AddComponent<XRUIInputModule>();
-    }
-
-    private static void MakeGroundTeleportable()
-    {
-        var ground = GameObject.Find("Ground");
-        if (ground != null) MakeTeleportArea(ground);
-    }
-
-    /// <summary>
-    /// Makes a surface something the right stick can teleport onto. The teleport ray only sees
-    /// areas on the XRI "Teleport" interaction layer (31); a TeleportationArea left on the default
-    /// layer is silently ignored, which is how the first version of this did nothing.
-    /// </summary>
-    public static void MakeTeleportArea(GameObject surface)
-    {
-        var area = surface.GetComponent<TeleportationArea>() ?? surface.AddComponent<TeleportationArea>();
-        int bits = UnityEngine.XR.Interaction.Toolkit.InteractionLayerMask.GetMask("Teleport");
-        if (bits == 0) bits = unchecked((int)0x80000000);   // layer 31 is XRI's "Teleport" by default
-        area.interactionLayers = bits;
     }
 }
