@@ -98,8 +98,13 @@ public static class M3Ui
         return c;
     }
 
+    /// <param name="labelWidth">
+    /// When above zero, the button grows past <paramref name="height"/> if the label wraps to a second
+    /// line at this width (the text's own width: the button's minus its padding), so a bigger font
+    /// or a longer translation is never clipped by a fixed-height button.
+    /// </param>
     public static Button Button(Transform parent, string label, float height, UnityAction onClick,
-                                bool enabled = true, float fontSize = 30f)
+                                bool enabled = true, float fontSize = 30f, float labelWidth = 0f)
     {
         var rt = Rect("Button: " + label, parent, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
         var img = rt.gameObject.AddComponent<Image>();
@@ -119,6 +124,7 @@ public static class M3Ui
         text.rectTransform.offsetMin = new Vector2(16f, 4f);
         text.rectTransform.offsetMax = new Vector2(-16f, -4f);
         text.text = label;
+        if (labelWidth > 0f) height = Mathf.Max(height, text.GetPreferredValues(label, labelWidth, 0f).y + 8f);
         Height(button, height);
         return button;
     }

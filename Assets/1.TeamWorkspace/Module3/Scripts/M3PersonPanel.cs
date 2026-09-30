@@ -47,9 +47,9 @@ public class M3PersonPanel : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        root = M3Ui.WorldCanvas("Person Panel", transform, new Vector2(620f, 900f), unitsPerMetre);
+        root = M3Ui.WorldCanvas("Person Panel", transform, new Vector2(PanelWidth, 900f), unitsPerMetre);
         M3Ui.Panel(root, "Background", M3Ui.PanelColour);
-        stack = M3Ui.Stack(root, "Content", 7f, new RectOffset(26, 26, 22, 22));
+        stack = M3Ui.Stack(root, "Content", 7f, new RectOffset((int)PanelPadding, (int)PanelPadding, 22, 22));
         root.gameObject.SetActive(false);
     }
 
@@ -192,29 +192,56 @@ public class M3PersonPanel : MonoBehaviour
     /// </summary>
     private float ReadingSize => M3TextSize.Floor(unitsPerMetre);
 
-    /// <summary>
-    /// The lines under a button or a reply (why an action is unavailable, what came of the last one) were
-    /// 20 and 24, the smallest text on the panel. Now what the body text used to be.
-    /// </summary>
-    private const float NoteSize = 28f;
+    // The card's width and the padding round its content (see Awake). The buttons and the reply lines
+    // used to sit below the reading size (26 / 28 / 24 units, against 34): smaller than the labels
+    // above them, and under the 1.5 degree rule. They follow ReadingSize now, and the card is a little
+    // wider so the longer labels still fit on one line.
+    private const float PanelWidth = 680f, PanelPadding = 26f;
+    /// <summary>The text width inside a button: the card minus its padding, minus the button's own 16 + 16.</summary>
+    private const float ButtonLabelWidth = PanelWidth - 2f * PanelPadding - 32f;
 
     private void AddAction(AvailableAction a)
     {
         var action = a.ToAction();
-        M3Ui.Button(stack, M3Ui.L(a.LabelKey), 50f, () => S.Do(action), a.Enabled, 26f);
+        M3Ui.Button(stack, M3Ui.L(a.LabelKey), ReadingSize * 1.6f, () => S.Do(action), a.Enabled, ReadingSize, ButtonLabelWidth);
         if (!a.Enabled && !string.IsNullOrEmpty(a.DisabledReasonKey))
-            M3Ui.Line(stack, M3Ui.L(a.DisabledReasonKey), NoteSize, M3Ui.Muted);
+            M3Ui.Line(stack, M3Ui.L(a.DisabledReasonKey), ReadingSize, M3Ui.Muted);
     }
 
     private void AddFooter()
     {
         if (!string.IsNullOrEmpty(lastFeedbackKey))
-            feedback = M3Ui.Line(stack, M3Ui.L(lastFeedbackKey), NoteSize, M3Ui.Accent);
-        M3Ui.Button(stack, M3Ui.L("m3.ui.close"), 46f, Close, true, 24f);
+            feedback = M3Ui.Line(stack, M3Ui.L(lastFeedbackKey), ReadingSize, M3Ui.Accent);
+        M3Ui.Button(stack, M3Ui.L("m3.ui.close"), ReadingSize * 1.6f, Close, true, ReadingSize, ButtonLabelWidth);
         LayoutRebuilder.ForceRebuildLayoutImmediate(stack);
         // Grow the card to fit its content, so a short conversation is not a tall empty panel.
         float h = LayoutUtility.GetPreferredHeight(stack);
         root.sizeDelta = new Vector2(root.sizeDelta.x, Mathf.Max(300f, h));
+        KeepInsideTheRoom();
+    }
+
+    /// <summary>The lowest the card may hang above the floor, and the highest its top may reach: a room is about 2.7 m under its roof.</summary>
+    private const float LowestAboveFloor = 0.15f, HighestAboveFloor = 2.5f;
+
+    /// <summary>
+    /// The card is centred a little below the Pilot's eyes, and the bigger text makes it up to 1.8 m tall
+    /// (more in a language with taller lines). A Pilot taller than about 1.9 m would have had its top
+    /// through the ceiling, and a short child its bottom in the floor. Slides it up or down to fit
+    /// between the floor and the ceiling. The floor is the XR rig's origin (M3XRPlayer asks for
+    /// floor tracking, so that is where the Pilot stands). A ray down from the head does not do: it
+    /// starts just above the Pilot's own body capsule and hits that.
+    /// </summary>
+    private void KeepInsideTheRoom()
+    {
+        var head = Camera.main != null ? Camera.main.transform : null;
+        if (head == null) return;
+        var player = M3XRPlayer.Instance;
+        float floor = player != null && player.Rig != null ? player.Rig.transform.position.y : head.position.y - 1.6f;
+        float half = root.sizeDelta.y / unitsPerMetre * 0.5f;
+        float lowest = floor + LowestAboveFloor + half, highest = floor + HighestAboveFloor - half;
+        var at = root.position;
+        at.y = lowest <= highest ? Mathf.Clamp(at.y, lowest, highest) : floor + (LowestAboveFloor + HighestAboveFloor) * 0.5f;
+        root.position = at;
     }
 
     private static string WhoKey(AgeBand age) => age switch
