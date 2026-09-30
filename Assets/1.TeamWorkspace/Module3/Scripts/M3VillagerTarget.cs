@@ -40,7 +40,7 @@ public class M3VillagerTarget : MonoBehaviour
             bool held = nf.uiPressInput.ReadIsPerformed();
             wasHeld.TryGetValue(nf, out bool before);
             wasHeld[nf] = held;
-            if (held && !before) Talk();
+            if (held && !before) { M3Haptics.Select(nf); Talk(); }
         }
     }
 
