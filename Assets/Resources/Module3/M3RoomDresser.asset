@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ac20988020404e968ddbe41c9b5a1ba, type: 3}
+  m_Name: M3RoomDresser
+  m_EditorClassIdentifier: Assembly-CSharp::M3RoomDresser
+  table: {fileID: 441950218957819205, guid: 8317a6db60e19c640a1cd1b0c2ac6ec8, type: 3}
+  deskAndChair: {fileID: 87286577558838414, guid: f83154bd9ab50654d99f67741b3cd389, type: 3}
+  tvDesk: {fileID: 2710878984268920796, guid: 48272d5c7e537744bb27ce5335c4b9a4, type: 3}
+  refrigerator: {fileID: 4644097027400938685, guid: 3f0e300eb7d459e4e96efc1c79f91250, type: 3}
+  carpets:
+  - {fileID: 1055227005704489477, guid: 129ca7d4f17c07d428a928f5b3bea8dd, type: 3}
+  - {fileID: 3163962688529957766, guid: c429e50569bb59e45a6c6a9a89bb00c1, type: 3}
+  platesAndBowls: {fileID: 8605273296753385457, guid: a2b7ed69fb92c3d41983ff51be4f8421, type: 3}
+  stove: {fileID: 8760313272622118950, guid: c3ff5cfd023eb8d4c992f68e5e9b4b1c, type: 3}
+  spiceRack: {fileID: 1330128809333288963, guid: ad96802f9e2de5e44a40fbf161c7c7a3, type: 3}
+  lamp: {fileID: 6083764461714310553, guid: fa8225006a3fcb245abed3262c9681c2, type: 3}
+  pictures:
+  - {fileID: 8289157134697770659, guid: ee224e9684f7e7d4cbf4eec0dfe0635f, type: 3}
+  - {fileID: 6522687824088461034, guid: a8a7e9c7f7d8cf84980a11cf3266cf51, type: 3}
+  plantPots:
+  - {fileID: 179269148477640014, guid: d6e6dfe2096a1ee448d482a8036eee22, type: 3}
+  - {fileID: 2421565390100854432, guid: c0db808bac0282948903e470e6d66f40, type: 3}
+  bushes:
+  - {fileID: 3390473397902004910, guid: 918173df8e2d56b4eb9e3a448232c3ed, type: 3}
+  - {fileID: 6272981711262200860, guid: 05b9e9c4dedbc004db82ea74d8b2d9a5, type: 3}
+  flowers:
+  - {fileID: 273422733012355917, guid: f861b273ef4e3444fbf34297bcbffd05, type: 3}
+  - {fileID: 4217721154171877589, guid: 098df90a8e48ec2479f4ba65d38cf2f9, type: 3}
+  - {fileID: 1609883487468179654, guid: 1aa895c38a9e70d488b4353e7e30a959, type: 3}
+  bananaTree: {fileID: 3795862147833374437, guid: b08f169dc6dae7944851f10e81cc2766, type: 3}
+  maxRoomPieces: 8
+  bananaTreePercent: 40
+  tippedPotPercent: 15

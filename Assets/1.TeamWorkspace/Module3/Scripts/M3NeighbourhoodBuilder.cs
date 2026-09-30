@@ -191,6 +191,9 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
             Instantiate(containerPrefab, yard);   // outdoors and cheap: not distance-culled, so it never pops on the lane
         }
 
+        // Furniture, yard plants and a tint of its own, chosen per household so no two houses match.
+        if (housePrefab != null) M3RoomDresser.Dress(plot.transform, h.Id, M3Session.Instance.Seed, houseScale, FloorY);
+
         for (int r = 0; r < h.ResidentIds.Count; r++)
         {
             BuildVillager(sim, plot.transform, h.ResidentIds[r], r, bed);
