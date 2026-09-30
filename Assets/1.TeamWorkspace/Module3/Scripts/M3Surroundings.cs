@@ -99,6 +99,12 @@ public class M3Surroundings : MonoBehaviour
             RenderSettings.skybox = skybox;
             DynamicGI.UpdateEnvironment();
         }
+        // The default reflection cube is baked from the sky once, here, in its morning-blue state, and never
+        // again (M3TimeOfDay warms the sky and the light through the turn but calling UpdateEnvironment for
+        // that costs a frame). The houses' smoothness of 0.5 reflects it, so glancing wall and floor surfaces
+        // kept a cool blue sheen however warm the room was. Turned down, the reflection is a hint of sky
+        // rather than a tint.
+        RenderSettings.reflectionIntensity = 0.4f;
         // A little haze so the hills and the far tree line recede instead of ending in a hard edge.
         RenderSettings.fog = true;
         RenderSettings.fogMode = FogMode.Linear;
