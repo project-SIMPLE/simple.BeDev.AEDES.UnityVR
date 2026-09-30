@@ -560,24 +560,28 @@ public class M2Manager : MonoBehaviour
     // collectively explores the whole house instead of all learning the same nine positions.
     private void ChooseSiteSubset()
     {
-        if (sitesPerRound <= 0 || _openSites.Count <= sitesPerRound) return;
-
-        var pool = new List<Component>(_openSites);
-        for (int i = pool.Count - 1; i > 0; i--)
+        if (sitesPerRound > 0 && _openSites.Count > sitesPerRound)
         {
-            int j = Random.Range(0, i + 1);
-            (pool[i], pool[j]) = (pool[j], pool[i]);
-        }
+            var pool = new List<Component>(_openSites);
+            for (int i = pool.Count - 1; i > 0; i--)
+            {
+                int j = Random.Range(0, i + 1);
+                (pool[i], pool[j]) = (pool[j], pool[i]);
+            }
 
-        for (int i = sitesPerRound; i < pool.Count; i++)
-        {
-            var site = pool[i];
-            _openSites.Remove(site);
-            _siteCount--;
-            if (site != null) site.gameObject.SetActive(false);
-        }
+            // The sites this round leaves out stay in the house, already dealt with (lid on, vase empty,
+            // fish in), so the rooms look the same every round and nothing is missing without explanation.
+            for (int i = sitesPerRound; i < pool.Count; i++)
+            {
+                var site = pool[i];
+                _openSites.Remove(site);
+                _siteCount--;
+                if (site is IBreedingSite resolvable) resolvable.ShowResolved();
+                else if (site != null) site.gameObject.SetActive(false);
+            }
 
-        Debug.Log($"[M2] Using {_siteCount} of the scene's breeding sites this round.");
+            Debug.Log($"[M2] Using {_siteCount} of the scene's breeding sites this round.");
+        }
     }
 
     public void RegisterBreedingSite(Component site)
