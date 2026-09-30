@@ -18,10 +18,86 @@ namespace Aedes.Module3.Sim.Tests
         private const string SetPath = "Assets/Resources/Module3/M3OutdoorLifeSet.asset";
         private const string FoliageShader = "AEDES/Module 3/Foliage Lit";
 
+        // The shared tree prefabs the leaf swaps are read from (Module3OutdoorLifeAssets).
+        private static readonly string[] TreePrefabs =
+        {
+            "Assets/1.TeamWorkspace/Team Assets/Prefabs/Neture/PF_CoconutTree.prefab",
+            "Assets/1.TeamWorkspace/Team Assets/Prefabs/Neture/PF_BananaTree.prefab",
+        };
+
         [Test]
         public void TheFoliageShaderExists()
         {
-            Assert.IsNotNull(Shader.Find(FoliageShader), $"no '{FoliageShader}' shader: the trees cannot sway");
+            var shader = Shader.Find(FoliageShader);
+            Assert.IsNotNull(shader, $"no '{FoliageShader}' shader: the trees cannot sway");
+            // Shader.Find still returns a shader that failed to compile (Unity substitutes its pink error
+            // shader when it is drawn), so ask whether it has errors, and whether it runs on this platform.
+            Assert.IsFalse(ShaderUtil.ShaderHasError(shader), $"'{FoliageShader}' has compile errors (see the console)");
+            Assert.IsTrue(shader.isSupported, $"'{FoliageShader}' is not supported here: no subshader runs");
+        }
+
+        [Test]
+        public void EveryLeafSwapReplacesAMaterialTheTreesReallyUse()
+        {
+            // ApplyWind swaps a material only where it finds the 'from' one, and silently swaps nothing when it
+            // does not: a tree prefab that changed its leaf material would stop swaying and every other test
+            // here would still pass.
+            var set = AssetDatabase.LoadAssetAtPath<ScriptableObject>(SetPath);
+            Assert.IsNotNull(set, $"{SetPath} is missing");
+            var swaps = new SerializedObject(set).FindProperty("foliage");
+
+            var used = new System.Collections.Generic.HashSet<Material>();
+            foreach (string path in TreePrefabs)
+            {
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                Assert.IsNotNull(prefab, $"no tree prefab at {path}");
+                foreach (var r in prefab.GetComponentsInChildren<Renderer>(true))
+                    foreach (var m in r.sharedMaterials)
+                        if (m != null) used.Add(m);
+            }
+
+            for (int i = 0; i < swaps.arraySize; i++)
+            {
+                var from = swaps.GetArrayElementAtIndex(i).FindPropertyRelative("from").objectReferenceValue as Material;
+                Assert.IsNotNull(from, $"swap {i} has no source material");
+                Assert.IsTrue(used.Contains(from), $"swap {i} replaces '{from.name}', which neither tree prefab uses any more");
+            }
+        }
+
+        [Test]
+        public void EveryAnimalAndWalkerBodyDrawsWithARealMaterial()
+        {
+            // A prefab whose material asset went missing does not fail anywhere: it draws magenta
+            // (PF_DragonFlyYellow does). The generator leaves that one out; this is what would notice another.
+            var set = AssetDatabase.LoadAssetAtPath<ScriptableObject>(SetPath);
+            Assert.IsNotNull(set, $"{SetPath} is missing");
+            var so = new SerializedObject(set);
+
+            var bad = new System.Collections.Generic.SortedSet<string>();
+            foreach (string array in new[] { "dragonflies", "walkers" })
+            {
+                var prop = so.FindProperty(array);
+                for (int i = 0; i < prop.arraySize; i++)
+                    CheckDrawable(prop.GetArrayElementAtIndex(i).objectReferenceValue as GameObject, bad);
+            }
+            CheckDrawable(so.FindProperty("frog").objectReferenceValue as GameObject, bad);
+            Assert.IsEmpty(bad, "these would draw magenta:\n  " + string.Join("\n  ", bad));
+        }
+
+        private static void CheckDrawable(GameObject prefab, System.Collections.Generic.ICollection<string> bad)
+        {
+            if (prefab == null) return;
+            foreach (var r in prefab.GetComponentsInChildren<Renderer>(true))
+            {
+                var materials = r.sharedMaterials;
+                if (materials.Length == 0) bad.Add($"{prefab.name}/{r.name}: no materials");
+                foreach (var m in materials)
+                {
+                    if (m == null) bad.Add($"{prefab.name}/{r.name}: a missing material");
+                    else if (m.shader == null || m.shader.name == "Hidden/InternalErrorShader")
+                        bad.Add($"{prefab.name}/{r.name}: '{m.name}' has no working shader");
+                }
+            }
         }
 
         [Test]
