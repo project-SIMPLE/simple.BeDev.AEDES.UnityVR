@@ -35,12 +35,13 @@ URP_ASSETVERSION_GUID = "d0353a89b1f911e48b9e16bdc9f2e058"
 
 # Must match the colour constants in make_villagers.py exactly, so the Blender preview and the
 # shipped Unity materials agree.
-# Skin albedo is deliberately warmer and more saturated than the tone it should read as. Module 3's
-# lighting is a cyan sky ambient plus sun, and URP/Lit multiplies the albedo by it: a plain warm brown
-# (0.78, 0.58, 0.43) rendered khaki-olive in the game (the existing adults read the same), while this
-# renders as warm tan-brown. Checked by playing the scene. Unwell is the same tone, paler and greyer.
-SKIN = (0.90, 0.52, 0.30)
-SKIN_UNWELL = (0.88, 0.66, 0.52)
+# Skin albedo is the tone it should read as: a plain warm brown. It was once pushed to a saturated
+# orange (0.90, 0.52, 0.30) because Module 3's rooms were lit by a cyan sky ambient, which URP/Lit
+# multiplies into the albedo and turned this brown khaki-olive. M3TimeOfDay now lights the scene with a
+# warm trilight ambient, under which the orange read as orange, so the intended tone is back. Checked
+# by playing the scene. Unwell is the same tone, paler and greyer.
+SKIN = (0.78, 0.58, 0.43)
+SKIN_UNWELL = (0.84, 0.70, 0.60)
 EYE = (0.06, 0.05, 0.05)
 HAIR_DARK = (0.09, 0.07, 0.06)
 HAIR_GREY = (0.70, 0.68, 0.66)

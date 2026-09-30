@@ -63,8 +63,9 @@ By dress and setting only:
   across the shoulder (pha biang), long sleeves with cuffs, grey hair in a low bun.
 - **Children:** a collared tee with shorts and cropped hair; a tunic and knee-length skirt with
   pigtails and hair ties.
-- One plain warm-brown skin tone for everyone. Its albedo is set warmer than it should look, because the
-  scene's cyan ambient light multiplies it: the plain tone rendered khaki-olive in the game.
+- One plain warm-brown skin tone for everyone. Its albedo is the tone it should look: the scene's ambient
+  is a warm trilight (M3TimeOfDay). While the rooms were lit by the cyan sky the albedo had to be pushed
+  to a saturated orange to render as brown at all; that compensation is gone with the cyan.
 
 **Faces carry only what the existing characters already have:** the same two plain vertical eye
 bars `SK_Character` has, identical on every villager. No nose, no mouth, no shaped or angled eyes.
