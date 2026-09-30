@@ -423,8 +423,11 @@ public static class M3VillageDressing
         }
         if (y.Chance(35))
         {
-            // A blind rolled up under the eave, over part of the wall, its cords hanging.
-            float x0 = y.Between(-4.5f, 0f), x1 = x0 + y.Between(2.4f, 3.6f);
+            // A blind rolled up under the eave, over part of the wall, its cords hanging - to one side of the
+            // number board, which is 1.7 m wide about the wall's centre (M3HouseNumber), never across it.
+            float x0, x1;
+            if (y.Chance(50)) { x0 = y.Between(-4.6f, -3.2f); x1 = x0 + y.Between(1.8f, 2.3f); }
+            else { x0 = y.Between(1.3f, 2.4f); x1 = x0 + y.Between(2.0f, 3.0f); }
             float yy = y.eave - 0.14f;
             m.Cylinder(new Vector3(x0, yy, wallZ + 0.08f), new Vector3(x1, yy, wallZ + 0.08f), 0.09f, 0.09f, 7, M3PropMesh.Swatch.Bamboo);
             foreach (float cx in new[] { x0 + 0.3f, x1 - 0.3f })
@@ -1073,8 +1076,7 @@ public static class M3VillageDressing
     /// <summary>A scenery instance under <paramref name="parent"/> at a local position: no colliders, turned and scaled.</summary>
     private static GameObject Instantiate(GameObject prefab, Transform parent, Vector3 localPosition, float yaw, float scale)
     {
-        var go = Object.Instantiate(prefab, parent);
-        go.name = prefab.name;
+        var go = M3CombinedPrefab.Spawn(prefab, parent);   // a palm as one renderer, not twenty
         go.transform.localPosition = localPosition;
         go.transform.localRotation = Quaternion.Euler(0f, yaw, 0f);
         go.transform.localScale *= scale;

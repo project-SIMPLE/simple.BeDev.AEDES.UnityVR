@@ -65,8 +65,10 @@ public static class M3HouseNumber
         float sideW = FrontWidth * SideScale, sideH = FrontHeight * SideScale;
         float sideY = Mathf.Max(MinCentreHeight, eave - BelowEave - sideH * 0.5f);
         float sideZ = walls.max.z - CornerInset - sideW * 0.5f;
-        Board(root, digits, new Vector3(walls.max.x + OffWall, sideY, sideZ), Vector3.right, sideW, sideH);
-        Board(root, digits, new Vector3(walls.min.x - OffWall, sideY, sideZ), Vector3.left, sideW, sideH);
+        // Small, and only useful from the gap they face: not drawn from two houses away (M3DistanceCulling),
+        // which is forty renderers fewer in a view down the lane.
+        M3DistanceCulling.Mark(Board(root, digits, new Vector3(walls.max.x + OffWall, sideY, sideZ), Vector3.right, sideW, sideH));
+        M3DistanceCulling.Mark(Board(root, digits, new Vector3(walls.min.x - OffWall, sideY, sideZ), Vector3.left, sideW, sideH));
     }
 
     /// <summary>
@@ -108,8 +110,12 @@ public static class M3HouseNumber
         return local;
     }
 
-    private static void Board(Transform root, string digits, Vector3 centre, Vector3 facing, float width, float height)
+    /// <summary>One board with its digits; returns an object holding both, for callers that want to mark them.</summary>
+    private static GameObject Board(Transform root, string digits, Vector3 centre, Vector3 facing, float width, float height)
     {
+        var holder = new GameObject("Board").transform;
+        holder.SetParent(root, false);
+        root = holder;
         // A quad's face looks down its own -z, so its +z points into the wall.
         var turn = Quaternion.LookRotation(-facing, Vector3.up);
 
@@ -140,6 +146,7 @@ public static class M3HouseNumber
         text.enableAutoSizing = true;
         text.fontSizeMin = 1f;
         text.fontSizeMax = 100f;
+        return holder.gameObject;
     }
 
     private static Material BoardMaterial()

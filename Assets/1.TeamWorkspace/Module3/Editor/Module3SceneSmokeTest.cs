@@ -139,6 +139,8 @@ public static class Module3SceneSmokeTest
                         foreach (var r in root.GetComponentsInChildren<Renderer>(true))
                         {
                             renderers++;
+                            // A static-batched tree's MeshFilter holds the whole batch (M3Surroundings.BatchStaticTrees): not its own triangles.
+                            if (r.isPartOfStaticBatch) continue;
                             if (r.TryGetComponent<MeshFilter>(out var mf) && mf.sharedMesh != null) triangles += mf.sharedMesh.triangles.Length / 3;
                         }
                     }
@@ -148,6 +150,16 @@ public static class Module3SceneSmokeTest
                     if (triangles > 120000) failures.Add($"the village dressing is {triangles} triangles (budget 120000)");
                     Debug.Log($"Module 3 smoke test: village dressing on {dressed} yards, {renderers} renderers, {triangles} triangles.");
                 }
+
+                // The whole scene stays drawable on a headset. It was 2,576 renderers before the palms were merged
+                // (each was twenty), the paddies became two meshes and the side number boards were distance-culled;
+                // it is about 850 now. Anything that puts it back over 1,200 has added a renderer per prop somewhere.
+                int sceneRenderers = 0;
+                foreach (var r in Object.FindObjectsByType<Renderer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+                    if (r.enabled) sceneRenderers++;
+                if (sceneRenderers > 1200)
+                    failures.Add($"the scene is {sceneRenderers} renderers (budget 1200): see AEDES > Module 3 > Dev > Performance Census");
+                Debug.Log($"Module 3 smoke test: {sceneRenderers} renderers in the built scene.");
 
                 // Every door leaf swings (M3DoorSwing), and none keeps a collider to shove the Pilot's body.
                 foreach (var plot in builder.Households)

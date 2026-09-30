@@ -40,8 +40,9 @@ public class M3Surroundings : MonoBehaviour
 
     [Header("Ground pattern")]
     [Tooltip("Metres per texel of the painted ground over the village. Smaller is crisper and costs texture "
-             + "memory: 0.06 gives about 2200 texels across a 130 m village (10 MB).")]
-    [SerializeField] private float groundTexel = 0.06f;
+             + "memory and bandwidth on the headset: 0.06 gave a 2600 x 1150 image (16 MB with its mipmaps), "
+             + "0.08 gives 1970 x 870 (9 MB) and from eye height the difference does not show.")]
+    [SerializeField] private float groundTexel = 0.08f;
     [Tooltip("How strongly the grass mottles and the track is marked. 0 is the old flat colour.")]
     [Range(0f, 1.5f)]
     [SerializeField] private float groundContrast = 1f;
@@ -96,6 +97,33 @@ public class M3Surroundings : MonoBehaviour
 
         // The houses are part of the look too: give them their surface texture now that they stand.
         M3HouseSurface.ApplyToPlots(plots);
+
+        // Last, once every material is final: the broad trees and bushes of the ring become static batches.
+        BatchStaticTrees();
+    }
+
+    /// <summary>
+    /// Static-batches the ring's broad trees and bushes: two hundred small identical meshes that never
+    /// move, drawn in a handful of calls instead of one each. The palms and bananas are left out - their
+    /// wind is computed from each plant's own origin (M3FoliageSway.hlsl), which a static batch, whose
+    /// vertices are baked into world space, would lose; they are cheap already, merged to one renderer
+    /// each by M3CombinedPrefab. Needs the models readable (Read/Write on their import), or a build
+    /// cannot combine them and they are simply left as they are.
+    /// </summary>
+    private void BatchStaticTrees()
+    {
+        var batch = new List<GameObject>();
+        foreach (var r in root.GetComponentsInChildren<MeshRenderer>())
+        {
+            if (!r.name.StartsWith("PF_Tree") && !r.name.StartsWith("PF_Bush")) continue;
+            if (!r.TryGetComponent<MeshFilter>(out var filter) || filter.sharedMesh == null || !filter.sharedMesh.isReadable) continue;
+            bool sways = false;
+            foreach (var m in r.sharedMaterials)
+                if (m != null && m.shader != null && m.shader.name == "AEDES/Module 3/Foliage Lit") sways = true;
+            if (sways) continue;
+            batch.Add(r.gameObject);
+        }
+        if (batch.Count > 1) StaticBatchingUtility.Combine(batch.ToArray(), root.gameObject);
     }
 
     private void BuildSky()
@@ -165,7 +193,24 @@ public class M3Surroundings : MonoBehaviour
     {
         // Paddies either side of the village, beyond its back yards: the landscape a Lao
         // neighbourhood actually sits in, and flat, so it costs almost nothing to draw.
+        //
+        // Two meshes for the lot - the dykes and the green paddies in one, the flooded ones (glossy) in
+        // the other - rather than a quad each: three hundred quads were three hundred draw calls, a
+        // quarter of the frame's, for six hundred triangles. Each quad takes its colour from a swatch
+        // of a small palette made from the colours above, so the greens still vary field to field.
         const float cell = 13f, bank = 0.7f;
+        const int Greens = 6;
+        var palette = new Color[Greens + 2];
+        palette[0] = dyke;
+        palette[1] = paddyWater;
+        for (int i = 0; i < Greens; i++)
+        {
+            float v = 1f + ((i / (float)(Greens - 1)) * 2f - 1f) * 0.06f;
+            palette[2 + i] = new Color(paddyGreen.r * v, paddyGreen.g * v, paddyGreen.b * v);
+        }
+        var matte = new PaddyMesh(palette.Length);
+        var water = new PaddyMesh(palette.Length);
+
         float x0 = village.min.x - 70f, x1 = village.max.x + 70f;
         foreach (float side in new[] { -1f, 1f })
         {
@@ -177,13 +222,72 @@ public class M3Surroundings : MonoBehaviour
                 {
                     if (Next() < 0.12f) continue; // a few gaps read as fallow ground
                     var centre = new Vector3(x + cell * 0.5f, 0f, z);
-                    Quad("Dyke", centre + Vector3.up * 0.01f, new Vector2(cell, cell), dyke);
+                    matte.Quad(centre + Vector3.up * 0.01f, cell, 0);
                     bool flooded = Next() < 0.35f;
-                    var colour = flooded ? paddyWater : Vary(paddyGreen, 0.06f);
-                    var paddy = Quad("Paddy", centre + Vector3.up * 0.02f, new Vector2(cell - bank, cell - bank), colour);
-                    if (flooded) paddy.GetComponent<Renderer>().sharedMaterial = Mat(colour, 0.85f);
+                    int green = 2 + rng.Next(Greens);
+                    if (flooded) water.Quad(centre + Vector3.up * 0.02f, cell - bank, 1);
+                    else matte.Quad(centre + Vector3.up * 0.02f, cell - bank, green);
                 }
             }
+        }
+
+        var texture = new Texture2D(palette.Length, 1, TextureFormat.RGBA32, false, false)
+        {
+            name = "Paddies (palette)", filterMode = FilterMode.Point, wrapMode = TextureWrapMode.Clamp, hideFlags = HideFlags.DontSave,
+        };
+        texture.SetPixels(palette);
+        texture.Apply(false, true);
+        paintedTextures.Add(texture);
+        matte.Spawn("Paddies", root, PaddyMaterial(texture, 0.05f));
+        water.Spawn("Paddies (flooded)", root, PaddyMaterial(texture, 0.85f));
+    }
+
+    private Material PaddyMaterial(Texture2D palette, float smoothness)
+        => new Material(Mat(Color.white, smoothness)) { mainTexture = palette, hideFlags = HideFlags.DontSave };
+
+    /// <summary>Flat quads on the ground, each coloured by a swatch of a one-row palette, as one mesh.</summary>
+    private sealed class PaddyMesh
+    {
+        private readonly List<Vector3> vertices = new List<Vector3>();
+        private readonly List<Vector2> uvs = new List<Vector2>();
+        private readonly List<int> triangles = new List<int>();
+        private readonly int swatches;
+
+        public PaddyMesh(int swatches) => this.swatches = swatches;
+
+        public void Quad(Vector3 centre, float size, int swatch)
+        {
+            float h = size * 0.5f;
+            var uv = new Vector2((swatch + 0.5f) / swatches, 0.5f);
+            int i = vertices.Count;
+            vertices.Add(centre + new Vector3(-h, 0f, -h));
+            vertices.Add(centre + new Vector3(-h, 0f, h));
+            vertices.Add(centre + new Vector3(h, 0f, h));
+            vertices.Add(centre + new Vector3(h, 0f, -h));
+            for (int k = 0; k < 4; k++) uvs.Add(uv);
+            triangles.AddRange(new[] { i, i + 1, i + 2, i, i + 2, i + 3 });
+        }
+
+        public void Spawn(string name, Transform parent, Material material)
+        {
+            if (triangles.Count == 0) return;
+            var mesh = new Mesh { name = name };
+            if (vertices.Count > 65000) mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+            mesh.SetVertices(vertices);
+            mesh.SetUVs(0, uvs);
+            mesh.SetTriangles(triangles, 0);
+            var normals = new Vector3[vertices.Count];
+            for (int i = 0; i < normals.Length; i++) normals[i] = Vector3.up;
+            mesh.SetNormals(normals);
+            mesh.RecalculateBounds();
+            var go = new GameObject(name);
+            go.transform.SetParent(parent, false);
+            go.AddComponent<MeshFilter>().sharedMesh = mesh;
+            var renderer = go.AddComponent<MeshRenderer>();
+            renderer.sharedMaterial = material;
+            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;   // flat on the ground: it has no shadow to cast
+            renderer.lightProbeUsage = UnityEngine.Rendering.LightProbeUsage.Off;
+            renderer.reflectionProbeUsage = UnityEngine.Rendering.ReflectionProbeUsage.Off;
         }
     }
 
@@ -233,9 +337,15 @@ public class M3Surroundings : MonoBehaviour
     {
         var prefab = prefabs[rng.Next(prefabs.Length)];
         if (prefab == null) return;
-        var tree = Instantiate(prefab, at, Quaternion.Euler(0f, (float)Next() * 360f, 0f), root);
+        // One renderer per tree where the prefab is many (the palm is twenty): see M3CombinedPrefab.
+        var tree = M3CombinedPrefab.Spawn(prefab, root);
+        tree.transform.SetPositionAndRotation(at, Quaternion.Euler(0f, (float)Next() * 360f, 0f));
         tree.transform.localScale *= Mathf.Lerp(minScale, maxScale, (float)Next());
-        foreach (var c in tree.GetComponentsInChildren<Collider>()) Destroy(c);
+        foreach (var c in tree.GetComponentsInChildren<Collider>())
+        {
+            if (Application.isPlaying) Destroy(c);
+            else DestroyImmediate(c);
+        }
     }
 
     /// <summary>A low ring of hills on the horizon: one mesh, a few hundred triangles.</summary>
@@ -269,7 +379,9 @@ public class M3Surroundings : MonoBehaviour
         var go = new GameObject("Hills");
         go.transform.SetParent(root, false);
         go.AddComponent<MeshFilter>().sharedMesh = mesh;
-        go.AddComponent<MeshRenderer>().sharedMaterial = Mat(hills, 0f);
+        var hillRenderer = go.AddComponent<MeshRenderer>();
+        hillRenderer.sharedMaterial = Mat(hills, 0f);
+        hillRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;   // 300 m off: never within the shadow distance
     }
 
     // ---------- helpers ----------
@@ -278,7 +390,11 @@ public class M3Surroundings : MonoBehaviour
     {
         var q = GameObject.CreatePrimitive(PrimitiveType.Quad);
         q.name = name;
-        Destroy(q.GetComponent<Collider>());
+        var collider = q.GetComponent<Collider>();
+        if (Application.isPlaying) Destroy(collider);
+        else DestroyImmediate(collider);
+        // Flat on the ground, so nothing to cast: a shadow-map pass over a 700 m quad is pure waste.
+        q.GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         q.transform.SetParent(root, false);
         q.transform.position = centre;
         q.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
