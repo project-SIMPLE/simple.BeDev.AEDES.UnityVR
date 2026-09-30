@@ -109,6 +109,14 @@ public static class Module3SceneSmokeTest
                     }
                 }
 
+                // Every house is furnished by M3RoomDresser; a bare one means its Resources asset is missing.
+                foreach (var plot in builder.Households)
+                {
+                    var indoors = plot.transform.Find("Dressing/Indoors");
+                    if (indoors == null || indoors.childCount < 3)
+                        failures.Add($"plot {plot.householdId} has no furniture (Resources/{M3RoomDresser.ResourcePath})");
+                }
+
                 Debug.Log($"Module 3 smoke test: seed {session.Seed}, {sim.Households.Count} households, "
                           + $"{sim.People.Count} residents, {sim.AliveMosquitoCount} mosquitoes, "
                           + $"{sim.VisiblyIll().Count} visibly ill on day one, "
