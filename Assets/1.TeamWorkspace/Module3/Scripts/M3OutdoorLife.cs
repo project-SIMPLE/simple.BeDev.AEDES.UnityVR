@@ -27,6 +27,8 @@ public class M3OutdoorLife : MonoBehaviour
     /// one. A Pilot going down the middle of the track passes the verges 1.7 m off, outside it.
     /// </summary>
     private const float PilotClearance = 1.6f;
+    /// <summary>A dragonfly never comes closer than this to the Pilot's head, and a waiting walker steps aside inside it.</summary>
+    private const float FlyClearance = 0.9f, MakeWay = 0.9f;
     private const string WalkParam = "isWalk";
 
     /// <summary>
@@ -248,6 +250,10 @@ public class M3OutdoorLife : MonoBehaviour
             {
                 animator.cullingMode = AnimatorCullingMode.CullCompletely;
                 animator.applyRootMotion = false;   // this Update places the body; the clip must not nudge it
+                // Reach() switches the whole body off beyond the walker radius. Without this the Animator
+                // comes back in its default state with default parameters (isWalk false), while w.walking
+                // still says true and SetBool is never re-sent: the walker would slide along in an idle pose.
+                animator.keepAnimatorStateOnDisable = true;
             }
             list.Add(new Walker
             {
@@ -312,7 +318,11 @@ public class M3OutdoorLife : MonoBehaviour
         return true;
     }
 
-    /// <summary>An animal: no collider, its animation culled when unseen, and not drawn from far off.</summary>
+    /// <summary>
+    /// An animal: no collider and its animation culled when unseen. It is NOT put on M3DistanceCulling's
+    /// layer: that layer stops drawing at 22 m, so a 30 m animal radius did nothing and the animals
+    /// popped in at 22 m. Reach() switches an animal off beyond AnimalRadius instead.
+    /// </summary>
     private static void Prepare(GameObject animal)
     {
         foreach (var c in animal.GetComponentsInChildren<Collider>(true)) DestroyImmediate(c);
@@ -320,8 +330,8 @@ public class M3OutdoorLife : MonoBehaviour
         {
             a.cullingMode = AnimatorCullingMode.CullCompletely;
             a.applyRootMotion = false;
+            a.keepAnimatorStateOnDisable = true;
         }
-        M3DistanceCulling.Mark(animal);
     }
 
     // ---------- per frame ----------
@@ -349,7 +359,15 @@ public class M3OutdoorLife : MonoBehaviour
             // Heading from the path's own derivative, so it always flies nose first.
             float vx = d.ax * cx;
             float vz = d.az * (d.figureEight ? 2f * Mathf.Cos(2f * t) : -sx);
-            d.t.SetPositionAndRotation(new Vector3(x, y, z), Quaternion.LookRotation(new Vector3(vx, 0f, vz), Vector3.up));
+            var at = new Vector3(x, y, z);
+            if (haveEye)
+            {
+                // The lane paths pass through head height: slide round the Pilot's head rather than through it.
+                var fromHead = at - eyeAt;
+                float m = fromHead.magnitude;
+                if (m < FlyClearance && m > 1e-3f) at = eyeAt + fromHead / m * FlyClearance;
+            }
+            d.t.SetPositionAndRotation(at, Quaternion.LookRotation(new Vector3(vx, 0f, vz), Vector3.up));
         }
 
         for (int i = 0; i < frogs.Length; i++)
@@ -400,7 +418,18 @@ public class M3OutdoorLife : MonoBehaviour
                 w.walking = walking;
                 if (w.animator != null) w.animator.SetBool(WalkId, walking);
             }
-            if (!walking) continue;
+            if (!walking)
+            {
+                // Waiting is only a stop, and there are no colliders: a Pilot who walks on up to a waiting
+                // walker would go through them. Inside MakeWay they step back, keeping their heading.
+                if (w.waiting && haveEye)
+                {
+                    var away = new Vector3(at.x - eyeAt.x, 0f, at.z - eyeAt.z);
+                    float m = away.magnitude;
+                    if (m < MakeWay) w.t.position = at + (m > 1e-3f ? away / m : w.t.forward) * (1.2f * dt);
+                }
+                continue;
+            }
 
             var target = w.path[w.next];
             var toTarget = target - at;
