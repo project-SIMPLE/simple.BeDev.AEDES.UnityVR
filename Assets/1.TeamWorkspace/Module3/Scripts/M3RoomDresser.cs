@@ -258,12 +258,14 @@ public class M3RoomDresser : ScriptableObject
     {
         var used = new HashSet<Piece>();
 
-        // The side-room kitchen is a room of its own, furnished apart from the main room's budget.
-        if (rng.Next(100) < 90) PlaceOneOf(parent, Kitchen, int.MaxValue, used);
+        // The side-room kitchen comes out of the same budget as the main room. It used to be furnished on top
+        // of it, so a house could hold 11 pieces where the brief was 4 to 8; now no house holds more than
+        // maxRoomPieces (8), and the main room keeps at least the two pieces of its smallest front corner.
+        int kitchen = rng.Next(100) < 90 ? PlaceOneOf(parent, Kitchen, maxRoomPieces - 2, used) : 0;
 
         // The main room: the front corner always (it is what the room is for), the back corner usually,
-        // then pictures and plants until the room has its share.
-        int budget = rng.Next(5, maxRoomPieces + 1);
+        // then pictures until the room has its share.
+        int budget = Mathf.Min(rng.Next(5, maxRoomPieces + 1), maxRoomPieces - kitchen);
         int count = PlaceOneOf(parent, FrontCorner, budget, used);
         if (rng.Next(100) < 85) count += PlaceOneOf(parent, BackCorner, budget - count, used);
 
