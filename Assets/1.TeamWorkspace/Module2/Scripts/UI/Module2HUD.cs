@@ -475,7 +475,8 @@ public class Module2HUD : MonoBehaviour
     {
         if (m.RoundStarted || introGroup.alpha <= 0f) return;
 
-        introInputDebug.text = m.showInputDebug ? m.ConfirmDebug : "";
+        // Development builds and the editor only, so a release build never shows children a debug line.
+        introInputDebug.text = m.showInputDebug && Debug.isDebugBuild ? m.ConfirmDebug : "";
 
         // IntroArmed keeps a button that was already held from skipping the briefing on frame one.
         if (m.IntroArmed && m.IntroConfirmPressed()) m.BeginRound();

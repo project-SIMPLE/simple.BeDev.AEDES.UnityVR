@@ -9,7 +9,7 @@ using UnityEngine;
 /// Vietnamese and French - no Lao. This reads a tab-separated file instead, so copy can contain
 /// commas, and its columns are the languages this module actually ships in.
 ///
-/// The table lives at Resources/Localization/Module2Text.tsv. Every lookup falls back to the English
+/// The table lives at Resources/Localization/Module2Text.txt. Every lookup falls back to the English
 /// string compiled into Module2Text, so a missing key or a missing file degrades to readable English
 /// rather than to blanks.
 ///
