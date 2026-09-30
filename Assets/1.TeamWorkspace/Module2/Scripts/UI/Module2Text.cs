@@ -3,7 +3,7 @@ using UnityEngine;
 /// <summary>
 /// Every player-facing string in Module 2, in one place.
 ///
-/// Each member reads from Resources/Localization/Module2Text.tsv by key, falling back to the English
+/// Each member reads from Resources/Localization/Module2Text.txt by key, falling back to the English
 /// literal here. So the English build needs no table at all, a Lao build needs only the table filled
 /// in, and a missing key degrades to readable English instead of a blank.
 ///
