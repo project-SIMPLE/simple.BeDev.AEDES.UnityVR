@@ -31,20 +31,33 @@ namespace Aedes.Module3.Sim.Tests
         [Test]
         public void NothingTheDresserPlacesCouldHoldWater()
         {
+            // Everyday words for things that hold water, plus every container kind the simulation can name in
+            // the trace-back (WaterJar, Tyre, Bucket, PlantPot, ...): a decorative one is a false clue too.
+            // PlantPot got past a hand-written list once, so the kinds are read from the enum.
+            var words = new List<string> { "jar", "bucket", "basin", "tire", "tyre", "vase", "counter", "sink", "planter", "gutter" };
+            foreach (string kind in System.Enum.GetNames(typeof(ContainerKind))) words.Add(kind.ToLowerInvariant());
+
             var wet = new SortedSet<string>();
             foreach (var go in Prefabs(null))
             {
-                string name = go.name.ToLowerInvariant();
-                foreach (string word in new[] { "jar", "bucket", "basin", "tire", "tyre", "vase", "counter", "sink" })
-                    if (name.Contains(word)) wet.Add($"{go.name}: a '{word}'");
+                // The prefab and everything under it: a jar can hide inside a piece with an innocent name.
+                foreach (var t in go.GetComponentsInChildren<Transform>(true))
+                {
+                    string name = t.name.ToLowerInvariant();
+                    foreach (string word in words)
+                        if (name.Contains(word)) wet.Add($"{go.name}/{t.name}: a '{word}'");
+                }
 
                 foreach (var c in go.GetComponentsInChildren<Component>(true))
                     if (c != null && c.GetType().Name == "WaterContainer") wet.Add($"{go.name}: carries a WaterContainer");
 
                 foreach (var r in go.GetComponentsInChildren<Renderer>(true))
                     foreach (var m in r.sharedMaterials)
-                        if (m != null && (m.name.Contains("Water") || m.name.Contains("Pond")))
-                            wet.Add($"{go.name}: shows water ({m.name})");
+                    {
+                        if (m == null) continue;
+                        string mat = m.name.ToLowerInvariant();
+                        if (mat.Contains("water") || mat.Contains("pond")) wet.Add($"{go.name}: shows water ({m.name})");
+                    }
             }
 
             Assert.IsTrue(wet.Count == 0,

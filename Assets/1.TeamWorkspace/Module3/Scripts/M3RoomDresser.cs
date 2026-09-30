@@ -15,7 +15,9 @@ using UnityEngine;
 /// Scenery only: no colliders (they would stop the CharacterController, catch the teleport ray or
 /// the ray that opens a villager's panel), nothing interactive, and nothing tied to anybody's health.
 /// Nothing that could be taken for a water container either - no jars, buckets, basins, tyres,
-/// vases or sinks - since those are the simulation's own clues. Colour differences between houses are
+/// vases, sinks or plant pots (PlantPot is one of the simulation's own container kinds, so a pot
+/// standing in every yard would make the trace-back's "a plant pot" indistinguishable from
+/// decoration) - since those are the simulation's own clues. Colour differences between houses are
 /// per-instance tints (MaterialPropertyBlock); the shared house prefab and materials are untouched.
 ///
 /// The prefab references live in an asset under Resources rather than on a scene object, so the
@@ -39,7 +41,6 @@ public class M3RoomDresser : ScriptableObject
     [SerializeField] private GameObject[] pictures;
 
     [Header("Yard")]
-    [SerializeField] private GameObject[] plantPots;
     [SerializeField] private GameObject[] bushes;
     [SerializeField] private GameObject[] flowers;
     [SerializeField] private GameObject bananaTree;
@@ -54,11 +55,8 @@ public class M3RoomDresser : ScriptableObject
     [SerializeField] private int bananaTreePercent = 40;
     [Range(0, 100)]
     [SerializeField] private int motorbikePercent = 40;
-    [Tooltip("Share of the yard's plant pots that have been knocked over - still full of earth and plant.")]
-    [Range(0, 100)]
-    [SerializeField] private int tippedPotPercent = 15;
 
-    private enum Piece { Table, DeskAndChair, TvDesk, Refrigerator, Carpet, PlatesAndBowls, Stove, SpiceRack, Lamp, Picture, PlantPot, Bush, Flower, BananaTree, Motorbike }
+    private enum Piece { Table, DeskAndChair, TvDesk, Refrigerator, Carpet, PlatesAndBowls, Stove, SpiceRack, Lamp, Picture, Bush, Flower, BananaTree, Motorbike }
 
     /// <summary>Which inner wall face a piece backs onto; None stands free.</summary>
     private enum Wall { None, Front, Back, West, East, SideWest, SideFront }
@@ -137,7 +135,7 @@ public class M3RoomDresser : ScriptableObject
         new[] { new Spot(Piece.Refrigerator, 3.5f, 0f, Wall.Back, 0f) },
         new[] { new Spot(Piece.DeskAndChair, 3.0f, 0f, Wall.Back, 0f).With(Piece.Lamp, OnDesk) },
         new[] { new Spot(Piece.TvDesk, 3.0f, 0f, Wall.Back, 0f) },
-        new[] { new Spot(Piece.SpiceRack, 3.7f, 0f, Wall.Back, 0f), new Spot(Piece.PlantPot, 3.2f, -2.5f) },
+        new[] { new Spot(Piece.SpiceRack, 3.7f, 0f, Wall.Back, 0f) },
     };
 
     private static readonly Spot[][] Kitchen =
@@ -162,8 +160,6 @@ public class M3RoomDresser : ScriptableObject
         new Spot(Piece.Picture, 0f, 2.45f, Wall.West, 90f, 1.7f),
         new Spot(Piece.Picture, 0f, 2.6f, Wall.East, 270f, 1.6f),
         new Spot(Piece.Picture, -3.0f, 0f, Wall.SideFront, 180f, 1.6f),
-        new Spot(Piece.PlantPot, 3.72f, -0.15f),     // by the east wall, between the door and the window
-        new Spot(Piece.PlantPot, -1.62f, 2.85f),     // the front corner behind the fan
     };
 
     // Per-house tints, all in the village's own range: lime-washed cream, ochre, faded sage, bare.
@@ -242,6 +238,11 @@ public class M3RoomDresser : ScriptableObject
         var yard = new GameObject("Yard").transform;
         yard.SetParent(root, false);
 
+        var jarAnchor = plot.Find($"Container_{householdId}");
+        jarAt = jarAnchor != null && jarAnchor.childCount > 0
+            ? new Vector2(jarAnchor.localPosition.x, jarAnchor.localPosition.z)
+            : (Vector2?)null;
+
         TintHouse();
         FurnishRooms(indoors);
         FillYard(yard);
@@ -305,7 +306,7 @@ public class M3RoomDresser : ScriptableObject
     {
         foreach (var s in group)
         {
-            if (s.piece == Piece.PlantPot || s.piece == Piece.Picture || s.piece == Piece.PlatesAndBowls) continue;
+            if (s.piece == Piece.Picture || s.piece == Piece.PlatesAndBowls) continue;
             if (used.Contains(s.piece)) return true;
         }
         return false;
@@ -318,7 +319,7 @@ public class M3RoomDresser : ScriptableObject
         used.Add(spot.piece);
 
         bool hung = spot.hang > 0f;
-        bool small = spot.piece == Piece.PlantPot || spot.piece == Piece.Picture;
+        bool small = spot.piece == Piece.Picture;
         float jitterYaw = spot.piece == Piece.Carpet ? Between(-8f, 8f) : spot.wall != Wall.None ? Between(-2f, 2f) : Between(-15f, 15f);
         if (hung) jitterYaw = 0f;
         go.transform.localRotation = Quaternion.Euler(0f, spot.facing - FrontOf(spot.piece) + jitterYaw, 0f);
@@ -384,36 +385,57 @@ public class M3RoomDresser : ScriptableObject
     // ---------- the yard ----------
 
     // Model units, lane side of the house (its front wall is at z 3.4). The worn path down the gap to the
-    // side door runs at x ~5.1 and stays clear, as does the jar's spot at (-2.5, 4.43).
-    private static readonly float[] PotClusterX = { -3.6f, -0.9f, 1.4f, 3.5f };
-    private const float PotRowZ = 3.62f;
+    // side door runs at x ~5.1 and stays clear. The builder's yard jar (Container_<id>) lands anywhere
+    // from about (-3.4, 3.8) to (-2.1, 4.6) after its nudge, so pieces are placed round it, not on it.
+    private static readonly float[] FlowerClusterX = { -3.6f, -0.9f, 1.4f, 3.5f };
+    private const float FlowerRowZ = 3.62f;
+
+    /// <summary>Plot-local ground position of this household's yard jar, if it has one.</summary>
+    private Vector2? jarAt;
+
+    /// <summary>Metres a yard piece keeps from the jar's centre, on top of its own radius (the jar is 0.91 m across, up to 1.15 x that).</summary>
+    private const float JarClearance = 0.55f;
+
+    private bool ClearOfJar(Vector3 at, float radius)
+        => !jarAt.HasValue || (new Vector2(at.x, at.z) - jarAt.Value).magnitude > radius + JarClearance;
 
     private void FillYard(Transform parent)
     {
-        // Pots along the front wall, in one or two little clusters.
+        // Flowers along the front wall, in one or two little clusters. (These stood as plant pots until a
+        // review noticed PlantPot is one of the simulation's own container kinds.)
         int clusters = rng.Next(1, 3);
-        var xs = new List<float>(PotClusterX);
+        var xs = new List<float>(FlowerClusterX);
         Shuffle(xs);
         for (int c = 0; c < clusters; c++)
         {
-            int pots = rng.Next(1, 4);
-            for (int i = 0; i < pots; i++)
+            int blooms = rng.Next(1, 4);
+            for (int i = 0; i < blooms; i++)
             {
-                var at = new Vector3(xs[c] * scale + i * 0.48f + Between(-0.06f, 0.06f), 0f, PotRowZ * scale + Between(-0.05f, 0.12f));
-                YardPiece(parent, Piece.PlantPot, at, Between(0.85f, 1.25f), rng.Next(100) < tippedPotPercent);
+                var at = new Vector3(xs[c] * scale + i * 0.48f + Between(-0.06f, 0.06f), 0f, FlowerRowZ * scale + Between(-0.05f, 0.12f));
+                if (ClearOfJar(at, 0.3f)) YardPiece(parent, Piece.Flower, at, Between(1.3f, 1.8f));
             }
         }
 
-        // Flowers, some years more than others.
+        // More flowers further out, some years more than others.
         int flowerCount = rng.Next(0, 4);
         float fx = Between(0.3f, 2.8f) * scale, fz = Between(3.9f, 4.6f) * scale;
         for (int i = 0; i < flowerCount; i++)
-            YardPiece(parent, Piece.Flower, new Vector3(fx + Between(-0.6f, 0.6f), 0f, fz + Between(-0.4f, 0.4f)), Between(0.8f, 1.2f), false);
+        {
+            var at = new Vector3(fx + Between(-0.6f, 0.6f), 0f, fz + Between(-0.4f, 0.4f));
+            if (ClearOfJar(at, 0.3f)) YardPiece(parent, Piece.Flower, at, Between(1.2f, 1.7f));
+        }
 
-        // A bush at one front corner, or none.
+        // A bush at one front corner, or none; the other corner if the jar is standing in the first.
         int bushAt = rng.Next(3);
         if (bushAt < 2)
-            YardPiece(parent, Piece.Bush, new Vector3((bushAt == 0 ? -3.85f : 3.75f) * scale, 0f, Between(4.3f, 4.6f) * scale), Between(0.7f, 1.05f), false);
+        {
+            float bz = Between(4.3f, 4.6f) * scale;
+            var corner = new Vector3((bushAt == 0 ? -3.85f : 3.75f) * scale, 0f, bz);
+            var other = new Vector3((bushAt == 0 ? 3.75f : -3.85f) * scale, 0f, bz);
+            const float bushRadius = 0.6f;
+            if (ClearOfJar(corner, bushRadius)) YardPiece(parent, Piece.Bush, corner, Between(0.7f, 1.05f));
+            else if (ClearOfJar(other, bushRadius)) YardPiece(parent, Piece.Bush, other, Between(0.7f, 1.05f));
+        }
 
         // A motorbike parked in the front yard, between the jar's spot and the flowers, clear of the lane
         // and of the path down the gap to the door.
@@ -421,23 +443,22 @@ public class M3RoomDresser : ScriptableObject
 
         // Behind the house: a banana plant at some plots, a bush at others.
         if (rng.Next(100) < bananaTreePercent)
-            YardPiece(parent, Piece.BananaTree, new Vector3(Between(-2.6f, 2.6f) * scale, 0f, -4.7f * scale), Between(0.8f, 1.15f), false);
+            YardPiece(parent, Piece.BananaTree, new Vector3(Between(-2.6f, 2.6f) * scale, 0f, -4.7f * scale), Between(0.8f, 1.15f));
         else if (rng.Next(2) == 0)
-            YardPiece(parent, Piece.Bush, new Vector3(Between(-2.6f, 2.6f) * scale, 0f, -3.6f * scale), Between(0.8f, 1.1f), false);
+            YardPiece(parent, Piece.Bush, new Vector3(Between(-2.6f, 2.6f) * scale, 0f, -3.6f * scale), Between(0.8f, 1.1f));
     }
 
-    private void YardPiece(Transform parent, Piece piece, Vector3 at, float size, bool tipped)
+    private void YardPiece(Transform parent, Piece piece, Vector3 at, float size)
     {
         var go = Spawn(piece, parent);
         if (go == null) return;
-        float yaw = Between(0f, 360f);
-        go.transform.localRotation = Quaternion.Euler(0f, yaw, 0f) * (tipped ? Quaternion.Euler(0f, 0f, 88f) : Quaternion.identity);
+        go.transform.localRotation = Quaternion.Euler(0f, Between(0f, 360f), 0f);
         go.transform.localScale *= size;
         var b = PlotBounds(go);
         go.transform.localPosition += new Vector3(at.x - b.center.x, 0.002f - b.min.y, at.z - b.center.z);
-        // Outdoors the pots and flowers are small enough to leave undrawn at a distance; the plants
+        // Outdoors the flowers are small enough to leave undrawn at a distance; the plants
         // that stand as tall as a person stay on, or they would pop in along the lane.
-        if (piece == Piece.PlantPot || piece == Piece.Flower) M3DistanceCulling.Mark(go);
+        if (piece == Piece.Flower) M3DistanceCulling.Mark(go);
     }
 
     private void ParkMotorbike(Transform parent)
@@ -534,7 +555,6 @@ public class M3RoomDresser : ScriptableObject
             case Piece.SpiceRack: return spiceRack;
             case Piece.Lamp: return lamp;
             case Piece.Picture: return Pick(pictures);
-            case Piece.PlantPot: return Pick(plantPots);
             case Piece.Bush: return Pick(bushes);
             case Piece.Flower: return Pick(flowers);
             case Piece.BananaTree: return bananaTree;

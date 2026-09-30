@@ -26,9 +26,6 @@ MonoBehaviour:
   pictures:
   - {fileID: 8289157134697770659, guid: ee224e9684f7e7d4cbf4eec0dfe0635f, type: 3}
   - {fileID: 6522687824088461034, guid: a8a7e9c7f7d8cf84980a11cf3266cf51, type: 3}
-  plantPots:
-  - {fileID: 179269148477640014, guid: d6e6dfe2096a1ee448d482a8036eee22, type: 3}
-  - {fileID: 2421565390100854432, guid: c0db808bac0282948903e470e6d66f40, type: 3}
   bushes:
   - {fileID: 3390473397902004910, guid: 918173df8e2d56b4eb9e3a448232c3ed, type: 3}
   - {fileID: 6272981711262200860, guid: 05b9e9c4dedbc004db82ea74d8b2d9a5, type: 3}
@@ -41,4 +38,3 @@ MonoBehaviour:
   maxRoomPieces: 8
   bananaTreePercent: 40
   motorbikePercent: 40
-  tippedPotPercent: 15
