@@ -74,7 +74,7 @@ public static class Module3HouseSurfaceAssets
 
     /// <summary>
     /// R: grain and blotches. G: streaks that run down the v axis, which the shader turns into rain
-    /// streaks on walls and runs down the slope on a roof. Both are centred on 0.5, so on average
+    /// streaks on walls (and fades out on ceilings, floors and shallow roofs). Both are centred on 0.5, so on average
     /// they leave the palette colour alone. Every octave is periodic, so the texture tiles.
     /// </summary>
     private static void WriteTexture()

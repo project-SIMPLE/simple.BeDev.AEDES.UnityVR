@@ -28,12 +28,17 @@ SAMPLER(sampler_M3DetailMap);
 // Weathered plaster and timber: fine grain and blotches, and rain streaks running down the walls.
 // Projected from world space along whichever axis the surface faces, so a wall, a door leaf and a roof
 // slope all get it without UVs (the house's own UVs only pick a colour out of the palette).
+// The streaks only belong on surfaces that stand up. Projected onto a ceiling or a floor they ran along
+// one horizontal axis and, in perspective, fanned out from a vanishing point like brushed metal, so
+// they fade out as a face turns to look up or down: full on a wall, gone once it is within about 37
+// degrees of horizontal (a ceiling, a floor, a shallow roof slope). The grain stays on everything.
 half M3SurfaceDetail(float3 positionWS, half3 normalWS)
 {
     float3 n = abs(normalWS);
     float2 uv = n.y > max(n.x, n.z) ? positionWS.xz : (n.x > n.z ? positionWS.zy : positionWS.xy);
     half2 d = SAMPLE_TEXTURE2D(_M3DetailMap, sampler_M3DetailMap, uv * (1.0 / M3_DETAIL_TILE)).rg;
-    return 1.0h + (d.r - 0.5h) * M3_GRAIN + (d.g - 0.5h) * M3_STREAK;
+    half streak = 1.0h - smoothstep(0.5h, 0.8h, n.y);
+    return 1.0h + (d.r - 0.5h) * M3_GRAIN + (d.g - 0.5h) * M3_STREAK * streak;
 }
 
 // keep this file in sync with LitGBufferPass.hlsl
