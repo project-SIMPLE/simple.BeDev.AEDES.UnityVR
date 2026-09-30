@@ -153,17 +153,17 @@ public class M3PersonPanel : MonoBehaviour
         M3Ui.Line(stack, $"<b>{M3Ui.L(WhoKey(obs.Age))}</b>", 38f, M3Ui.Text);
 
         // What you can see.
-        M3Ui.Line(stack, M3Ui.L("m3.ui.youSee"), 22f, M3Ui.Muted);
+        M3Ui.Line(stack, M3Ui.L("m3.ui.youSee"), ReadingSize, M3Ui.Muted);
         var seen = new List<string>();
         foreach (var sign in obs.Signs) seen.Add(M3Ui.L(sign.Key));
         if (seen.Count == 0) seen.Add(M3Ui.L("m3.see.nothingOutOfTheOrdinary"));
-        M3Ui.Line(stack, string.Join("\n", seen), 28f, M3Ui.Text);
+        M3Ui.Line(stack, string.Join("\n", seen), ReadingSize, M3Ui.Text);
 
         // What the household says.
         if (!string.IsNullOrEmpty(obs.DialogueKey))
         {
-            M3Ui.Line(stack, M3Ui.L("m3.ui.theySay"), 22f, M3Ui.Muted);
-            M3Ui.Line(stack, $"<i>“{M3Ui.L(obs.DialogueKey, obs.DialogueDays)}”</i>", 28f, M3Ui.Accent);
+            M3Ui.Line(stack, M3Ui.L("m3.ui.theySay"), ReadingSize, M3Ui.Muted);
+            M3Ui.Line(stack, $"<i>“{M3Ui.L(obs.DialogueKey, obs.DialogueDays)}”</i>", ReadingSize, M3Ui.Accent);
         }
 
         if (obs.Condition == VisibleCondition.AtTheHealthCentre)
@@ -173,28 +173,43 @@ public class M3PersonPanel : MonoBehaviour
         }
 
         // What you can do for them.
-        M3Ui.Line(stack, M3Ui.L("m3.ui.forThem"), 22f, M3Ui.Muted);
+        M3Ui.Line(stack, M3Ui.L("m3.ui.forThem"), ReadingSize, M3Ui.Muted);
         foreach (var a in Observe.ActionsFor(sim, PersonId)) AddAction(a);
 
         // And for the house.
-        M3Ui.Line(stack, M3Ui.L("m3.ui.forTheHouse"), 22f, M3Ui.Muted);
+        M3Ui.Line(stack, M3Ui.L("m3.ui.forTheHouse"), ReadingSize, M3Ui.Muted);
         foreach (var a in Observe.ActionsFor(sim, obs.HouseholdId, household: true)) AddAction(a);
 
         AddFooter();
     }
+
+    /// <summary>
+    /// The section labels ("You see:", "They tell you:", ...) were 22 units: a degree tall at arm's length,
+    /// too small to read across a room. This is the smallest size whose letters are 1.5 degrees tall at
+    /// 1.5 m, worked out from this panel's own scale so it still holds if the scale is changed. What you
+    /// see and what they say go up with the labels, so a label is never bigger than the words it labels;
+    /// the colour (muted, white, gold) tells them apart.
+    /// </summary>
+    private float ReadingSize => M3TextSize.Floor(unitsPerMetre);
+
+    /// <summary>
+    /// The lines under a button or a reply (why an action is unavailable, what came of the last one) were
+    /// 20 and 24, the smallest text on the panel. Now what the body text used to be.
+    /// </summary>
+    private const float NoteSize = 28f;
 
     private void AddAction(AvailableAction a)
     {
         var action = a.ToAction();
         M3Ui.Button(stack, M3Ui.L(a.LabelKey), 50f, () => S.Do(action), a.Enabled, 26f);
         if (!a.Enabled && !string.IsNullOrEmpty(a.DisabledReasonKey))
-            M3Ui.Line(stack, M3Ui.L(a.DisabledReasonKey), 20f, M3Ui.Muted);
+            M3Ui.Line(stack, M3Ui.L(a.DisabledReasonKey), NoteSize, M3Ui.Muted);
     }
 
     private void AddFooter()
     {
         if (!string.IsNullOrEmpty(lastFeedbackKey))
-            feedback = M3Ui.Line(stack, M3Ui.L(lastFeedbackKey), 24f, M3Ui.Accent);
+            feedback = M3Ui.Line(stack, M3Ui.L(lastFeedbackKey), NoteSize, M3Ui.Accent);
         M3Ui.Button(stack, M3Ui.L("m3.ui.close"), 46f, Close, true, 24f);
         LayoutRebuilder.ForceRebuildLayoutImmediate(stack);
         // Grow the card to fit its content, so a short conversation is not a tall empty panel.
