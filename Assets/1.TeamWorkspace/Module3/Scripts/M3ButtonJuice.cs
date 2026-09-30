@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 /// <summary>
 /// Makes an M3Ui button answer the hand: it lifts a little and brightens as the ray or finger comes
-/// onto it, dips when pressed, and eases between the two instead of snapping, with a controller
+/// onto it, settles back when pressed, and eases between the two instead of snapping, with a controller
 /// buzz for each (M3Haptics).
 ///
 /// It replaces the Button's own instant hover and press tints, which would otherwise stack on top of this.
@@ -15,7 +15,10 @@ using UnityEngine.UI;
 public class M3ButtonJuice : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                              IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
 {
-    private const float HoverScale = 1.035f, PressScale = 0.97f;
+    // A press settles back to the resting size from the hover lift, and never below it: the rect is also
+    // the ray's hit target, and at 0.97 a press within a millimetre of the edge shrank out from under the
+    // ray, sent a pointer-exit before the release and lost the click.
+    private const float HoverScale = 1.035f, PressScale = 1f;
     /// <summary>How far toward white the colour lifts on hover.</summary>
     private const float Lift = 0.18f;
     private const float Sharpness = 18f;   // ~0.15 s to settle

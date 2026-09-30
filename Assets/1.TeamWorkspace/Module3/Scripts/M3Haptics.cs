@@ -20,11 +20,42 @@ using UnityEngine.XR.Interaction.Toolkit.UI;
 /// </summary>
 public static class M3Haptics
 {
+    // Both settings are remembered between sessions (PlayerPrefs), so a settings screen, or a teacher
+    // setting them once on a loaner headset, only has to write them. There is no such screen yet: until
+    // there is, they can be changed from code or by editing the prefs.
+    private const string EnabledKey = "AEDES.Module3.Haptics", IntensityKey = "AEDES.Module3.HapticsIntensity";
+    private static int enabledCache = -1;
+    private static float intensityCache = -1f;
+
     /// <summary>Off switch for every Module 3 pulse.</summary>
-    public static bool Enabled = true;
+    public static bool Enabled
+    {
+        get
+        {
+            if (enabledCache < 0) enabledCache = PlayerPrefs.GetInt(EnabledKey, 1) != 0 ? 1 : 0;
+            return enabledCache != 0;
+        }
+        set
+        {
+            enabledCache = value ? 1 : 0;
+            PlayerPrefs.SetInt(EnabledKey, enabledCache);
+        }
+    }
 
     /// <summary>Multiplies every amplitude below, 0..1.</summary>
-    public static float Intensity = 1f;
+    public static float Intensity
+    {
+        get
+        {
+            if (intensityCache < 0f) intensityCache = Mathf.Clamp01(PlayerPrefs.GetFloat(IntensityKey, 1f));
+            return intensityCache;
+        }
+        set
+        {
+            intensityCache = Mathf.Clamp01(value);
+            PlayerPrefs.SetFloat(IntensityKey, intensityCache);
+        }
+    }
 
     // Amplitude 0..1, seconds.
     public const float HoverAmplitude = 0.1f, HoverSeconds = 0.02f;
@@ -68,7 +99,9 @@ public static class M3Haptics
     public static void Select(PointerEventData e)
     {
         var hand = HandOf(e);
-        pressedBy = hand;
+        // Not pressedBy = hand: Down already set it, and by the time a click arrives the button's onClick
+        // has resolved the action and the success beat has taken it. Setting it again here left a stale
+        // hand behind, which the next action that no button pressed would have buzzed.
         lastSelectAt = Time.time;
         Pulse(hand, SelectAmplitude, SelectSeconds, "select");
     }

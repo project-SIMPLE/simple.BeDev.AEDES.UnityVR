@@ -32,7 +32,7 @@ public class M3TextBacking : MonoBehaviour
     private RectTransform rect;
     private Vector2 padding;
     private Vector2 lastSize;
-    private Vector3 lastCentre;
+    private Vector3 lastPosition;
 
     /// <summary>
     /// Puts a backing behind <paramref name="text"/>, <paramref name="padding"/> canvas units wider and
@@ -69,20 +69,25 @@ public class M3TextBacking : MonoBehaviour
 
     private void LateUpdate()
     {
-        // The letters' own extents, in the text's local space. Empty text has none.
-        bool any = text.textInfo != null && text.textInfo.characterCount > 0 && !string.IsNullOrEmpty(text.text);
+        // The letters' own extents, in the text's local space. Empty text has none. The backing is a sibling,
+        // not a child, so it must follow the text being switched off as well as being emptied.
+        bool any = text.isActiveAndEnabled && text.textInfo != null && text.textInfo.characterCount > 0
+                   && !string.IsNullOrEmpty(text.text);
         if (image.enabled != any) image.enabled = any;
         if (!any) return;
 
         Bounds bounds = text.textBounds;
         Vector2 size = (Vector2)bounds.size + padding * 2f;
-        Vector3 centre = bounds.center;
-        // Writing a rect dirties the canvas, so only do it when the text has actually changed shape.
-        if ((size - lastSize).sqrMagnitude < 0.25f && (centre - lastCentre).sqrMagnitude < 0.25f) return;
+        // Where the letters' centre is in the canvas, not in the text's own space: an anchored text moves
+        // when the canvas is resized (a Game-view or window aspect change on a screen-space HUD) without
+        // its bounds changing, and comparing the text-space centre left the backing where it was.
+        Vector3 position = rect.parent.InverseTransformPoint(text.rectTransform.TransformPoint(bounds.center));
+        // Writing a rect dirties the canvas, so only do it when the text has actually changed shape or place.
+        if ((size - lastSize).sqrMagnitude < 0.25f && (position - lastPosition).sqrMagnitude < 0.25f) return;
         lastSize = size;
-        lastCentre = centre;
+        lastPosition = position;
 
-        rect.localPosition = rect.parent.InverseTransformPoint(text.rectTransform.TransformPoint(centre));
+        rect.localPosition = position;
         rect.sizeDelta = size;
     }
 

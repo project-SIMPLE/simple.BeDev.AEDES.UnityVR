@@ -40,15 +40,19 @@ public class M3VillagerTarget : MonoBehaviour
             bool held = nf.uiPressInput.ReadIsPerformed();
             wasHeld.TryGetValue(nf, out bool before);
             wasHeld[nf] = held;
-            if (held && !before) { M3Haptics.Select(nf); Talk(); }
+            // Buzz only when this pull opened the conversation. With the panel already open for this villager
+            // the pull is a button press on the panel, which has its own buzz.
+            if (held && !before && Talk()) M3Haptics.Select(nf);
         }
     }
 
-    private void Talk()
+    /// <summary>Opens the panel for this villager; false if there is no panel or it is already open for them.</summary>
+    private bool Talk()
     {
         var panel = M3PersonPanel.Instance;
-        if (panel == null) return;
-        if (panel.IsOpen && panel.PersonId == personId) return;
+        if (panel == null) return false;
+        if (panel.IsOpen && panel.PersonId == personId) return false;
         panel.Open(personId, transform);
+        return true;
     }
 }
