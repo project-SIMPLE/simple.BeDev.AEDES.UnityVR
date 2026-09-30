@@ -4,9 +4,16 @@
 //   1. The vertex is moved by M3FoliageSway.hlsl in every pass that places one (forward, shadow,
 //      depth, depth-normals - the M3Foliage*Pass.hlsl files, each URP 17.3's own with one line added),
 //      so the fronds sway and their shadows sway with them.
-//   2. Alpha clipping is hard-coded on (_ALPHATEST_ON is a define, not a shader_feature). The leaf
-//      textures need it, and a keyword variant that no material asset in the build uses is stripped,
-//      so a material switched to this shader at runtime would draw its leaves as solid quads.
+//   2. Alpha clipping is on by default and cannot be stripped away: _ALPHATEST_ON is a define that is
+//      set unless the material turns on _M3_OPAQUE. The palm's leaf texture needs it, and a keyword
+//      variant that no material asset in the build uses is stripped, so a normal shader_feature
+//      _ALPHATEST_ON would draw a material switched to this shader at runtime as solid quads. The
+//      switch is the other way round for that reason: if a build ever strips the _M3_OPAQUE variant,
+//      what is left is the alpha-clipped shader, which is what every leaf had before. The banana leaf
+//      has no cut-out (its texture is opaque everywhere), so it opts out, and its fragments skip the
+//      clip/discard that would cost it early-Z on a tiled mobile GPU for nothing.
+//   3. The wind reads two floats from the material: the distance from the plant's origin at which the
+//      leaves begin, and at which they end (see M3FoliageSway.hlsl for which cbuffer slots).
 // Everything else is Lit, verbatim.
 Shader "AEDES/Module 3/Foliage Lit"
 {
@@ -19,6 +26,7 @@ Shader "AEDES/Module 3/Foliage Lit"
         [MainColor] _BaseColor("Color", Color) = (1,1,1,1)
 
         _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
+        [Toggle(_M3_OPAQUE)] _M3Opaque("Leaf has no cut-out (skip the alpha clip)", Float) = 0.0
 
         _Smoothness("Smoothness", Range(0.0, 1.0)) = 0.5
         _SmoothnessTextureChannel("Smoothness texture channel", Float) = 0
@@ -133,7 +141,10 @@ Shader "AEDES/Module 3/Foliage Lit"
             #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
             #pragma shader_feature_local _ _DETAIL_MULX2 _DETAIL_SCALED
             #pragma shader_feature_local_fragment _SURFACE_TYPE_TRANSPARENT
-            #define _ALPHATEST_ON 1   // Module 3: always on, see the note at the top
+            #pragma shader_feature_local_fragment _M3_OPAQUE   // Module 3: alpha clip stays on unless this is set, see the note at the top
+            #if !defined(_M3_OPAQUE)
+            #define _ALPHATEST_ON 1
+            #endif
             #pragma shader_feature_local_fragment _ _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
             #pragma shader_feature_local_fragment _EMISSION
             #pragma shader_feature_local_fragment _METALLICSPECGLOSSMAP
@@ -214,7 +225,10 @@ Shader "AEDES/Module 3/Foliage Lit"
 
             // -------------------------------------
             // Material Keywords
-            #define _ALPHATEST_ON 1   // Module 3: always on, see the note at the top
+            #pragma shader_feature_local_fragment _M3_OPAQUE   // Module 3: alpha clip stays on unless this is set, see the note at the top
+            #if !defined(_M3_OPAQUE)
+            #define _ALPHATEST_ON 1
+            #endif
             #pragma shader_feature_local_fragment _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
 
             //--------------------------------------
@@ -270,7 +284,10 @@ Shader "AEDES/Module 3/Foliage Lit"
             // -------------------------------------
             // Material Keywords
             #pragma shader_feature_local _NORMALMAP
-            #define _ALPHATEST_ON 1   // Module 3: always on, see the note at the top
+            #pragma shader_feature_local_fragment _M3_OPAQUE   // Module 3: alpha clip stays on unless this is set, see the note at the top
+            #if !defined(_M3_OPAQUE)
+            #define _ALPHATEST_ON 1
+            #endif
             //#pragma shader_feature_local_fragment _ALPHAPREMULTIPLY_ON
             #pragma shader_feature_local_fragment _EMISSION
             #pragma shader_feature_local_fragment _METALLICSPECGLOSSMAP
@@ -351,7 +368,10 @@ Shader "AEDES/Module 3/Foliage Lit"
 
             // -------------------------------------
             // Material Keywords
-            #define _ALPHATEST_ON 1   // Module 3: always on, see the note at the top
+            #pragma shader_feature_local_fragment _M3_OPAQUE   // Module 3: alpha clip stays on unless this is set, see the note at the top
+            #if !defined(_M3_OPAQUE)
+            #define _ALPHATEST_ON 1
+            #endif
             #pragma shader_feature_local_fragment _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
 
             // -------------------------------------
@@ -397,7 +417,10 @@ Shader "AEDES/Module 3/Foliage Lit"
             #pragma shader_feature_local _NORMALMAP
             #pragma shader_feature_local _PARALLAXMAP
             #pragma shader_feature_local _ _DETAIL_MULX2 _DETAIL_SCALED
-            #define _ALPHATEST_ON 1   // Module 3: always on, see the note at the top
+            #pragma shader_feature_local_fragment _M3_OPAQUE   // Module 3: alpha clip stays on unless this is set, see the note at the top
+            #if !defined(_M3_OPAQUE)
+            #define _ALPHATEST_ON 1
+            #endif
             #pragma shader_feature_local_fragment _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
 
             // -------------------------------------
@@ -446,7 +469,10 @@ Shader "AEDES/Module 3/Foliage Lit"
             #pragma shader_feature_local_fragment _SPECULAR_SETUP
             #pragma shader_feature_local_fragment _EMISSION
             #pragma shader_feature_local_fragment _METALLICSPECGLOSSMAP
-            #define _ALPHATEST_ON 1   // Module 3: always on, see the note at the top
+            #pragma shader_feature_local_fragment _M3_OPAQUE   // Module 3: alpha clip stays on unless this is set, see the note at the top
+            #if !defined(_M3_OPAQUE)
+            #define _ALPHATEST_ON 1
+            #endif
             #pragma shader_feature_local_fragment _ _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
             #pragma shader_feature_local _ _DETAIL_MULX2 _DETAIL_SCALED
             #pragma shader_feature_local_fragment _SPECGLOSSMAP
@@ -484,7 +510,10 @@ Shader "AEDES/Module 3/Foliage Lit"
 
             // -------------------------------------
             // Material Keywords
-            #define _ALPHATEST_ON 1   // Module 3: always on, see the note at the top
+            #pragma shader_feature_local_fragment _M3_OPAQUE   // Module 3: alpha clip stays on unless this is set, see the note at the top
+            #if !defined(_M3_OPAQUE)
+            #define _ALPHATEST_ON 1
+            #endif
             #pragma shader_feature_local_fragment _ALPHAPREMULTIPLY_ON
 
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
@@ -503,7 +532,10 @@ Shader "AEDES/Module 3/Foliage Lit"
             ColorMask RG
 
             HLSLPROGRAM
-            #define _ALPHATEST_ON 1   // Module 3: always on, see the note at the top
+            #pragma shader_feature_local_fragment _M3_OPAQUE   // Module 3: alpha clip stays on unless this is set, see the note at the top
+            #if !defined(_M3_OPAQUE)
+            #define _ALPHATEST_ON 1
+            #endif
             #pragma multi_compile _ LOD_FADE_CROSSFADE
             #pragma shader_feature_local_vertex _ADD_PRECOMPUTED_VELOCITY
 
@@ -528,7 +560,10 @@ Shader "AEDES/Module 3/Foliage Lit"
             }
 
             HLSLPROGRAM
-            #define _ALPHATEST_ON 1   // Module 3: always on, see the note at the top
+            #pragma shader_feature_local_fragment _M3_OPAQUE   // Module 3: alpha clip stays on unless this is set, see the note at the top
+            #if !defined(_M3_OPAQUE)
+            #define _ALPHATEST_ON 1
+            #endif
             #pragma multi_compile _ LOD_FADE_CROSSFADE
             #pragma shader_feature_local_vertex _ADD_PRECOMPUTED_VELOCITY
             #define APPLICATION_SPACE_WARP_MOTION 1

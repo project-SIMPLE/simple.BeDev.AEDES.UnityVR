@@ -65,6 +65,33 @@ namespace Aedes.Module3.Sim.Tests
         }
 
         [Test]
+        public void EachLeafMaterialCarriesItsWindRangeAndAlphaMode()
+        {
+            // The wind runs from where a plant's leaves begin to where they end, read from two material floats
+            // (see M3FoliageSway.hlsl); 0 and 0 makes the shader fall back to a fixed reach that is right for
+            // neither plant. And a leaf with a cut-out must keep its alpha clip: only a leaf whose source
+            // material has none may turn it off (_M3_OPAQUE), or its fronds would draw as solid quads.
+            var set = AssetDatabase.LoadAssetAtPath<ScriptableObject>(SetPath);
+            Assert.IsNotNull(set, $"{SetPath} is missing");
+            var swaps = new SerializedObject(set).FindProperty("foliage");
+            for (int i = 0; i < swaps.arraySize; i++)
+            {
+                var swap = swaps.GetArrayElementAtIndex(i);
+                var from = swap.FindPropertyRelative("from").objectReferenceValue as Material;
+                var to = swap.FindPropertyRelative("to").objectReferenceValue as Material;
+                Assert.IsNotNull(from);
+                Assert.IsNotNull(to);
+
+                float near = to.GetFloat("_ClearCoatMask"), far = to.GetFloat("_ClearCoatSmoothness");
+                Assert.Greater(far, near + 0.05f, $"{to.name} has no measured wind range (AEDES > Module 3 > Generate Outdoor Life Assets)");
+
+                bool cutOut = from.HasProperty("_AlphaClip") ? from.GetFloat("_AlphaClip") > 0.5f : from.IsKeywordEnabled("_ALPHATEST_ON");
+                Assert.AreEqual(!cutOut, to.IsKeywordEnabled("_M3_OPAQUE"),
+                    $"{to.name}: the source leaf {(cutOut ? "has a cut-out, so it must keep the alpha clip" : "has no cut-out, so it should skip the alpha clip")}");
+            }
+        }
+
+        [Test]
         public void EveryAnimalAndWalkerBodyDrawsWithARealMaterial()
         {
             // A prefab whose material asset went missing does not fail anywhere: it draws magenta

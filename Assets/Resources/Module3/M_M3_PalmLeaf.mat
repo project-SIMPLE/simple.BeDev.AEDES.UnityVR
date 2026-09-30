@@ -89,8 +89,8 @@ Material:
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
-    - _ClearCoatMask: 0
-    - _ClearCoatSmoothness: 0
+    - _ClearCoatMask: 2.8881605
+    - _ClearCoatSmoothness: 4.269812
     - _Cull: 2
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
@@ -101,6 +101,7 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _M3Opaque: 0
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.005

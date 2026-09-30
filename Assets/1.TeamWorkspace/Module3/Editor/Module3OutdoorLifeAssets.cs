@@ -73,10 +73,26 @@ public static class Module3OutdoorLifeAssets
             // The copy replaces the property sheet with the original's; assigning the shader again is
             // what maps it onto the fork (same property names as Lit, so nothing is lost).
             material.shader = shader;
+
+            // The fork clips alpha unless _M3_OPAQUE is on. A leaf whose material has no alpha clip (the banana's
+            // texture is opaque everywhere) opts out, so its fragments skip a clip that would only cost early-Z.
+            bool cutOut = original.HasProperty("_AlphaClip")
+                ? original.GetFloat("_AlphaClip") > 0.5f
+                : original.IsKeywordEnabled("_ALPHATEST_ON");
+            material.SetFloat("_M3Opaque", cutOut ? 0f : 1f);
+            if (cutOut) material.DisableKeyword("_M3_OPAQUE");
+            else material.EnableKeyword("_M3_OPAQUE");
+
+            // The wind runs from where this plant's leaves begin to where they end (M3FoliageSway.hlsl).
+            MeasureLeaves(tree, original, out float leavesFrom, out float leavesTo);
+            material.SetFloat("_ClearCoatMask", leavesFrom);
+            material.SetFloat("_ClearCoatSmoothness", leavesTo);
+
             if (newMaterial) AssetDatabase.CreateAsset(material, asset);
             else EditorUtility.SetDirty(material);
             swaps.Add(new M3OutdoorLifeSet.FoliageSwap { from = original, to = material });
-            Debug.Log($"Module 3: {asset} copies '{original.name}' ({original.shader.name}) from {tree}");
+            Debug.Log($"Module 3: {asset} copies '{original.name}' ({original.shader.name}) from {tree}: "
+                      + $"{(cutOut ? "alpha clip" : "opaque")}, leaves {leavesFrom:0.00}-{leavesTo:0.00} mesh units from the origin");
         }
         set.foliage = swaps.ToArray();
         set.dragonflies = Load(Dragonflies);
@@ -115,6 +131,41 @@ public static class Module3OutdoorLifeAssets
         foreach (var pair in counts)
             if (pair.Value > most) { best = pair.Key; most = pair.Value; }
         return best;
+    }
+
+    /// <summary>
+    /// The distance from the mesh origin (the plant's base) of the nearest and the farthest vertex of the
+    /// triangles drawn with <paramref name="leaf"/>, in mesh units: what the shader's sway needs to run
+    /// from nothing at the crown to full strength at the tips. Read from the submeshes that use the
+    /// material, so a trunk or a stem in the same mesh does not count.
+    /// </summary>
+    internal static void MeasureLeaves(string prefabPath, Material leaf, out float nearest, out float farthest)
+    {
+        nearest = float.MaxValue;
+        farthest = 0f;
+        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+        if (prefab != null)
+        {
+            foreach (var renderer in prefab.GetComponentsInChildren<Renderer>(true))
+            {
+                Mesh mesh = renderer is SkinnedMeshRenderer skinned ? skinned.sharedMesh
+                          : renderer.TryGetComponent<MeshFilter>(out var filter) ? filter.sharedMesh : null;
+                if (mesh == null) continue;
+                var materials = renderer.sharedMaterials;
+                var vertices = mesh.vertices;
+                for (int sub = 0; sub < mesh.subMeshCount && sub < materials.Length; sub++)
+                {
+                    if (materials[sub] != leaf) continue;
+                    foreach (int index in mesh.GetIndices(sub))
+                    {
+                        float d = vertices[index].magnitude;
+                        if (d < nearest) nearest = d;
+                        if (d > farthest) farthest = d;
+                    }
+                }
+            }
+        }
+        if (nearest > farthest) { nearest = 0f; farthest = 0f; }   // nothing found: the shader falls back to its fixed reach
     }
 
     private static GameObject[] Load(string[] paths)
