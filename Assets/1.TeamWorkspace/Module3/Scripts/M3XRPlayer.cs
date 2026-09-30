@@ -14,7 +14,7 @@ using UnityEngine.XR.Interaction.Toolkit.UI;
 ///   Right stick          left/right snap turn, push forward and release to teleport
 ///   Point + trigger      talk to a villager, press a button on a panel
 ///   Grip (reach out)     talk to a villager within arm's reach
-///   A                    "I'm ready" at the start of a turn
+///   A                    "I'm ready" at the start of a turn (also the A key on a keyboard)
 ///   Left menu button     end your turn early (asks first)
 ///
 /// Also the turn's gatekeeper: M3Session holds each turn's clock until the incoming Pilot, now in
@@ -52,6 +52,10 @@ public class M3XRPlayer : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        // The buttons come first. Everything below (the desktop-camera early return, the rig set-up)
+        // used to sit ahead of them, so a Pilot could be left with a prompt that says "press A" and
+        // nothing listening whenever any of that returned early or threw.
+        CreateInputs();
 #if UNITY_EDITOR
         // Working on the scene without a headset: keep the plain camera and the keyboard driver.
         if (UnityEditor.EditorPrefs.GetBool(DesktopCameraPref, false)) return;
@@ -103,9 +107,19 @@ public class M3XRPlayer : MonoBehaviour
         }
         EnsureEventSystem();
         MakeGroundTeleportable();
+    }
 
+    /// <summary>
+    /// The three buttons the game itself listens to. The on-screen prompts name the Quest's buttons
+    /// (A = ready / yes, B = no), so the keyboard answers to the same letter as well as to the keys
+    /// the desktop driver has always used: someone testing without a headset reads "press A" and
+    /// presses A. B is left off the keyboard on purpose: the desktop driver already uses it to take a net back.
+    /// </summary>
+    private void CreateInputs()
+    {
         ready = new InputAction("Ready", InputActionType.Button);
         ready.AddBinding("<XRController>{RightHand}/{PrimaryButton}");
+        ready.AddBinding("<Keyboard>/a");
         ready.AddBinding("<Keyboard>/enter");
         menu = new InputAction("End turn", InputActionType.Button);
         menu.AddBinding("<XRController>{LeftHand}/{MenuButton}");
@@ -121,7 +135,7 @@ public class M3XRPlayer : MonoBehaviour
     private void Update()
     {
         var s = M3Session.Instance;
-        if (s == null || s.Session == null || !s.Running) return;
+        if (ready == null || s == null || s.Session == null || !s.Running) return;
 
         if (s.WaitingForPilot)
         {
