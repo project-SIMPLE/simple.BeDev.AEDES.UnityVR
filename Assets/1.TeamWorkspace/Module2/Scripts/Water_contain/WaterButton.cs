@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class WaterButton : MonoBehaviour
+public class WaterButton : MonoBehaviour, IBreedingSite
 {
     [Header("Reference")]
     public AudioClip waterSplash;
@@ -29,6 +29,13 @@ public class WaterButton : MonoBehaviour
         if (waterSplashEffect != null) s_sharedSplashEffect = waterSplashEffect;
 
         if (!isSave && M2Manager.Instance != null) M2Manager.Instance.RegisterBreedingSite(this);
+    }
+
+    /// <summary>Already emptied and nobody is credited: how a round shows a container it is not using.</summary>
+    public void ShowResolved()
+    {
+        isWaterActive = false;
+        if (waterPrefab != null) waterPrefab.SetActive(false);
     }
 
     void Update()

@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
-public class Jar : MonoBehaviour
+public class Jar : MonoBehaviour, IBreedingSite
 {
     [Header("Reference")]
     public GameObject topHolo;
@@ -139,6 +139,16 @@ public class Jar : MonoBehaviour
             if (!_isClosed && topHolo != null) topHolo.SetActive(false);
             isInColli = false;
         }
+    }
+
+    /// <summary>The lid is on and nobody is credited: how a round shows a jar it is not using.</summary>
+    public void ShowResolved()
+    {
+        _isClosed = true;
+        _returnAt = -1f;
+        if (top != null) top.SetActive(true);
+        if (topHolo != null) topHolo.SetActive(false);
+        if (top_grab != null) top_grab.SetActive(false);
     }
 
     public void PutTop()
