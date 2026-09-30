@@ -33,11 +33,18 @@ public class M3VisitTracker : MonoBehaviour
         foreach (var view in M3NeighbourhoodBuilder.HouseholdViews)
         {
             if (view == null || visitedThisTurn.Contains(view.householdId)) continue;
-            // The footprint is authored for the house model; the neighbourhood scales it up.
-            float scale = M3NeighbourhoodBuilder.HouseScale;
-            var scaled = new Bounds(footprint.center * scale, footprint.size * scale);
-            if (scaled.Contains(view.transform.InverseTransformPoint(head))) Visit(view.householdId);
+            if (IsInside(view, head)) Visit(view.householdId);
         }
+    }
+
+    /// <summary>True when <paramref name="worldPoint"/> (the Pilot's head) is inside the house on <paramref name="view"/>'s plot.</summary>
+    public static bool IsInside(HouseholdView view, Vector3 worldPoint)
+    {
+        if (instance == null || view == null) return false;
+        // The footprint is authored for the house model; the neighbourhood scales it up.
+        float scale = M3NeighbourhoodBuilder.HouseScale;
+        var scaled = new Bounds(instance.footprint.center * scale, instance.footprint.size * scale);
+        return scaled.Contains(view.transform.InverseTransformPoint(worldPoint));
     }
 
     /// <summary>Records a visit to <paramref name="householdId"/> unless one was already made this turn.</summary>

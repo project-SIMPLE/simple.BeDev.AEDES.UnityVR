@@ -87,6 +87,8 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
         current = this;
         // Villagers, beds and props beyond a couple of houses are not drawn (see M3DistanceCulling).
         if (GetComponent<M3DistanceCulling>() == null) gameObject.AddComponent<M3DistanceCulling>();
+        // The sun, the sky and the light indoors follow the turn clock (see M3TimeOfDay).
+        if (GetComponent<M3TimeOfDay>() == null) gameObject.AddComponent<M3TimeOfDay>();
     }
 
     private bool built;
