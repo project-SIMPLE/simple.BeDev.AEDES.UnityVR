@@ -43,6 +43,8 @@ public class M3RoomDresser : ScriptableObject
     [SerializeField] private GameObject[] bushes;
     [SerializeField] private GameObject[] flowers;
     [SerializeField] private GameObject bananaTree;
+    [Tooltip("PF_M3_Motorbike: the city pack's scooter with its rider taken off (Module3MotorbikeAssets).")]
+    [SerializeField] private GameObject motorbike;
 
     [Header("Variety")]
     [Tooltip("Most pieces the main room gets; the side-room kitchen has its own two or three.")]
@@ -50,11 +52,13 @@ public class M3RoomDresser : ScriptableObject
     [SerializeField] private int maxRoomPieces = 8;
     [Range(0, 100)]
     [SerializeField] private int bananaTreePercent = 40;
+    [Range(0, 100)]
+    [SerializeField] private int motorbikePercent = 40;
     [Tooltip("Share of the yard's plant pots that have been knocked over - still full of earth and plant.")]
     [Range(0, 100)]
     [SerializeField] private int tippedPotPercent = 15;
 
-    private enum Piece { Table, DeskAndChair, TvDesk, Refrigerator, Carpet, PlatesAndBowls, Stove, SpiceRack, Lamp, Picture, PlantPot, Bush, Flower, BananaTree }
+    private enum Piece { Table, DeskAndChair, TvDesk, Refrigerator, Carpet, PlatesAndBowls, Stove, SpiceRack, Lamp, Picture, PlantPot, Bush, Flower, BananaTree, Motorbike }
 
     /// <summary>Which inner wall face a piece backs onto; None stands free.</summary>
     private enum Wall { None, Front, Back, West, East, SideWest, SideFront }
@@ -186,6 +190,11 @@ public class M3RoomDresser : ScriptableObject
     };
     // The bushes sample the palette's pure green; two columns over is a deep leaf green, fourteen an olive.
     private static readonly Vector2[] BushSwatches = { new Vector2(2, 0), new Vector2(14, 0) };
+    // Mostly the scooter's own red, some weathered to maroon or near-black.
+    private static readonly Color[] MotorbikeTints =
+    {
+        new Color(1f, 1f, 1f), new Color(1f, 1f, 1f), new Color(0.62f, 0.46f, 0.44f), new Color(0.42f, 0.4f, 0.42f),
+    };
     private static readonly Color[] JarTints =
     {
         new Color(1f, 1f, 1f), new Color(1.08f, 0.98f, 0.9f), new Color(0.86f, 0.8f, 0.74f), new Color(1.12f, 1.0f, 0.86f),
@@ -406,6 +415,10 @@ public class M3RoomDresser : ScriptableObject
         if (bushAt < 2)
             YardPiece(parent, Piece.Bush, new Vector3((bushAt == 0 ? -3.85f : 3.75f) * scale, 0f, Between(4.3f, 4.6f) * scale), Between(0.7f, 1.05f), false);
 
+        // A motorbike parked in the front yard, between the jar's spot and the flowers, clear of the lane
+        // and of the path down the gap to the door.
+        if (rng.Next(100) < motorbikePercent) ParkMotorbike(parent);
+
         // Behind the house: a banana plant at some plots, a bush at others.
         if (rng.Next(100) < bananaTreePercent)
             YardPiece(parent, Piece.BananaTree, new Vector3(Between(-2.6f, 2.6f) * scale, 0f, -4.7f * scale), Between(0.8f, 1.15f), false);
@@ -425,6 +438,20 @@ public class M3RoomDresser : ScriptableObject
         // Outdoors the pots and flowers are small enough to leave undrawn at a distance; the plants
         // that stand as tall as a person stay on, or they would pop in along the lane.
         if (piece == Piece.PlantPot || piece == Piece.Flower) M3DistanceCulling.Mark(go);
+    }
+
+    private void ParkMotorbike(Transform parent)
+    {
+        var go = Spawn(Piece.Motorbike, parent);
+        if (go == null) return;
+        // Side on to the lane, pointing either way, leaning a few degrees onto its stand.
+        float yaw = (rng.Next(2) == 0 ? 90f : 270f) + Between(-10f, 10f);
+        go.transform.localRotation = Quaternion.Euler(0f, yaw, 0f) * Quaternion.Euler(0f, 0f, Between(4f, 7f));
+        var at = new Vector3(Between(-0.85f, -0.6f) * scale, 0f, Between(4.5f, 4.65f) * scale);
+        var b = PlotBounds(go);
+        go.transform.localPosition += new Vector3(at.x - b.center.x, 0.002f - b.min.y, at.z - b.center.z);
+        var paint = MotorbikeTints[rng.Next(MotorbikeTints.Length)];
+        foreach (var r in go.GetComponentsInChildren<Renderer>(true)) Tint(r, paint);
     }
 
     /// <summary>The yard jar the builder stood here, if any: a different size, turn and clay from its neighbours'.</summary>
@@ -511,6 +538,7 @@ public class M3RoomDresser : ScriptableObject
             case Piece.Bush: return Pick(bushes);
             case Piece.Flower: return Pick(flowers);
             case Piece.BananaTree: return bananaTree;
+            case Piece.Motorbike: return motorbike;
             default: return null;
         }
     }

@@ -21,7 +21,7 @@ public static class Module3RoomDresserAssets
     // Deliberately missing: PF_Jar, PF_TireWithWater, PlasticBucket, PlasticBasin, PF_VaseWithFlowers
     // (it holds a blue water mesh) and PF_Counter (a sink) - anything that could hold water is one of
     // the simulation's own clues. Also PF_Cloth, which Module 3 uses for caring for someone sick, and
-    // the SCOOTER prefab, whose rider is part of its mesh.
+    // the SCOOTER prefab itself, whose rider is part of its mesh (Module3MotorbikeAssets makes a riderless copy).
     [MenuItem("AEDES/Module 3/Generate Room Dresser Asset")]
     public static void Generate()
     {
@@ -44,6 +44,7 @@ public static class Module3RoomDresserAssets
         AssignArray(so, "bushes", Nature + "PF_Bush_1.prefab", Nature + "PF_Bush_2.prefab");
         AssignArray(so, "flowers", Nature + "PF_Flower1.prefab", Nature + "PF_Flower2.prefab", Nature + "PF_Flower3.prefab");
         Assign(so, "bananaTree", Nature + "PF_BananaTree.prefab");
+        Assign(so, "motorbike", Module3MotorbikeAssets.PrefabPath);
         so.ApplyModifiedPropertiesWithoutUndo();
 
         if (isNew) AssetDatabase.CreateAsset(asset, AssetPath);

@@ -37,6 +37,8 @@ MonoBehaviour:
   - {fileID: 4217721154171877589, guid: 098df90a8e48ec2479f4ba65d38cf2f9, type: 3}
   - {fileID: 1609883487468179654, guid: 1aa895c38a9e70d488b4353e7e30a959, type: 3}
   bananaTree: {fileID: 3795862147833374437, guid: b08f169dc6dae7944851f10e81cc2766, type: 3}
+  motorbike: {fileID: 488403285316622541, guid: dc6fdacfa42cc48b0a07994b50eb5ddd, type: 3}
   maxRoomPieces: 8
   bananaTreePercent: 40
+  motorbikePercent: 40
   tippedPotPercent: 15
