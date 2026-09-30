@@ -117,6 +117,16 @@ public static class Module3SceneSmokeTest
                         failures.Add($"plot {plot.householdId} has no furniture (Resources/{M3RoomDresser.ResourcePath})");
                 }
 
+                // Every door leaf swings (M3DoorSwing), and none keeps a collider to shove the Pilot's body.
+                foreach (var plot in builder.Households)
+                {
+                    var doors = plot.GetComponentsInChildren<M3DoorSwing>(true);
+                    if (doors.Length == 0) failures.Add($"plot {plot.householdId} has no swinging doors");
+                    foreach (var door in doors)
+                        foreach (var c in door.GetComponentsInChildren<Collider>(true))
+                            if (c.enabled) failures.Add($"door {door.name} on plot {plot.householdId} still has a collider");
+                }
+
                 Debug.Log($"Module 3 smoke test: seed {session.Seed}, {sim.Households.Count} households, "
                           + $"{sim.People.Count} residents, {sim.AliveMosquitoCount} mosquitoes, "
                           + $"{sim.VisiblyIll().Count} visibly ill on day one, "

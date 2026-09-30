@@ -209,15 +209,15 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
     /// The Lao house model has its doors closed: each is a solid slab, with a collider, filling a
     /// real opening in the wall - so a Pilot walking up to a house was stopped dead at the door
     /// (found by walking in with the thumbstick; a fly-through camera never touched them). The
-    /// pivot of each leaf is its hinge edge, so swinging it 90 degrees about the vertical opens the
-    /// doorway and leaves the leaf standing flat against the wall.
+    /// pivot of each leaf is its hinge edge, so swinging it about the vertical opens the doorway.
+    /// M3DoorSwing does that as the Pilot walks up, and takes the leaf's collider away.
     /// </summary>
     private static void OpenTheDoors(GameObject house)
     {
         foreach (var t in house.GetComponentsInChildren<Transform>(true))
         {
             if (t.name.StartsWith("Door"))
-                t.localRotation = Quaternion.Euler(0f, -90f, 0f) * t.localRotation;
+                M3DoorSwing.Fit(t);
         }
     }
 
