@@ -199,9 +199,10 @@ public class M3Hud : MonoBehaviour
         float left = Mathf.Max(0f, s.TurnSecondsRemaining);
 
         // The countdown is the Coach's instrument as much as the Pilot's, so it goes first and
-        // turns red where a class can see it from across a table.
+        // turns red where a class can see it from across a table. A red dark enough to be the
+        // "warning" red (#E4572E) was too dim to read on the line's dark backing, so it is a lighter one.
         string clock = $"{Mathf.FloorToInt(left / 60f)}:{Mathf.FloorToInt(left % 60f):00}";
-        string colour = left <= 30f ? "#E4572E" : "#F2F2F2";
+        string colour = left <= 30f ? "#FF6B47" : "#F2F2F2";
 
         statusLine.text = Localized("m3.hud.status",
             $"<color={colour}><b>{clock}</b></color>",
@@ -340,11 +341,19 @@ public class M3Hud : MonoBehaviour
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1280f, 720f);
 
+        // These two lines float in the village with nothing behind them, and pale type on a bright sky or
+        // a pale wall all but vanished. Each sits on a soft dark backing that hugs its letters, and is
+        // sized so the letters stay at least 1.5 degrees tall at the HUD's distance in the headset.
+        float hudUnitsPerMetre = 1280f / vrWidth;
         statusLine = Text(canvasGo.transform, "Status", new Vector2(0f, 1f), new Vector2(1f, 1f),
-            new Vector2(24f, -48f), new Vector2(-24f, -8f), TextAlignmentOptions.TopLeft, baseFontSize);
+            new Vector2(24f, -48f), new Vector2(-24f, -8f), TextAlignmentOptions.TopLeft,
+            Mathf.RoundToInt(M3TextSize.AtLeast(baseFontSize + 4, hudUnitsPerMetre, vrDistance)));
+        M3TextBacking.Add(statusLine, new Vector2(20f, 6f));
 
         coachPanel = Text(canvasGo.transform, "Feedback", new Vector2(0f, 0f), new Vector2(1f, 0f),
-            new Vector2(24f, 16f), new Vector2(-24f, 72f), TextAlignmentOptions.BottomLeft, baseFontSize - 4);
+            new Vector2(24f, 16f), new Vector2(-24f, 72f), TextAlignmentOptions.BottomLeft,
+            Mathf.RoundToInt(M3TextSize.AtLeast(baseFontSize - 2, hudUnitsPerMetre, vrDistance)));
+        M3TextBacking.Add(coachPanel, new Vector2(20f, 6f));
 
         var bannerPanel = Panel(canvasGo.transform, "Banner", new Color(0.05f, 0.06f, 0.08f, 0.95f));
         var bannerRt = (RectTransform)bannerPanel.transform;
