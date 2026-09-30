@@ -127,6 +127,10 @@ public class HouseholdView : MonoBehaviour
         if (on == shownFan && fanInstance != null) return;
         shownFan = on;
         var spin = fanInstance != null ? fanInstance.GetComponent<FanBladeSpin>() : null;
+        // A fan whose blade has just stopped destroys itself in its own Update, and a destroyed object lives on
+        // until the end of the frame. Switching on in that same frame found it, wound it "back up", and the fan
+        // was gone a moment later. Treat one that is going as gone, and stand a new one.
+        if (spin != null && spin.Removing) { spin = null; fanInstance = null; }
 
         if (!on)
         {
@@ -231,6 +235,9 @@ public class FanBladeSpin : MonoBehaviour
     private bool running = true;
     private bool removeWhenStopped;
 
+    /// <summary>True once this fan has asked to be destroyed: it is going, whatever anyone tells it now.</summary>
+    public bool Removing { get; private set; }
+
     /// <summary>How fast the blade is turning now, degrees per second.</summary>
     public float Speed => degreesPerSecond * Mathf.SmoothStep(0f, 1f, power);
 
@@ -269,6 +276,10 @@ public class FanBladeSpin : MonoBehaviour
     {
         power = Mathf.MoveTowards(power, running ? 1f : 0f, Time.deltaTime / Mathf.Max(rampSeconds, 0.01f));
         if (blade != null) blade.Rotate(0f, 0f, Speed * Time.deltaTime, Space.Self);
-        if (!running && power <= 0f && removeWhenStopped) Destroy(gameObject);
+        if (!running && power <= 0f && removeWhenStopped && !Removing)
+        {
+            Removing = true;
+            Destroy(gameObject);
+        }
     }
 }
