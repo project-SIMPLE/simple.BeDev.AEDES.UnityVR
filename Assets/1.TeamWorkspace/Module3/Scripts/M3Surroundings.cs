@@ -26,6 +26,8 @@ public class M3Surroundings : MonoBehaviour
     [SerializeField] private int seed = 11;
     [SerializeField] private float hillRadius = 330f;
     [SerializeField] private float farClip = 520f;
+    [Tooltip("Fences, power poles, washing lines, lean-tos, trees between the houses and hens (M3VillageDressing).")]
+    [SerializeField] private bool villageDressing = true;
 
     [Header("Colours")]
     [SerializeField] private Color grass = new Color(0.36f, 0.55f, 0.24f);
@@ -86,6 +88,9 @@ public class M3Surroundings : MonoBehaviour
         BuildTrees(village);
         BuildHills(village.center);
         M3WorldBounds.Build(root, village);   // walking is the only way to move: keep the Pilot on the ground
+        // What makes the lane a village: fences, poles and wires, washing, lean-tos, trees between the
+        // houses, hens. Before the outdoor life, so the trees it plants get the wind too.
+        if (villageDressing) Debug.Log("Module 3: " + M3VillageDressing.Build(root, village, plots, seed, nearTrees, farTrees));
         // Wind in the trees, drifting clouds, animals and a few walkers: decoration, from the same seed.
         M3OutdoorLife.Build(root, village, plots, seed);
 

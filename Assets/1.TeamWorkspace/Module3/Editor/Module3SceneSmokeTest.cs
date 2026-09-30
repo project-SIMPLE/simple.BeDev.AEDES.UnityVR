@@ -117,6 +117,38 @@ public static class Module3SceneSmokeTest
                         failures.Add($"plot {plot.householdId} has no furniture (Resources/{M3RoomDresser.ResourcePath})");
                 }
 
+                // The yards and the lane are dressed (M3VillageDressing) - fences, poles, washing, trees, hens -
+                // and within a budget: a Quest draws the whole village, so the dressing is a few meshes per
+                // yard, not a prop per draw call.
+                if (builder.GetComponent<M3Surroundings>() != null)
+                {
+                    var dressing = GameObject.Find("Village Dressing");
+                    if (dressing == null) failures.Add("no Village Dressing under the surroundings: the lane is bare");
+                    int dressed = 0, renderers = 0, triangles = 0;
+                    var roots = new List<Transform>();
+                    if (dressing != null) roots.Add(dressing.transform);
+                    foreach (var plot in builder.Households)
+                    {
+                        var outside = plot.transform.Find("Dressing/Outside");
+                        if (outside == null) continue;
+                        roots.Add(outside);
+                        if (outside.childCount > 0) dressed++;
+                    }
+                    foreach (var root in roots)
+                    {
+                        foreach (var r in root.GetComponentsInChildren<Renderer>(true))
+                        {
+                            renderers++;
+                            if (r.TryGetComponent<MeshFilter>(out var mf) && mf.sharedMesh != null) triangles += mf.sharedMesh.triangles.Length / 3;
+                        }
+                    }
+                    if (dressed < builder.Households.Count / 2)
+                        failures.Add($"only {dressed} of {builder.Households.Count} yards have any outside dressing");
+                    if (renderers > 220) failures.Add($"the village dressing is {renderers} renderers (budget 220): too many draw calls for a Quest");
+                    if (triangles > 120000) failures.Add($"the village dressing is {triangles} triangles (budget 120000)");
+                    Debug.Log($"Module 3 smoke test: village dressing on {dressed} yards, {renderers} renderers, {triangles} triangles.");
+                }
+
                 // Every door leaf swings (M3DoorSwing), and none keeps a collider to shove the Pilot's body.
                 foreach (var plot in builder.Households)
                 {
