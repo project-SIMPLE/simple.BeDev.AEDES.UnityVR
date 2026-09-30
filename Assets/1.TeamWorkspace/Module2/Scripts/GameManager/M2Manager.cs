@@ -484,11 +484,16 @@ public class M2Manager : MonoBehaviour
     // dead UIHand.SpawnSwatter.
     public void FlySwatterUi()
     {
-        if (FindAnyObjectByType<SwatterHand>() != null)
+        // A racket that is being held blocks a second one. One that has been put down does not: it may be
+        // out of reach, or under the furniture, and the button is the player's only way to get a swatter.
+        var existing = FindObjectsByType<SwatterHand>(FindObjectsSortMode.None);
+        foreach (var racket in existing)
         {
+            if (!racket.Held) continue;
             if (hud != null) hud.Toast(Module2Text.SwatterAlreadyOut);
             return;
         }
+        foreach (var racket in existing) Destroy(racket.gameObject);
 
         if (flySwatterPrefabs != null) Instantiate(flySwatterPrefabs, pointFontPlayer);
         if (particleSpwn != null) Instantiate(particleSpwn, pointFontPlayer);
