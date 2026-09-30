@@ -45,6 +45,8 @@ public class M2Manager : MonoBehaviour
     public int swatScore = 1;
     [Tooltip("Breeding sites used per round, drawn at random from those in the scene. Keeps a round inside a 2-minute slot and makes repeat plays differ.")]
     public int sitesPerRound = 6;
+    [Tooltip("Show wrigglers and a rising column of mosquitoes at each open breeding site, so the link between the water and the swarm is visible.")]
+    public bool showSiteFx = true;
     [Tooltip("Seconds of extra guidance at the start of a round, ending early once the player grabs anything. Module 1 is flown with a stick and never teaches grabbing, so Module 2 is the first time a child is asked to pick something up.")]
     public float onboardingSeconds = 12f;
     [Tooltip("Hold the timer until the player dismisses the HUD intro card.")]
@@ -582,6 +584,9 @@ public class M2Manager : MonoBehaviour
 
             Debug.Log($"[M2] Using {_siteCount} of the scene's breeding sites this round.");
         }
+
+        if (showSiteFx)
+            foreach (var site in _openSites) BreedingSiteFx.Attach(site);
     }
 
     public void RegisterBreedingSite(Component site)
@@ -593,6 +598,9 @@ public class M2Manager : MonoBehaviour
     public void NeutralizeBreedingSite(Component site)
     {
         if (_ended || site == null || !_openSites.Remove(site)) return;
+
+        var fx = site.GetComponent<BreedingSiteFx>();
+        if (fx != null) fx.Clear();
 
         if (hud != null) hud.OnSiteCleared(site, _siteCount - _openSites.Count, _siteCount);
         if (_openSites.Count == 0 && IsPlaying) EndRound(RoundEndReason.AllSitesCleared);
