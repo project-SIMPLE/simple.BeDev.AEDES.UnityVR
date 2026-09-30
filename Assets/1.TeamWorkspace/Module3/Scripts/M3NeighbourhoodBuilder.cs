@@ -281,6 +281,11 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
         SlimTalkCollider(villager);
         var target = villager.GetComponent<M3VillagerTarget>() ?? villager.AddComponent<M3VillagerTarget>();
         target.personId = personId;
+
+        // Breathes, shifts their weight, turns to the Pilot and nods when spoken to: motion laid on top
+        // of the Animator's idle, which alone leaves them frozen (see M3VillagerLife).
+        var life = villager.GetComponent<M3VillagerLife>() ?? villager.AddComponent<M3VillagerLife>();
+        life.Init(personId);
     }
 
     /// <summary>

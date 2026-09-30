@@ -83,6 +83,7 @@ public class M3PersonPanel : MonoBehaviour
     public void Open(int personId, Transform body)
     {
         if (S == null || S.Session == null || !S.Running) return;
+        if (PersonId >= 0 && PersonId != personId) M3VillagerLife.Talking(PersonId, false);   // turned to someone else
         PersonId = personId;
         villager = body;
         conversationAt = body.position;
@@ -95,11 +96,16 @@ public class M3PersonPanel : MonoBehaviour
         Place();
         root.gameObject.SetActive(true);
         Rebuild();
-        if (IsOpen) M3PanelPop.Play(root);
+        if (IsOpen)
+        {
+            M3PanelPop.Play(root);
+            M3VillagerLife.Talking(PersonId, true);   // they nod, and gesture a little while you talk
+        }
     }
 
     public void Close()
     {
+        if (PersonId >= 0) M3VillagerLife.Talking(PersonId, false);
         if (root != null) root.gameObject.SetActive(false);
         PersonId = -1;
         villager = null;
