@@ -126,19 +126,24 @@ public class HouseholdView : MonoBehaviour
     {
         if (on == shownFan && fanInstance != null) return;
         shownFan = on;
+        var spin = fanInstance != null ? fanInstance.GetComponent<FanBladeSpin>() : null;
 
         if (!on)
         {
-            if (fanInstance != null) Destroy(fanInstance);
+            // Winds down, and FanBladeSpin takes the fan away once the blade has stopped.
+            if (spin != null && animateChanges) spin.SpinDown(removeWhenStopped: true);
+            else if (fanInstance != null) Destroy(fanInstance);
             return;
         }
 
+        if (spin != null) { spin.SpinUp(); return; }   // switched back on while it was winding down
         if (fanStand == null || fanInstance != null) return;
         fanInstance = Place(Resolve(ref fanPrefab, Module3Props.ElectricFan), fanStand);
         if (fanInstance != null)
         {
             fanInstance.transform.localScale = Vector3.one * fanScale;
-            fanInstance.AddComponent<FanBladeSpin>();
+            spin = fanInstance.AddComponent<FanBladeSpin>();
+            if (animateChanges) spin.SpinUpFromRest();
         }
     }
 
@@ -210,11 +215,43 @@ public class HouseholdView : MonoBehaviour
 /// <summary>
 /// Turns the fan's blade. The blade is a separate mesh with its origin on the rotation axis for
 /// exactly this reason - a welded blade would make the prop unusable.
+///
+/// A fan that has just been switched on winds up to speed over about a second, and one switched off
+/// winds down, rather than going from still to full speed in a frame. Only the look lags: the
+/// household has its fan from the moment the action resolves.
 /// </summary>
 public class FanBladeSpin : MonoBehaviour
 {
+    [Tooltip("Full speed, which the blade winds up to.")]
     [SerializeField] private float degreesPerSecond = 720f;
+    [Tooltip("Seconds to wind from still to full speed, or back.")]
+    [SerializeField] private float rampSeconds = 1f;
     private Transform blade;
+    private float power = 1f;          // 0 still .. 1 full speed; a fan placed with the room is already going
+    private bool running = true;
+    private bool removeWhenStopped;
+
+    /// <summary>How fast the blade is turning now, degrees per second.</summary>
+    public float Speed => degreesPerSecond * Mathf.SmoothStep(0f, 1f, power);
+
+    /// <summary>Start from a standstill and wind up to <see cref="degreesPerSecond"/>.</summary>
+    public void SpinUpFromRest()
+    {
+        power = 0f;
+        SpinUp();
+    }
+
+    public void SpinUp()
+    {
+        running = true;
+        removeWhenStopped = false;
+    }
+
+    public void SpinDown(bool removeWhenStopped = false)
+    {
+        running = false;
+        this.removeWhenStopped = removeWhenStopped;
+    }
 
     private void Awake()
     {
@@ -230,6 +267,8 @@ public class FanBladeSpin : MonoBehaviour
 
     private void Update()
     {
-        if (blade != null) blade.Rotate(0f, 0f, degreesPerSecond * Time.deltaTime, Space.Self);
+        power = Mathf.MoveTowards(power, running ? 1f : 0f, Time.deltaTime / Mathf.Max(rampSeconds, 0.01f));
+        if (blade != null) blade.Rotate(0f, 0f, Speed * Time.deltaTime, Space.Self);
+        if (!running && power <= 0f && removeWhenStopped) Destroy(gameObject);
     }
 }
