@@ -59,27 +59,32 @@ public static class M3GroundPainter
         public float pathX;
     }
 
-    /// <summary>The frame of a plot object whose local +z faces the lane, whose centre line runs along world x at <paramref name="laneZ"/>.</summary>
-    public static PlotFrame FrameOf(Transform plot, float laneZ)
+    /// <summary>
+    /// The frame of a plot object whose local +z faces the lane, <paramref name="laneDist"/> metres from
+    /// the plot's origin to the lane's centre line (VillageLayout.DistanceToLane).
+    /// </summary>
+    public static PlotFrame FrameOf(Transform plot, float laneDist)
     {
         Vector3 o = plot.position, r = plot.right, f = plot.forward;
-        float2 forward = normalizesafe(float2(f.x, f.z));
         return new PlotFrame
         {
             origin = float2(o.x, o.z),
             right = normalizesafe(float2(r.x, r.z)),
-            forward = forward,
-            laneDist = (laneZ - o.z) * forward.y,
+            forward = normalizesafe(float2(f.x, f.z)),
+            laneDist = laneDist,
         };
     }
 
+    /// <summary>How far apart, along x, the samples of the lane's centre line are, in metres.</summary>
+    private const float LaneStep = 0.5f;
+
     /// <summary>
     /// A non-repeating ground image for <paramref name="area"/> (x, z in world metres), with the track
-    /// running along x at <paramref name="trackZ"/> and worn yards round each of <paramref name="plots"/>.
-    /// Texels are about <paramref name="texel"/> metres across, coarser if that would pass
-    /// <paramref name="maxSize"/> pixels on a side.
+    /// running down the lane (VillageLayout.LaneZ, which winds) and worn yards round each of
+    /// <paramref name="plots"/>. Texels are about <paramref name="texel"/> metres across, coarser if that
+    /// would pass <paramref name="maxSize"/> pixels on a side.
     /// </summary>
-    public static Texture2D PaintVillage(Rect area, float texel, int maxSize, float trackZ, float trackHalfWidth,
+    public static Texture2D PaintVillage(Rect area, float texel, int maxSize, float trackHalfWidth,
                                          PlotFrame[] plots, YardLayout yard,
                                          Color grass, Color track, float contrast, int seed)
     {
@@ -87,12 +92,18 @@ public static class M3GroundPainter
         int h = Mathf.Clamp(Mathf.CeilToInt(area.height / texel), 16, maxSize);
         var pixels = new NativeArray<Color32>(w * h, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
         var plotFrames = new NativeArray<PlotFrame>(plots ?? new PlotFrame[0], Allocator.TempJob);
+        // The lane's centre line, sampled once here: the job interpolates it instead of calling the layout.
+        int laneCount = Mathf.CeilToInt(area.width / LaneStep) + 2;
+        var lane = new NativeArray<float>(laneCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+        for (int i = 0; i < laneCount; i++) lane[i] = Aedes.Module3.Sim.VillageLayout.LaneZ(area.xMin + i * LaneStep);
         try
         {
             new VillageJob
             {
                 pixels = pixels,
                 plots = plotFrames,
+                lane = lane,
+                laneX0 = area.xMin,
                 yard = yard,
                 width = w,
                 origin = new float2(area.xMin, area.yMin),
@@ -101,7 +112,6 @@ public static class M3GroundPainter
                 rectMax = new float2(area.xMax, area.yMax),
                 seedOffset = SeedOffset(seed),
                 seedF = seed * 1.7f,
-                trackZ = trackZ,
                 trackHalf = trackHalfWidth,
                 grass = float3(grass.r, grass.g, grass.b),
                 track = float3(track.r, track.g, track.b),
@@ -113,6 +123,7 @@ public static class M3GroundPainter
         {
             pixels.Dispose();
             plotFrames.Dispose();
+            lane.Dispose();
         }
     }
 
@@ -223,10 +234,11 @@ public static class M3GroundPainter
     {
         [NativeDisableParallelForRestriction, WriteOnly] public NativeArray<Color32> pixels;
         [ReadOnly] public NativeArray<PlotFrame> plots;
+        [ReadOnly] public NativeArray<float> lane;
         public YardLayout yard;
         public int width;
         public float2 origin, step, rectMin, rectMax, seedOffset;
-        public float seedF, trackZ, trackHalf, contrast;
+        public float seedF, laneX0, trackHalf, contrast;
         public float3 grass, track;
 
         public void Execute(int row)
@@ -236,6 +248,14 @@ public static class M3GroundPainter
                 float2 w = origin + float2(col + 0.5f, row + 0.5f) * step;
                 pixels[row * width + col] = ToColor32(Shade(w));
             }
+        }
+
+        /// <summary>The lane's centre line at world x, from the samples.</summary>
+        private float LaneAt(float x)
+        {
+            float f = clamp((x - laneX0) / LaneStep, 0f, lane.Length - 1.001f);
+            int i = (int)f;
+            return lerp(lane[i], lane[i + 1], f - i);
         }
 
         private static float SegmentDistance(float2 p, float2 a, float2 b)
@@ -316,7 +336,7 @@ public static class M3GroundPainter
             float3 g = ShadeGrass(grass, n, amount);
 
             // The track wanders a little along its length and varies in width.
-            float zc = trackZ + 0.45f * noise.snoise(float2(w.x * 0.03f, seedF))
+            float zc = LaneAt(w.x) + 0.45f * noise.snoise(float2(w.x * 0.03f, seedF))
                               + 0.12f * noise.snoise(float2(w.x * 0.11f, seedF + 5f));
             float halfWidth = trackHalf * (1f + 0.15f * noise.snoise(float2(w.x * 0.07f, seedF + 9f)));
             float u = w.y - zc;

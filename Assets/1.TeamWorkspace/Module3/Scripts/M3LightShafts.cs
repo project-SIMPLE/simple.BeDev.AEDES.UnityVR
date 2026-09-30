@@ -176,28 +176,38 @@ public class M3LightShafts : MonoBehaviour
             houses.Add(house);
         }
 
-        // Which openings look straight onto another house? Houses stand in rows about 14.5 m apart with a
-        // gap of about 2.5 m between their side walls, and the window and the door are in the side wall: at
-        // a low sun the neighbour's wall is in the way, and the beam has to be dropped or it shines into a
-        // room the real, shadow-mapped sun cannot reach.
-        float wallToWall = (ModelMaxX - ModelMinX) * scale;
+        // Which openings look straight onto another house? Houses stand in rows with a gap of 2.4 to about
+        // 6 m between their side walls, and the window and the door are in the side wall: at a low sun the
+        // neighbour's wall is in the way, and the beam has to be dropped or it shines into a room the real,
+        // shadow-mapped sun cannot reach. The neighbour is found by the ray straight out of the opening: the
+        // wall it meets, if any, on the side wall that faces this house - the houses need not be level or
+        // parallel (VillageLayout turns them a few degrees and stands them further back or forward).
         foreach (var house in houses)
         {
             for (int i = 0; i < house.openings.Length; i++)
             {
                 var o = house.openings[i];
+                // The gap is measured from this house's own wall, as it always was, not from the opening in it.
+                var ownWall = house.plot.TransformPoint(new Vector3(
+                    (Vector3.Dot(o.outward, house.plot.right) > 0f ? ModelMaxX : ModelMinX) * scale, 0f, 0f));
+                float depth = Mathf.Max(0f, Vector3.Dot(ownWall - o.centre, o.outward));
                 foreach (var other in houses)
                 {
                     if (other == house) continue;
-                    Vector3 to = other.plot.position - house.plot.position;
-                    float along = Vector3.Dot(to, o.outward);
-                    float beside = Mathf.Abs(Vector3.Dot(to, o.across));
-                    float gap = along - wallToWall;
-                    if (along > 1f && beside < 3f && gap > 0.3f && gap < 6f)
-                    {
-                        o.neighbourGap = gap;
-                        break;
-                    }
+                    bool plusX = Vector3.Dot(other.plot.right, o.outward) < 0f;   // its +x wall faces us if +x points back at us
+                    Vector3 normal = plusX ? other.plot.right : -other.plot.right;
+                    float facing = -Vector3.Dot(o.outward, normal);
+                    if (facing < 0.7f) continue;   // not a wall that looks back at this opening
+                    Vector3 wall = other.plot.TransformPoint(new Vector3((plusX ? ModelMaxX : ModelMinX) * scale, 0f, 0f));
+                    float reach = Vector3.Dot(wall - o.centre, normal) / -facing;   // along the ray, to the wall's plane
+                    float gap = reach - depth;
+                    if (reach < 1f || gap < 0.3f || gap > 7f) continue;
+                    // ...and the ray lands on that wall, not past the end of it.
+                    float z = other.plot.InverseTransformPoint(o.centre + o.outward * reach).z;
+                    if (z < Aedes.Module3.Sim.VillageLayout.ModelBackZ * scale - 0.5f
+                        || z > Aedes.Module3.Sim.VillageLayout.ModelFrontZ * scale + 0.5f) continue;
+                    o.neighbourGap = gap;
+                    break;
                 }
                 house.openings[i] = o;
             }

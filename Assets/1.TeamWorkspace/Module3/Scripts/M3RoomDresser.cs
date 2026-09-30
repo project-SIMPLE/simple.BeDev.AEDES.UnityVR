@@ -364,7 +364,7 @@ public class M3RoomDresser : ScriptableObject
         go.transform.localPosition += shift;
     }
 
-    /// <summary>The renderers' combined bounds in plot space. Plots only turn by 0 or 180 degrees, so this stays axis-aligned.</summary>
+    /// <summary>The renderers' combined bounds in plot space. The builder dresses a plot while it is square to the world (it turns it to follow the lane afterwards), so this stays axis-aligned.</summary>
     private Bounds PlotBounds(GameObject go)
     {
         var renderers = go.GetComponentsInChildren<Renderer>();

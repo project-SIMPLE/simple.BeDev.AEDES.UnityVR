@@ -23,9 +23,13 @@ public class M3DoorSwing : MonoBehaviour
     [SerializeField] private float closeAfter = 1.2f;
     [SerializeField] private float swingSeconds = 0.7f;
 
+    // The doorway and the footprint are kept in the house's own space, and read back through it: the
+    // builder turns each plot to follow the lane after its doors are fitted, which would leave a world-space
+    // doorway where the door used to be.
     private Quaternion closed;
-    private Vector3 doorway;       // world centre of the closed leaf
-    private Bounds house;          // world footprint of the house the leaf belongs to
+    private Transform houseRoot;
+    private Vector3 doorway;       // centre of the closed leaf, in the house's space
+    private Bounds house;          // footprint of the house the leaf belongs to, in the house's space
     private float openness;        // 0 closed .. 1 open, before easing
     private bool wantOpen;
     private float awayFor;
@@ -47,35 +51,53 @@ public class M3DoorSwing : MonoBehaviour
     private void Awake()
     {
         closed = transform.localRotation;
+        houseRoot = transform.parent;
         var r = GetComponentInChildren<Renderer>();
-        doorway = r != null ? r.bounds.center : transform.position;
-        house = Footprint(transform.parent);
+        Vector3 leaf = r != null ? r.bounds.center : transform.position;
+        doorway = houseRoot != null ? houseRoot.InverseTransformPoint(leaf) : leaf;
+        house = Footprint(houseRoot);
     }
 
-    /// <summary>The house floor, walls included: the model's Main_Floor, or everything if it has none.</summary>
+    /// <summary>The house floor, walls included, in the house's space: the model's Main_Floor, or everything if it has none.</summary>
     private static Bounds Footprint(Transform houseRoot)
     {
         var b = new Bounds(Vector3.zero, Vector3.zero);
         if (houseRoot == null) return b;
         var floor = houseRoot.Find("Main_Floor");
         var renderers = (floor != null ? floor : houseRoot).GetComponentsInChildren<Renderer>();
-        for (int i = 0; i < renderers.Length; i++)
+        bool first = true;
+        foreach (var r in renderers)
         {
-            if (i == 0) b = renderers[i].bounds;
-            else b.Encapsulate(renderers[i].bounds);
+            // The renderer's own box carried into the house's space corner by corner, so it is exact
+            // however either is turned (a world-space box of a turned renderer is bigger than the part).
+            var to = houseRoot.worldToLocalMatrix * r.transform.localToWorldMatrix;
+            var box = r.localBounds;
+            for (int i = 0; i < 8; i++)
+            {
+                var corner = new Vector3((i & 1) == 0 ? box.min.x : box.max.x,
+                                         (i & 2) == 0 ? box.min.y : box.max.y,
+                                         (i & 4) == 0 ? box.min.z : box.max.z);
+                var p = to.MultiplyPoint3x4(corner);
+                if (first) { b = new Bounds(p, Vector3.zero); first = false; }
+                else b.Encapsulate(p);
+            }
         }
         return b;
     }
 
-    private bool Inside(Vector3 p) =>
-        house.size.x > 0f && p.x > house.min.x && p.x < house.max.x && p.z > house.min.z && p.z < house.max.z;
+    private bool Inside(Vector3 world)
+    {
+        if (houseRoot == null || house.size.x <= 0f) return false;
+        Vector3 p = houseRoot.InverseTransformPoint(world);
+        return p.x > house.min.x && p.x < house.max.x && p.z > house.min.z && p.z < house.max.z;
+    }
 
     private void Update()
     {
         var head = Camera.main;
         if (head != null)
         {
-            Vector3 d = head.transform.position - doorway;
+            Vector3 d = head.transform.position - (houseRoot != null ? houseRoot.TransformPoint(doorway) : doorway);
             d.y = 0f;
             float dist = d.magnitude;
             if (dist < openWithin || (wantOpen && Inside(head.transform.position))) { wantOpen = true; awayFor = 0f; }

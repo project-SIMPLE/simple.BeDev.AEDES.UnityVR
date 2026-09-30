@@ -53,6 +53,8 @@ public class VillagerView : MonoBehaviour
              + "the child and elder prefabs set their own.")]
     [SerializeField] private float bodyHeight = 1.7f;
 
+    // In the parent's space, not the world's: the neighbourhood builder turns each plot after its
+    // villagers are placed, and a world-space pose would send them back to where the plot used to face.
     private Vector3 standingPosition;
     private Quaternion standingRotation;
     private bool capturedStandingPosition;
@@ -162,8 +164,8 @@ public class VillagerView : MonoBehaviour
 
         if (!capturedStandingPosition)
         {
-            standingPosition = transform.position;
-            standingRotation = transform.rotation;
+            standingPosition = transform.localPosition;
+            standingRotation = transform.localRotation;
             capturedStandingPosition = true;
         }
 
@@ -179,7 +181,7 @@ public class VillagerView : MonoBehaviour
         }
         else
         {
-            transform.SetPositionAndRotation(standingPosition, standingRotation);
+            transform.SetLocalPositionAndRotation(standingPosition, standingRotation);
         }
     }
 

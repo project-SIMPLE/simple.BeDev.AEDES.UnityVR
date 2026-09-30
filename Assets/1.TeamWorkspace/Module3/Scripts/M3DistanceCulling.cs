@@ -19,8 +19,8 @@ using UnityEngine;
 public class M3DistanceCulling : MonoBehaviour
 {
     [Tooltip("Beyond this many metres from the camera, renderers on the DistanceCulled layer are not drawn. "
-             + "Plots are 14.5 m apart along the lane and 18 m across it, so 22 m keeps this house and its "
-             + "neighbours and drops the rest.")]
+             + "Plots are at least 14.5 m apart along the lane and 18 m across it (VillageLayout spreads them "
+             + "further), so 22 m keeps this house and its neighbours and drops the rest.")]
     [SerializeField] private float distance = 22f;
 
     private Camera appliedTo;

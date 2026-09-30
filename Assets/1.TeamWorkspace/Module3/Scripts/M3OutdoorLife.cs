@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Aedes.Module3.Sim;
 using UnityEngine;
 
 /// <summary>
@@ -32,10 +33,11 @@ public class M3OutdoorLife : MonoBehaviour
     private const string WalkParam = "isWalk";
 
     /// <summary>
-    /// Where the walkers keep to: the verges of the dirt track (which runs z 7.4-10.6), a metre
-    /// clear of the yard jars at 6.2 and 11.8. The lane's own z is 9 in the standard layout.
+    /// Where the walkers keep to: the verges of the dirt track, 1.7 m either side of its centre line (the
+    /// track is 3.2 m wide), which is a metre clear of the yard jars whichever way the lane winds - no
+    /// front wall stands nearer the centre line than 4.2 m (VillageLayout), and a jar stands 1.5 m out.
     /// </summary>
-    private const float NearEdgeZ = 7.3f, FarEdgeZ = 10.7f;
+    private const float NearEdge = -1.7f, FarEdge = 1.7f;
 
     private struct Dragonfly
     {
@@ -139,7 +141,6 @@ public class M3OutdoorLife : MonoBehaviour
         // starts them 14 m past the village bounds and lays them in 13 m cells), three along the
         // lane. Nothing shares a row: each path's centre is drawn from a band, not put on a line.
         var list = new List<Dragonfly>(6);
-        float laneZ = village.center.z;
         for (int i = 0; i < 6; i++)
         {
             var prefab = set.dragonflies[i % set.dragonflies.Length];
@@ -149,7 +150,7 @@ public class M3OutdoorLife : MonoBehaviour
             float paddyDepth = 14f + 3f + 14f * (float)rng.NextDouble();   // over the first two cells
             float z = overPaddy
                 ? (i % 2 == 0 ? village.max.z + paddyDepth : village.min.z - paddyDepth)
-                : laneZ + (rng.Next(2) == 0 ? -1f : 1f) * (0.5f + 3f * (float)rng.NextDouble());
+                : VillageLayout.LaneZ(x) + (rng.Next(2) == 0 ? -1f : 1f) * (0.5f + 3f * (float)rng.NextDouble());
             var d = new Dragonfly
             {
                 centre = new Vector3(x, 0f, z),
@@ -224,14 +225,12 @@ public class M3OutdoorLife : MonoBehaviour
         // village bounds, which is past the last yard and 5 m ahead of where the Pilot spawns. Each
         // loop wanders: its waypoints stray half a metre either way, and no two loops turn at the
         // same place, so the walkers never look like they are on rails.
-        float dz = village.center.z - 9f;
         float x0 = village.min.x + 5f, x1 = village.max.x - 5f;
-        float near = NearEdgeZ + dz, far = FarEdgeZ + dz;
         var loops = new[]
         {
-            Loop(x0, x1 - 3f * (float)rng.NextDouble(), near, far, false),
-            Loop(x0 + 4f * (float)rng.NextDouble(), x1, near, far, true),
-            Loop(Mathf.Lerp(x0, x1, 0.3f + 0.15f * (float)rng.NextDouble()), Mathf.Lerp(x0, x1, 0.7f + 0.2f * (float)rng.NextDouble()), near, far, false),
+            Loop(x0, x1 - 3f * (float)rng.NextDouble(), false),
+            Loop(x0 + 4f * (float)rng.NextDouble(), x1, true),
+            Loop(Mathf.Lerp(x0, x1, 0.3f + 0.15f * (float)rng.NextDouble()), Mathf.Lerp(x0, x1, 0.7f + 0.2f * (float)rng.NextDouble()), false),
         };
         var list = new List<Walker>(loops.Length);
         for (int i = 0; i < loops.Length; i++)
@@ -272,16 +271,17 @@ public class M3OutdoorLife : MonoBehaviour
     /// A wandering loop from <paramref name="xa"/> to <paramref name="xb"/> along the near verge, across
     /// the track, and back along the far verge, one waypoint every 8-13 m with its z strayed up to
     /// half a metre either way (never onto the track side: the verges are 0.6 m from the yard jars).
+    /// The verges follow the lane as it winds, so each waypoint is set from the lane's z at its own x.
     /// </summary>
-    private Vector3[] Loop(float xa, float xb, float near, float far, bool reversed)
+    private Vector3[] Loop(float xa, float xb, bool reversed)
     {
         var points = new List<Vector3>();
         for (float x = xa; x < xb; x += 8f + 5f * (float)rng.NextDouble())
-            points.Add(new Vector3(x, 0f, near + 0.5f * (float)rng.NextDouble()));
-        points.Add(new Vector3(xb, 0f, near + 0.5f * (float)rng.NextDouble()));
+            points.Add(new Vector3(x, 0f, VillageLayout.LaneZ(x) + NearEdge + 0.5f * (float)rng.NextDouble()));
+        points.Add(new Vector3(xb, 0f, VillageLayout.LaneZ(xb) + NearEdge + 0.5f * (float)rng.NextDouble()));
         for (float x = xb; x > xa; x -= 8f + 5f * (float)rng.NextDouble())
-            points.Add(new Vector3(x, 0f, far - 0.5f * (float)rng.NextDouble()));
-        points.Add(new Vector3(xa, 0f, far - 0.5f * (float)rng.NextDouble()));
+            points.Add(new Vector3(x, 0f, VillageLayout.LaneZ(x) + FarEdge - 0.5f * (float)rng.NextDouble()));
+        points.Add(new Vector3(xa, 0f, VillageLayout.LaneZ(xa) + FarEdge - 0.5f * (float)rng.NextDouble()));
         if (reversed) points.Reverse();
         return points.ToArray();
     }

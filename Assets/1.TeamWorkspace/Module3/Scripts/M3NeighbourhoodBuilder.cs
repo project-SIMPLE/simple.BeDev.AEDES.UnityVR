@@ -14,17 +14,20 @@ using UnityEngine;
 /// The geometry comes from the same parameters GAMA sets. `lanes` and `households_per_lane` decide
 /// both how the model's adjacency works and where the houses physically stand, so the two can
 /// never drift apart - the plot you can see from the next plot is the plot a mosquito can reach.
+/// Where exactly each plot stands - a winding lane, houses turned and set back by different
+/// amounts, uneven gaps - is VillageLayout's job; this class only builds what it is told.
 /// </summary>
 public class M3NeighbourhoodBuilder : MonoBehaviour
 {
     [Header("Layout (metres)")]
-    [Tooltip("Centre-to-centre spacing along a lane. Section 11 wants plots packed close enough "
-             + "that the player can see one house from the next. The Lao house is 8.55 m wide with a "
-             + "9.6 m roof, so below ~10 m neighbours touch and their roofs intersect. Visual only: "
-             + "adjacency comes from lanes / households_per_lane.")]
+    [Tooltip("The tightest centre-to-centre spacing along a lane; VillageLayout spreads a row out from "
+             + "here. Section 11 wants plots packed close enough that the player can see one house from "
+             + "the next. The Lao house is 8.55 m wide with a 9.6 m roof, so below ~10 m neighbours touch "
+             + "and their roofs intersect. Visual only: adjacency comes from lanes / households_per_lane.")]
     [SerializeField] private float plotWidth = 14.5f;
 
-    [Tooltip("Distance across the lane, between the two facing rows.")]
+    [Tooltip("The tightest distance across the lane, between the two facing rows; houses are only ever "
+             + "stood further back from the lane than this puts them (see VillageLayout).")]
     [SerializeField] private float laneSpacing = 18f;
 
     [Header("Prefabs")]
@@ -118,9 +121,20 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
 
         var sim = M3Session.Instance.Neighbourhood;
 
+        // Every plot's place comes from the layout, which needs the shape of the ladder: its rows and
+        // how many houses each holds.
+        int lanes = 0, perLane = 0;
+        foreach (var h in sim.Households)
+        {
+            lanes = Mathf.Max(lanes, h.LaneY + 1);
+            perLane = Mathf.Max(perLane, h.LaneX + 1);
+        }
+        var layout = VillageLayout.Place(M3Session.Instance.Seed, lanes, perLane, plotWidth, laneSpacing, houseScale);
+
         for (int i = 0; i < sim.Households.Count; i++)
         {
-            BuildPlot(sim, sim.Households[i]);
+            var h = sim.Households[i];
+            BuildPlot(sim, h, layout[h.LaneY * perLane + h.LaneX]);
         }
 
         var surroundings = GetComponent<M3Surroundings>();
@@ -136,12 +150,17 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
                   + $"from seed {M3Session.Instance.Seed}.");
     }
 
-    private void BuildPlot(Neighbourhood sim, Household h)
+    private void BuildPlot(Neighbourhood sim, Household h, PlotPlacement placement)
     {
         // Two rows facing each other across a lane, which is what makes the transmission chain
         // plausible - section 5: houses close together are not set dressing.
+        //
+        // The plot is built square to the world, facing straight across the lane, and turned to its
+        // real heading as the last step. The dressing and the number board measure the house from its
+        // renderers' world bounds, which only give its walls while the plot's axes are the world's
+        // (see M3RoomDresser.PlotBounds), so they must not see it turned.
         bool farSide = h.LaneY % 2 == 1;
-        var plotPosition = new Vector3(h.LaneX * plotWidth, 0f, farSide ? laneSpacing : 0f);
+        var plotPosition = new Vector3(placement.X, 0f, placement.Z);
         var facing = Quaternion.Euler(0f, farSide ? 180f : 0f, 0f);
 
         var plot = new GameObject($"Plot_{h.Id}");
@@ -203,6 +222,11 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
         {
             BuildVillager(sim, plot.transform, h.ResidentIds[r], r, bed);
         }
+
+        // Now everything is placed and measured: turn the plot to follow the lane. Whatever was built
+        // keeps its place in the plot, so long as it remembers it in the plot's space, not the world's
+        // (VillagerView's standing pose and M3DoorSwing's doorway do).
+        plot.transform.rotation = Quaternion.Euler(0f, placement.Yaw, 0f);
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Aedes.Module3.Sim;
 using UnityEngine;
 
 /// <summary>
@@ -133,7 +134,10 @@ public class M3Surroundings : MonoBehaviour
                             village.size.x + PaintMarginAlong * 2f, village.size.z + PaintMarginAcross * 2f);
         var frames = new M3GroundPainter.PlotFrame[plots != null ? plots.Count : 0];
         for (int i = 0; i < frames.Length; i++)
-            frames[i] = M3GroundPainter.FrameOf(plots[i].transform, village.center.z);
+        {
+            var at = plots[i].transform.position;
+            frames[i] = M3GroundPainter.FrameOf(plots[i].transform, VillageLayout.DistanceToLane(at.x, at.z));
+        }
         float houseScale = M3NeighbourhoodBuilder.HouseScale;
         var yard = new M3GroundPainter.YardLayout
         {
@@ -145,7 +149,7 @@ public class M3Surroundings : MonoBehaviour
         };
         var painted = Quad("Ground (painted)", new Vector3(area.center.x, 0f, area.center.y), area.size, grass);
         painted.GetComponent<Renderer>().sharedMaterial = PaintedMat(
-            M3GroundPainter.PaintVillage(area, groundTexel, 4096, village.center.z, TrackWidth * 0.5f,
+            M3GroundPainter.PaintVillage(area, groundTexel, 4096, TrackWidth * 0.5f,
                                          frames, yard, grass, track, groundContrast, seed), Vector2.one);
         var sceneGround = GameObject.Find("Ground");
         if (sceneGround != null && sceneGround.TryGetComponent<Renderer>(out var groundRenderer))
