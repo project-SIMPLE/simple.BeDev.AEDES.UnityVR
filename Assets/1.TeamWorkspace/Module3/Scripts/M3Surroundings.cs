@@ -84,6 +84,8 @@ public class M3Surroundings : MonoBehaviour
         BuildPaddies(village);
         BuildTrees(village);
         BuildHills(village.center);
+        // Wind in the trees, drifting clouds, animals and a few walkers: decoration, from the same seed.
+        M3OutdoorLife.Build(root, village, plots, seed);
 
         // The houses are part of the look too: give them their surface texture now that they stand.
         M3HouseSurface.ApplyToPlots(plots);

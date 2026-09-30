@@ -47,6 +47,9 @@ public class M3Session : MonoBehaviour
 
     /// <summary>True while a turn is waiting for its Pilot to press ready.</summary>
     public bool WaitingForPilot { get; private set; }
+
+    /// <summary>True while the turn clock is not running: the handover screen is up, or the Pilot is not yet ready.</summary>
+    public bool ClockHeld => WaitingForPilot || Time.time < clockHeldUntil;
     public event Action OnPilotReady;
 
     /// <summary>The Pilot is in the headset and ready: start the clock.</summary>

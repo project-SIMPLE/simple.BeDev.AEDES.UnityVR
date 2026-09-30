@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f413779b203148ff8d00dd2d0450d3ce, type: 3}
+  m_Name: M3OutdoorLifeSet
+  m_EditorClassIdentifier: Assembly-CSharp::M3OutdoorLifeSet
+  foliage:
+  - from: {fileID: 2100000, guid: 370aaa4f50e00fc44b678d0fbc54924a, type: 2}
+    to: {fileID: 2100000, guid: c923e7dc498234fbaa4015c08edf6d58, type: 2}
+  - from: {fileID: -5241558010614939375, guid: d29cc316549c7ab4189e3632d453547c, type: 3}
+    to: {fileID: 2100000, guid: 3e2a0e3df0a6f41b281244e10276789c, type: 2}
+  dragonflies:
+  - {fileID: 2432415178123616793, guid: 5df36848b11792943b7e30752e1b534c, type: 3}
+  - {fileID: 5532201152673532938, guid: ee9f709f396bcd74383613b767111edc, type: 3}
+  frog: {fileID: 557858138512999856, guid: 1240625206525f4449d8c1427f1d6df5, type: 3}
+  walkers:
+  - {fileID: 5270409977889807214, guid: 79fdf6a8b358f664f92b8fa1ae1d67bd, type: 3}
+  - {fileID: 2075428549564017450, guid: ee936e0eb9ea349ca823b484bb395092, type: 3}
+  - {fileID: 4507602776438705724, guid: e3ef79d2b7f4c4055aefbff0d84ebec8, type: 3}
+  - {fileID: 8327351880105173063, guid: 4fa041fac870d45dc9d9bff421580882, type: 3}
