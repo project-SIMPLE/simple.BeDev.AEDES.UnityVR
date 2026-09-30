@@ -26,8 +26,22 @@ public class M3InteriorLight : MonoBehaviour
              + "1.65 (0.45 m under it) the ceiling took a blown-out white disc.")]
     [SerializeField] private Vector3 roomCentre = new Vector3(1.2f, 1.30f, 0.15f);
 
+    [Tooltip("Seconds the lamp takes to come up on entering a room and to go out on leaving it. A light that "
+             + "snaps on at a doorway is a pop; a slow one is only noticed in the corner of the eye.")]
+    [SerializeField] private float fadeSeconds = 0.4f;
+
     private Light lamp;
     private int litHousehold = -1;
+    /// <summary>0 = out, 1 = full. What the lamp is doing, eased towards whether the Pilot is in a room.</summary>
+    private float glow;
+    /// <summary>
+    /// Frames left of the start-up warm-up (see LateUpdate). The URP configuration on Quest is forward with
+    /// per-pixel additional lights, so the first frame with any additional light on switches every lit
+    /// shader in view onto a different variant; on Vulkan the first draw of a variant can build its pipeline.
+    /// Doing that once, while the start card is up and the lamp lights nothing, keeps it from landing on the
+    /// Pilot's first step through a door. Best effort: it warms what is in view, not the furniture indoors.
+    /// </summary>
+    private int warmFrames = 4;
 
     private void Awake()
     {
@@ -56,20 +70,38 @@ public class M3InteriorLight : MonoBehaviour
             }
         }
 
-        if (inside == null)
+        if (inside != null && inside.householdId != litHousehold)
         {
-            if (lamp.enabled) lamp.enabled = false;
-            litHousehold = -1;
-            return;
-        }
-
-        if (inside.householdId != litHousehold)
-        {
+            // A different room: the lamp starts again from dark in its new place.
             litHousehold = inside.householdId;
             lamp.transform.position = inside.transform.TransformPoint(roomCentre * M3NeighbourhoodBuilder.HouseScale);
-            lamp.enabled = true;
+            glow = 0f;
+        }
+        else if (inside == null && glow <= 0f)
+        {
+            litHousehold = -1;
         }
 
+        // Warm-up: a moment of "an additional light exists" with the lamp parked at the camera, tiny and
+        // short-ranged, so it lights nothing. Only while the Pilot is outdoors and has not yet been in a room.
+        if (warmFrames > 0 && cam != null && inside == null && litHousehold < 0)
+        {
+            warmFrames--;
+            lamp.transform.position = cam.transform.position;
+            lamp.range = 0.5f;
+            lamp.intensity = 0.01f;
+            lamp.enabled = true;
+            return;
+        }
+        if (warmFrames > 0 && inside != null) warmFrames = 0;   // too late to matter; do not run it inside a room
+
+        lamp.range = range;
+        glow = Mathf.MoveTowards(glow, inside != null ? 1f : 0f, Time.deltaTime / Mathf.Max(0.01f, fadeSeconds));
+        bool lit = glow > 0f;
+        if (lamp.enabled != lit) lamp.enabled = lit;
+        if (!lit) return;
+
+        lamp.intensity = intensity * (glow * glow * (3f - 2f * glow));   // smoothstep
         var tod = M3TimeOfDay.Instance;
         lamp.color = tod != null ? Color.Lerp(colour, afternoonColour, tod.Warmth) : colour;
     }

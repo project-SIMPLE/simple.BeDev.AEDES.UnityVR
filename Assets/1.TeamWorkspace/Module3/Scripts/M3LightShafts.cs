@@ -27,6 +27,8 @@ public class M3LightShafts : MonoBehaviour
         public Vector3 across;     // unit, along the wall
         public Vector3 outward;    // unit wall normal, pointing outdoors
         public float halfWidth, halfHeight;
+        /// <summary>Metres from this wall to the next house's wall it looks onto; 0 when it opens onto open ground.</summary>
+        public float neighbourGap;
     }
 
     // Measured on PF_Lao_House_One_FloorV2 (the bounds of SM_WindowLeft, SM_WindowLeft (1) and the
@@ -44,8 +46,19 @@ public class M3LightShafts : MonoBehaviour
     [Header("Look")]
     [Tooltip("How far the glow spreads onto the wall past the frame, in metres.")]
     [SerializeField] private float glowMargin = 0.45f;
-    [SerializeField] private float glowStrength = 0.45f;
-    [SerializeField] private float beamStrength = 0.5f;
+    [Tooltip("Brightness of the wall glow. Applied once: the shader multiplies the colour by this alpha, and "
+             + "an earlier version also scaled the colour by it, so 0.45 here meant 0.45 squared (0.2).")]
+    [SerializeField] private float glowStrength = 0.2f;
+    [Tooltip("Brightness of the sun beams per unit of sun intensity. Applied once (the old 0.5 acted as its "
+             + "square, times intensity squared); 0.28 matches the old look at intensity 1.1, and beams now grow "
+             + "in step with the sun instead of with its square.")]
+    [SerializeField] private float beamStrength = 0.28f;
+    [Tooltip("The next house's wall stops a beam that would have to climb over it: below this much clearance "
+             + "the beam fades out, and it is gone once the ray meets the wall this far under its top, in metres.")]
+    [SerializeField] private float occlusionSoftness = 0.8f;
+    [Tooltip("Beams are laid out only for houses this near the Pilot, in metres (they are not drawn beyond 22 m, "
+             + "and a house is 12 m wide).")]
+    [SerializeField] private float layRadius = 30f;
     [Tooltip("A beam is cut off this far from its opening whatever the sun's angle, in metres.")]
     [SerializeField] private float maxBeamLength = 7f;
     [Tooltip("How far round onto a wall the sun must be (cosine) before its openings get a beam.")]
@@ -61,12 +74,15 @@ public class M3LightShafts : MonoBehaviour
         public Opening[] openings;   // in world space, scaled and placed
         public Mesh glow, beams;
         public Color[] glowColours;   // kept, so brightening a sunlit opening allocates nothing
+        /// <summary>Height a neighbouring house's wall or eave reaches, in world y.</summary>
+        public float neighbourTop;
+        /// <summary>The sun these beams were laid for. The sun never shines upward, so Vector3.up means "not yet".</summary>
+        public Vector3 laidFor = Vector3.up;
     }
 
     private readonly List<House> houses = new List<House>();
     private Material glowMaterial, beamMaterial;
     private Texture2D glowGradient, beamGradient;
-    private Vector3 builtSunDirection = Vector3.up;   // the sun never shines upward, so the first frame lays the beams out
     private bool built, failed;
 
     // Scratch buffers reused for every rebuild, so a moving sun costs no allocation once warm.
@@ -88,17 +104,32 @@ public class M3LightShafts : MonoBehaviour
 
         var tod = M3TimeOfDay.Instance;
         Vector3 sunDirection = tod != null ? tod.SunDirection : Vector3.down;
-        Color sun = tod != null ? tod.Now.sun * tod.Now.sunIntensity : Color.white;
+        Color sunColour = tod != null ? tod.Now.sun : Color.white;
+        float sunIntensity = tod != null ? tod.Now.sunIntensity : 1f;
         float warmth = tod != null ? tod.Warmth : 0f;
 
-        glowMaterial.SetColor(ColorId, Color.Lerp(new Color(1f, 0.96f, 0.88f), new Color(1f, 0.84f, 0.64f), warmth) * glowStrength);
-        beamMaterial.SetColor(ColorId, sun * beamStrength);
+        // The shader multiplies the colour by its alpha, so the strength goes in the alpha only. (Multiplying
+        // a Color by a float scales its alpha as well, which made every strength count twice.)
+        var glowColour = Color.Lerp(new Color(1f, 0.96f, 0.88f), new Color(1f, 0.84f, 0.64f), warmth);
+        glowColour.a = glowStrength;
+        glowMaterial.SetColor(ColorId, glowColour);
+        sunColour.a = sunIntensity * beamStrength;
+        beamMaterial.SetColor(ColorId, sunColour);
 
-        // The sun moves about a degree a second during play, and fast during the handover sweep.
-        if (Vector3.Angle(builtSunDirection, sunDirection) > 0.3f)
+        // The sun moves about a degree a second during play, and fast during the handover sweep. Only the
+        // houses near the Pilot are laid out: the rest are not drawn (M3DistanceCulling), and doing every
+        // house each time the sun moved 0.3 degrees was a CPU spike at each handover. A house that was
+        // skipped is laid out for the sun of the day the moment the Pilot comes within reach of it.
+        var cam = Camera.main;
+        if (cam == null) return;
+        Vector3 at = cam.transform.position;
+        float radius2 = layRadius * layRadius;
+        foreach (var house in houses)
         {
-            foreach (var house in houses) Lay(house, sunDirection);
-            builtSunDirection = sunDirection;
+            if ((house.plot.position - at).sqrMagnitude > radius2) continue;
+            if (Vector3.Angle(house.laidFor, sunDirection) <= 0.3f) continue;
+            Lay(house, sunDirection);
+            house.laidFor = sunDirection;
         }
     }
 
@@ -138,12 +169,63 @@ public class M3LightShafts : MonoBehaviour
                     halfHeight = o.halfHeight * scale,
                 };
             }
+            house.neighbourTop = NeighbourTop(t);
             house.glow = NewMesh("Window glow", t, glowMaterial);
             house.beams = NewMesh("Sun beams", t, beamMaterial);
             LayGlow(house);
             houses.Add(house);
         }
+
+        // Which openings look straight onto another house? Houses stand in rows about 14.5 m apart with a
+        // gap of about 2.5 m between their side walls, and the window and the door are in the side wall: at
+        // a low sun the neighbour's wall is in the way, and the beam has to be dropped or it shines into a
+        // room the real, shadow-mapped sun cannot reach.
+        float wallToWall = (ModelMaxX - ModelMinX) * scale;
+        foreach (var house in houses)
+        {
+            for (int i = 0; i < house.openings.Length; i++)
+            {
+                var o = house.openings[i];
+                foreach (var other in houses)
+                {
+                    if (other == house) continue;
+                    Vector3 to = other.plot.position - house.plot.position;
+                    float along = Vector3.Dot(to, o.outward);
+                    float beside = Mathf.Abs(Vector3.Dot(to, o.across));
+                    float gap = along - wallToWall;
+                    if (along > 1f && beside < 3f && gap > 0.3f && gap < 6f)
+                    {
+                        o.neighbourGap = gap;
+                        break;
+                    }
+                }
+                house.openings[i] = o;
+            }
+        }
         built = true;
+    }
+
+    /// <summary>The house's outer side walls, measured on the model: -x to +x, at scale 1 (M3Surroundings.ModelMinX/MaxX).</summary>
+    private const float ModelMinX = -4.16f, ModelMaxX = 4.39f;
+
+    /// <summary>
+    /// How high a neighbour's wall reaches, in world y: the top of the walls or the low edge of the roof,
+    /// whichever is higher. Every house is the same model, so this house's own renderers give it.
+    /// </summary>
+    private static float NeighbourTop(Transform plot)
+    {
+        Transform house = null;
+        foreach (Transform child in plot)
+            if (child.Find("Roof") != null) { house = child; break; }
+        float top = plot.position.y + 3f;   // about a house's wall height, if the house cannot be measured
+        if (house == null) return top;
+        top = plot.position.y;
+        foreach (var r in house.GetComponentsInChildren<Renderer>(true))
+        {
+            if (r.name == "Main_Floor") top = Mathf.Max(top, r.bounds.max.y);
+            else if (r.name == "Roof") top = Mathf.Max(top, r.bounds.min.y);
+        }
+        return top;
     }
 
     /// <summary>One quad on the wall at each opening, a little larger than the frame.</summary>
@@ -175,22 +257,37 @@ public class M3LightShafts : MonoBehaviour
             var o = house.openings[i];
             float facing = Vector3.Dot(o.outward, -sunDirection);
             float strength = Mathf.Clamp01(Mathf.InverseLerp(beamFromFacing, 0.6f, facing));
+
+            // Followed back toward the sun, the ray from this opening reaches the neighbour's wall plane after
+            // gap / facing metres, having climbed that far times the sun's height per metre. If it is still
+            // below the wall's top there, the wall is in the way.
+            if (o.neighbourGap > 0f && strength > 0f)
+            {
+                float heightAtWall = o.centre.y + o.neighbourGap / facing * -sunDirection.y;
+                float clear = heightAtWall - house.neighbourTop;
+                strength *= Mathf.Clamp01(clear / Mathf.Max(0.01f, occlusionSoftness) + 0.5f);
+            }
+
             for (int k = 0; k < 4 && i * 4 + k < glowColours.Length; k++) glowColours[i * 4 + k].a = 0.65f + 0.35f * strength;
             if (strength <= 0f || sunDirection.y > -0.05f) continue;
 
             Vector3 c = o.centre - o.outward * 0.03f;
             Vector3 a = o.across * o.halfWidth, u = Vector3.up * o.halfHeight;
-            Vector3[] near = { c - a - u, c + a - u, c + a + u, c - a + u };
-            for (int k = 0; k < 4; k++)
-            {
-                Vector3 n0 = near[k], n1 = near[(k + 1) % 4];
-                Quad(house.plot, n0, n1, n1 + sunDirection * Reach(n1, floorY, sunDirection),
-                     n0 + sunDirection * Reach(n0, floorY, sunDirection), strength);
-            }
+            // The four corners of the opening, without an array: this runs for a house each time the sun moves.
+            Vector3 n0 = c - a - u, n1 = c + a - u, n2 = c + a + u, n3 = c - a + u;
+            Beam(house, n0, n1, floorY, sunDirection, strength);
+            Beam(house, n1, n2, floorY, sunDirection, strength);
+            Beam(house, n2, n3, floorY, sunDirection, strength);
+            Beam(house, n3, n0, floorY, sunDirection, strength);
         }
         house.glow.SetColors(glowColours);
         Commit(house.beams);
     }
+
+    /// <summary>One face of a beam: the edge p0-p1 of the opening, swept along the light to the floor.</summary>
+    private void Beam(House house, Vector3 p0, Vector3 p1, float floorY, Vector3 sunDirection, float strength)
+        => Quad(house.plot, p0, p1, p1 + sunDirection * Reach(p1, floorY, sunDirection),
+                p0 + sunDirection * Reach(p0, floorY, sunDirection), strength);
 
     /// <summary>How far light from <paramref name="from"/> travels before it reaches the floor.</summary>
     private float Reach(Vector3 from, float floorY, Vector3 sunDirection)

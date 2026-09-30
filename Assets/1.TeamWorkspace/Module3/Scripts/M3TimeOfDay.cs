@@ -117,6 +117,7 @@ public class M3TimeOfDay : MonoBehaviour
     public Vector3 SunDirection => sun != null ? sun.transform.forward : Vector3.down;
 
     private Light sun;
+    private float nextSunSearch;
     private Material skyAsset, skyInstance;
     private float shown = -1f;
 
@@ -133,7 +134,12 @@ public class M3TimeOfDay : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (sun == null) sun = FindSun();
+        // A scene with no directional light would search (and allocate) every frame; once a second is plenty.
+        if (sun == null && Time.unscaledTime >= nextSunSearch)
+        {
+            sun = FindSun();
+            nextSunSearch = Time.unscaledTime + 1f;
+        }
 
         float target = TargetProgress();
         if (shown < 0f) shown = target;
