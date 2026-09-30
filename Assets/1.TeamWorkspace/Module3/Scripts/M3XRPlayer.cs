@@ -34,6 +34,11 @@ public class M3XRPlayer : MonoBehaviour
     [SerializeField] private float walkSpeed = 1.4f;
     [Tooltip("How fast the left stick turns the Pilot, degrees per second.")]
     [SerializeField] private float turnSpeed = 60f;
+    [Tooltip("Left-stick travel that counts as no input. The starter rig's Turn action has no dead zone "
+             + "(only Move has one), so a stick that rests a little off centre - common on a well-used "
+             + "loaner controller - slowly spun the Pilot round. Scaled past it, so a full push still turns at turnSpeed.")]
+    [Range(0f, 0.6f)]
+    [SerializeField] private float turnDeadzone = 0.3f;
     [Tooltip("Tallest the body capsule may be. Keeps the body clear of low beams and eaves for a tall "
              + "wearer; the doorways themselves are 2.1 m clear, so nobody needs to duck.")]
     [SerializeField] private float maxBodyHeight = 1.6f;
@@ -53,6 +58,8 @@ public class M3XRPlayer : MonoBehaviour
     public bool ConfirmingEndTurn { get; private set; }
 
     private InputAction ready, menu, no;
+    private InputAction turnStick;
+    private ContinuousTurnProvider turnProvider;
 
     private void Awake()
     {
@@ -139,6 +146,9 @@ public class M3XRPlayer : MonoBehaviour
             turn.turnSpeed = turnSpeed;
             turn.enableTurnAround = false;
             turn.rightHandTurnInput.inputSourceMode = XRInputValueReader.InputSourceMode.Unused;
+            // The left stick is read here, through a dead zone, and handed to the provider each frame.
+            turn.leftHandTurnInput.inputSourceMode = XRInputValueReader.InputSourceMode.ManualValue;
+            turnProvider = turn;
         }
         foreach (var snap in Rig.GetComponentsInChildren<SnapTurnProvider>(true))
             snap.enabled = false;
@@ -167,13 +177,20 @@ public class M3XRPlayer : MonoBehaviour
         no = new InputAction("No", InputActionType.Button);
         no.AddBinding("<XRController>{RightHand}/{SecondaryButton}");
         no.AddBinding("<Keyboard>/escape");
+        // Invariant culture: the processor string is parsed, and a decimal comma would break it.
+        string min = turnDeadzone.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
+        turnStick = new InputAction("Turn", InputActionType.Value, "<XRController>{LeftHand}/{Primary2DAxis}",
+                                    processors: $"stickDeadzone(min={min},max=0.925)");
     }
 
-    private void OnEnable() { ready?.Enable(); menu?.Enable(); no?.Enable(); }
-    private void OnDisable() { ready?.Disable(); menu?.Disable(); no?.Disable(); }
+    private void OnEnable() { ready?.Enable(); menu?.Enable(); no?.Enable(); turnStick?.Enable(); }
+    private void OnDisable() { ready?.Disable(); menu?.Disable(); no?.Disable(); turnStick?.Disable(); }
 
     private void Update()
     {
+        if (turnProvider != null && turnStick != null)
+            turnProvider.leftHandTurnInput.manualValue = turnStick.ReadValue<Vector2>();
+
         var s = M3Session.Instance;
         if (ready == null || s == null || s.Session == null || !s.Running) return;
 
