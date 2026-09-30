@@ -36,6 +36,8 @@ public class HouseholdView : MonoBehaviour
     private ScreenState shownScreens = (ScreenState)(-1);
     private bool shownFan, shownNet;
     private bool netShownAtAll;
+    // The room as first built is simply there; only changes after that are animated (M3PropSettle).
+    private bool animateChanges;
 
     /// <summary>Wired by M3NeighbourhoodBuilder, which creates the anchors as it lays out a plot.</summary>
     public void Bind(Transform screen, Transform fan, Transform net)
@@ -89,6 +91,7 @@ public class HouseholdView : MonoBehaviour
         ShowScreens(h.Screens);
         ShowFan(h.HasFan);
         ShowNet(AnyoneHereHasANet(sim, h));
+        animateChanges = true;
     }
 
     private static bool AnyoneHereHasANet(Neighbourhood sim, Household h)
@@ -114,6 +117,9 @@ public class HouseholdView : MonoBehaviour
             : Resolve(ref screenTornPrefab, Module3Props.WindowScreenTorn);
 
         screenInstance = Place(prefab, screenMount);
+        if (!animateChanges) return;
+        if (state == ScreenState.Intact) M3PropSettle.SlideIn(screenInstance, Vector3.forward);   // +z is into the room
+        else M3PropSettle.ShakeIn(screenInstance);
     }
 
     private void ShowFan(bool on)
@@ -154,6 +160,9 @@ public class HouseholdView : MonoBehaviour
 
         netInstance = Place(prefab, bedNetAnchor);
         if (!deployed) HangFromBedPost(netInstance);
+        if (!animateChanges) return;
+        if (deployed) M3PropSettle.DropNet(netInstance);
+        else M3PropSettle.GatherNet(netInstance);
     }
 
     /// <summary>
