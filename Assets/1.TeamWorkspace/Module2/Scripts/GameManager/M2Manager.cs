@@ -61,6 +61,8 @@ public class M2Manager : MonoBehaviour
     public float energyRegenDelay = 4f;
     [Tooltip("Seconds after a bite during which further bites are ignored. Mosquitoes emerge from the very containers the player is working on, so without this a swarm landed 8 bites in 5 seconds while a jar was being covered and ended the round in under 30 seconds.")]
     public float biteGracePeriod = 5f;
+    [Tooltip("The grace period grows as breeding sites are cleared: biteGracePeriod x (sites / sites still open), up to this factor. With every site open it is the plain biteGracePeriod, so difficulty at the start is unchanged; it is what makes source reduction lower how often you are bitten, however many mosquitoes are near. 1 disables.")]
+    public float maxBiteGraceMultiplier = 4f;
 
     [Header("Repellent")]
     [Tooltip("Seconds of bite protection from one squeeze of repellent cream onto a hand.")]
@@ -399,7 +401,12 @@ public class M2Manager : MonoBehaviour
         isOver = 0;
         EndReason = reason;
 
-        if (reason == RoundEndReason.AllSitesCleared) AddScore(completionBonus);
+        if (reason == RoundEndReason.AllSitesCleared)
+        {
+            AddScore(completionBonus);
+            // "House is clear" should look it: send the whole swarm away.
+            foreach (var mosquito in FindObjectsByType<Mosquito>(FindObjectsSortMode.None)) mosquito.Retire();
+        }
 
         _endShownAt = Time.time;
 
@@ -413,12 +420,24 @@ public class M2Manager : MonoBehaviour
         EndRound(RoundEndReason.TimeOut);
     }
 
+    /// <summary>Seconds between bites right now: longer the more breeding sites have been cleared.</summary>
+    public float CurrentBiteGrace
+    {
+        get
+        {
+            float grace = Mathf.Max(biteGracePeriod, 0f);
+            if (_siteCount <= 0 || maxBiteGraceMultiplier <= 1f) return grace;
+            float scale = (float)_siteCount / Mathf.Max(_openSites.Count, 1);
+            return grace * Mathf.Clamp(scale, 1f, maxBiteGraceMultiplier);
+        }
+    }
+
     /// <summary>Called by a mosquito that reaches the player. Ends the stint at biteLimit.</summary>
     public void NoteBite()
     {
         if (!IsPlaying) return;
         if (RepellentActive) return;
-        if (Time.time - _lastBiteAt < Mathf.Max(biteGracePeriod, 0f)) return;
+        if (Time.time - _lastBiteAt < CurrentBiteGrace) return;
 
         BiteCount++;
         _lastBiteAt = Time.time;
