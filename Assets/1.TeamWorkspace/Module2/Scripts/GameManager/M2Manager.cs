@@ -16,6 +16,10 @@ public class M2Manager : MonoBehaviour
     public GameObject flySwatterPrefabs;
     public GameObject creamPrefabs;
     public Transform pointFontPlayer;
+    [Tooltip("How far in front of the player's eyes, in metres, the wrist menu puts a tool.")]
+    public float spawnAhead = 0.4f;
+    [Tooltip("How far below the player's eyes, in metres, the wrist menu puts a tool.")]
+    public float spawnBelowEyes = 0.3f;
     public GameObject particleSpwn;
     private static readonly int Exposure = Shader.PropertyToID("_Exposure");
 
@@ -516,6 +520,7 @@ public class M2Manager : MonoBehaviour
         }
         foreach (var racket in existing) Destroy(racket.gameObject);
 
+        MoveSpawnPointInFrontOfPlayer();
         if (flySwatterPrefabs != null) Instantiate(flySwatterPrefabs, pointFontPlayer);
         if (particleSpwn != null) Instantiate(particleSpwn, pointFontPlayer);
         if (hud != null) hud.Toast(Module2Text.SwatterSpawned);
@@ -529,9 +534,28 @@ public class M2Manager : MonoBehaviour
             return;
         }
 
+        MoveSpawnPointInFrontOfPlayer();
         if (creamPrefabs != null) Instantiate(creamPrefabs, pointFontPlayer);
         if (particleSpwn != null) Instantiate(particleSpwn, pointFontPlayer);
         if (hud != null) hud.Toast(Module2Text.CreamSpawned);
+    }
+
+    // pointFontPlayer is authored 30 cm in front of the rig's origin. In the editor the head is always
+    // above that origin and facing along it; on a headset the player has stepped away from it and turned
+    // round, so the tool they asked for appeared beside or behind them.
+    void MoveSpawnPointInFrontOfPlayer()
+    {
+        var cam = Camera.main;
+        if (cam == null || pointFontPlayer == null) return;
+
+        Vector3 forward = Vector3.ProjectOnPlane(cam.transform.forward, Vector3.up);
+        // Looking straight down at the wrist leaves no forward to speak of; the top of the head points the way.
+        if (forward.sqrMagnitude < 0.01f) forward = Vector3.ProjectOnPlane(cam.transform.up, Vector3.up);
+        forward.Normalize();
+
+        pointFontPlayer.SetPositionAndRotation(
+            cam.transform.position + forward * spawnAhead + Vector3.down * spawnBelowEyes,
+            Quaternion.LookRotation(forward, Vector3.up));
     }
 
     /// <summary>Award points for a player action. Ignored once the round is over, so what the
