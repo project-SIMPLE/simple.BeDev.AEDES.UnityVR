@@ -67,6 +67,17 @@ public static class Module3SceneSmokeTest
             }
         }
 
+        // The Pilot's rig is Module 2's player, so the controls are Module 2's: the wrist watch is the tell.
+        var pilot = Object.FindFirstObjectByType<M3XRPlayer>();
+        if (pilot == null) failures.Add("no M3XRPlayer - nobody can put the headset on");
+        else
+        {
+            var rig = new SerializedObject(pilot).FindProperty("rigPrefab")?.objectReferenceValue as GameObject;
+            if (rig == null) failures.Add("M3XRPlayer has no rig prefab; the scene would run on the desktop camera");
+            else if (rig.GetComponentInChildren<UIHand>(true) == null)
+                failures.Add($"the rig '{rig.name}' is not Module 2's player (no wrist watch): Module 3 must control exactly like Module 2");
+        }
+
         // Build a real neighbourhood, not a mocked one.
         if (session != null && builder != null && failures.Count == 0)
         {

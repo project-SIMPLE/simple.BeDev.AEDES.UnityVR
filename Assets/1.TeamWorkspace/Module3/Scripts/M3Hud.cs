@@ -172,7 +172,7 @@ public class M3Hud : MonoBehaviour
         sb.AppendLine();
         sb.AppendLine(Localized("m3.ui.startCard"));
         sb.AppendLine();
-        sb.AppendLine($"<size={baseFontSize - 2}><color=#E5B25D>{Localized("m3.ui.pressAReady")}</color></size>");
+        sb.AppendLine($"<size={baseFontSize - 2}><color=#E5B25D>{Localized("m3.ui.readyPrompt")}</color></size>");
         handoverText.text = sb.ToString();
         handoverPanel.SetActive(true);
         handoverShownAt = Time.time;
@@ -253,7 +253,7 @@ public class M3Hud : MonoBehaviour
         {
             // The next Pilot presses A once the headset is on; the clock starts then, not before.
             sb.AppendLine();
-            sb.AppendLine($"<size={baseFontSize - 2}><color=#E5B25D>{Localized("m3.ui.pressAReady")}</color></size>");
+            sb.AppendLine($"<size={baseFontSize - 2}><color=#E5B25D>{Localized("m3.ui.readyPrompt")}</color></size>");
         }
 
         handoverText.text = sb.ToString();

@@ -2,45 +2,34 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
-using UnityEngine.XR.Interaction.Toolkit.Inputs.Readers;
-using UnityEngine.XR.Interaction.Toolkit.Interactors;
-using UnityEngine.XR.Interaction.Toolkit.Locomotion.Movement;
-using UnityEngine.XR.Interaction.Toolkit.Locomotion.Turning;
 using UnityEngine.XR.Interaction.Toolkit.UI;
 
 /// <summary>
-/// The Pilot in the headset. Spawns the XR Interaction Toolkit starter rig at the head of the
-/// lane and sets up what it needs, replacing the scene's plain desktop camera.
+/// The Pilot in the headset. Spawns Module 2's player rig (VR_Player_Module_2) at the start of the
+/// road and sets up what Module 3 needs on it, replacing the scene's plain desktop camera.
 ///
-/// Controls:
-///   Right stick          walk (forward is where you look)
-///   Left stick           turn left/right, smoothly
-///   Point + trigger      talk to a villager, press a button on a panel
-///   Grip (reach out)     talk to a villager within arm's reach
-///   A                    "I'm ready" at the start of a turn (also the A key on a keyboard)
-///   Left menu button     end your turn early (asks first)
+/// Module 3 controls exactly like Module 2, because it is Module 2's rig, untouched:
+///   Left stick           walk (forward is where you look), at Module 2's pace
+///   Right stick          turn left/right, smoothly
+///   Grip (reach out)     talk to a villager within arm's reach - where Module 2 grabs a jar
+///   Right index finger   poke a button, on the person panel or on the watch
+///   Look at your wrist   the watch menu: Ready at the start of a turn, End turn during one, then
+///                        Yes / No - where Module 2 keeps its swatter and cream (M3WristMenu)
+/// A, B and the left menu button answer as well (ready / yes, no, end turn), as do A, Enter, Escape
+/// and Backspace on a keyboard without a headset.
 ///
 /// Also the turn's gatekeeper: M3Session holds each turn's clock until the incoming Pilot, now in
-/// the headset, presses A.
+/// the headset, presses Ready.
 /// </summary>
 public class M3XRPlayer : MonoBehaviour
 {
+    [Tooltip("Module 2's player rig. Its sticks, hands, poke and wrist watch are used as they are.")]
     [SerializeField] private GameObject rigPrefab;
-    [Tooltip("Where the Pilot stands at the start of the session: the head of the lane.")]
+    [Tooltip("Where the Pilot stands at the start of the session.")]
     [SerializeField] private Vector3 spawnPosition = new Vector3(-8f, 0f, 8f);
     [SerializeField] private float spawnYaw = 90f;
-    [Tooltip("Walking pace with the right stick, metres per second. The starter rig ships at 2.5, a jog, "
-             + "which is uncomfortable in a headset - especially for children - and overshoots doorways.")]
-    [SerializeField] private float walkSpeed = 1.4f;
-    [Tooltip("How fast the left stick turns the Pilot, degrees per second.")]
-    [SerializeField] private float turnSpeed = 60f;
-    [Tooltip("Left-stick travel that counts as no input. The starter rig's Turn action has no dead zone "
-             + "(only Move has one), so a stick that rests a little off centre - common on a well-used "
-             + "loaner controller - slowly spun the Pilot round. Scaled past it, so a full push still turns at turnSpeed.")]
-    [Range(0f, 0.6f)]
-    [SerializeField] private float turnDeadzone = 0.3f;
     [Tooltip("Tallest the body capsule may be. Keeps the body clear of low beams and eaves for a tall "
-             + "wearer; the doorways themselves are 2.1 m clear, so nobody needs to duck.")]
+             + "wearer; the doorways themselves are 1.9 m clear, so nobody needs to duck.")]
     [SerializeField] private float maxBodyHeight = 1.6f;
     [Tooltip("How high the body steps over a ledge. The character controller sweeps this far UP before "
              + "stepping forward, so at the stock 0.5 m it can hit a doorway's lintel and refuse to enter. "
@@ -58,15 +47,13 @@ public class M3XRPlayer : MonoBehaviour
     public bool ConfirmingEndTurn { get; private set; }
 
     private InputAction ready, menu, no;
-    private InputAction turnStick;
-    private ContinuousTurnProvider turnProvider;
 
     private void Awake()
     {
         Instance = this;
         // The buttons come first. Everything below (the desktop-camera early return, the rig set-up)
-        // used to sit ahead of them, so a Pilot could be left with a prompt that says "press A" and
-        // nothing listening whenever any of that returned early or threw.
+        // used to sit ahead of them, so a Pilot could be left with a prompt and nothing listening
+        // whenever any of that returned early or threw.
         CreateInputs();
 #if UNITY_EDITOR
         // Working on the scene without a headset: keep the plain camera and the keyboard driver.
@@ -86,22 +73,10 @@ public class M3XRPlayer : MonoBehaviour
         EnsureInteractionManager();
         Rig = Instantiate(rigPrefab, spawnPosition, Quaternion.Euler(0f, spawnYaw, 0f));
         Rig.name = "XR Origin (Module 3 Pilot)";
-        SetUpSticks();
+        TakeOverModule2Rig();
 
-        // The starter rig brings locomotion this module does not want. A is "ready" and "yes" here,
-        // and the rig binds it to a 1.25 m JUMP (a hop in a headset is nauseating, and it happened
-        // the moment a Pilot pressed ready); grip is how you reach for a villager, and the rig binds
-        // it to grab-move, which would drag the Pilot along; nothing here is climbable.
-        foreach (var provider in Rig.GetComponentsInChildren<UnityEngine.XR.Interaction.Toolkit.Locomotion.LocomotionProvider>(true))
-        {
-            string kind = provider.GetType().Name;
-            if (kind == "JumpProvider" || kind == "GrabMoveProvider" || kind == "TwoHandedGrabMoveProvider" || kind == "ClimbProvider")
-                provider.enabled = false;
-        }
-
-        // Stand on the real floor. The starter rig leaves this unspecified, which falls back to a fixed
-        // 1.36 m camera offset instead of the wearer's own height - and doorways, panel heights and the
-        // hand positions all assume true standing height.
+        // Stand on the real floor: doorways, panel heights and the hand positions all assume true
+        // standing height, where a device origin falls back to a fixed 1.36 m camera offset.
         var origin = Rig.GetComponent<Unity.XR.CoreUtils.XROrigin>();
         if (origin != null)
             origin.RequestedTrackingOriginMode = Unity.XR.CoreUtils.XROrigin.TrackingOriginMode.Floor;
@@ -120,50 +95,23 @@ public class M3XRPlayer : MonoBehaviour
     }
 
     /// <summary>
-    /// Right stick walks, left stick turns, and nothing teleports.
-    ///
-    /// The starter rig splits the sticks the other way round: the left walks, and the right snap-turns
-    /// 45 degrees on a flick, spins 180 degrees when pulled back and aims a teleport when pushed
-    /// forward - which is what playtesting called the right stick "sending me to a random view or
-    /// location". Each controller's ControllerInputActionManager switches those actions on and off
-    /// again as the hand points at UI, and it can only give a hand either walking or teleport-and-turn,
-    /// never turning alone, so both are switched off here (before their Start) and the providers read
-    /// the one stick each is meant to. The rig's InputActionManager keeps every action enabled.
+    /// What is Module 2's game rather than its controls stands down: the "game over" card that follows
+    /// the camera, and the device poller that only logs. The sticks, hands, grab and poke are left exactly
+    /// as Module 2 has them. The watch stays too, with Module 3's buttons on it.
     /// </summary>
-    private void SetUpSticks()
+    private void TakeOverModule2Rig()
     {
-        foreach (var manager in Rig.GetComponentsInChildren<MonoBehaviour>(true))
-            if (manager.GetType().Name == "ControllerInputActionManager") manager.enabled = false;
-
-        foreach (var move in Rig.GetComponentsInChildren<ContinuousMoveProvider>(true))
-        {
-            move.moveSpeed = walkSpeed;
-            move.leftHandMoveInput.inputSourceMode = XRInputValueReader.InputSourceMode.Unused;
-        }
-        foreach (var turn in Rig.GetComponentsInChildren<ContinuousTurnProvider>(true))
-        {
-            turn.enabled = true;
-            turn.turnSpeed = turnSpeed;
-            turn.enableTurnAround = false;
-            turn.rightHandTurnInput.inputSourceMode = XRInputValueReader.InputSourceMode.Unused;
-            // The left stick is read here, through a dead zone, and handed to the provider each frame.
-            turn.leftHandTurnInput.inputSourceMode = XRInputValueReader.InputSourceMode.ManualValue;
-            turnProvider = turn;
-        }
-        foreach (var snap in Rig.GetComponentsInChildren<SnapTurnProvider>(true))
-            snap.enabled = false;
-
-        foreach (var teleport in Rig.GetComponentsInChildren<UnityEngine.XR.Interaction.Toolkit.Locomotion.Teleportation.TeleportationProvider>(true))
-            teleport.enabled = false;
-        foreach (var ray in Rig.GetComponentsInChildren<XRRayInteractor>(true))
-            if (ray.name.Contains("Teleport")) ray.gameObject.SetActive(false);
+        var lose = Rig.transform.Find("Canvas_Lose");
+        if (lose != null) lose.gameObject.SetActive(false);
+        foreach (var poller in Rig.GetComponentsInChildren<InputVR>(true)) poller.enabled = false;
+        M3WristMenu.Attach(Rig);
     }
 
     /// <summary>
-    /// The three buttons the game itself listens to. The on-screen prompts name the Quest's buttons
-    /// (A = ready / yes, B = no), so the keyboard answers to the same letter as well as to the keys
-    /// the desktop driver has always used: someone testing without a headset reads "press A" and
-    /// presses A. B is left off the keyboard on purpose: the desktop driver already uses it to take a net back.
+    /// The three buttons the game itself listens to, besides the watch. A = ready and yes, B = no, the left
+    /// menu button asks to end the turn. The keyboard answers to the same letter as well as to the keys
+    /// the desktop driver has always used. B is left off the keyboard on purpose: the desktop driver
+    /// already uses it to take a net back.
     /// </summary>
     private void CreateInputs()
     {
@@ -177,20 +125,13 @@ public class M3XRPlayer : MonoBehaviour
         no = new InputAction("No", InputActionType.Button);
         no.AddBinding("<XRController>{RightHand}/{SecondaryButton}");
         no.AddBinding("<Keyboard>/escape");
-        // Invariant culture: the processor string is parsed, and a decimal comma would break it.
-        string min = turnDeadzone.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
-        turnStick = new InputAction("Turn", InputActionType.Value, "<XRController>{LeftHand}/{Primary2DAxis}",
-                                    processors: $"stickDeadzone(min={min},max=0.925)");
     }
 
-    private void OnEnable() { ready?.Enable(); menu?.Enable(); no?.Enable(); turnStick?.Enable(); }
-    private void OnDisable() { ready?.Disable(); menu?.Disable(); no?.Disable(); turnStick?.Disable(); }
+    private void OnEnable() { ready?.Enable(); menu?.Enable(); no?.Enable(); }
+    private void OnDisable() { ready?.Disable(); menu?.Disable(); no?.Disable(); }
 
     private void Update()
     {
-        if (turnProvider != null && turnStick != null)
-            turnProvider.leftHandTurnInput.manualValue = turnStick.ReadValue<Vector2>();
-
         var s = M3Session.Instance;
         if (ready == null || s == null || s.Session == null || !s.Running) return;
 
@@ -208,6 +149,19 @@ public class M3XRPlayer : MonoBehaviour
         }
         if (menu.WasPressedThisFrame()) ConfirmingEndTurn = true;
     }
+
+    /// <summary>The watch's first button: Ready at the start of a turn, Yes while confirming, otherwise it asks to end the turn.</summary>
+    public void PressPrimary()
+    {
+        var s = M3Session.Instance;
+        if (s == null || s.Session == null || !s.Running) return;
+        if (s.WaitingForPilot) s.PilotReady();
+        else if (ConfirmingEndTurn) { ConfirmingEndTurn = false; s.EndTurn(); }
+        else ConfirmingEndTurn = true;
+    }
+
+    /// <summary>The watch's second button: No.</summary>
+    public void PressSecondary() => ConfirmingEndTurn = false;
 
     private static void EnsureInteractionManager()
     {
