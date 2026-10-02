@@ -11,6 +11,12 @@ using UnityEngine;
 /// built at runtime from a seed rather than dressed by hand, so the scene file stays small and
 /// the surroundings always fit whatever layout the builder produced.
 ///
+/// Round the village Modules 1 and 2 share (the scene's own, see M3VillageSites) only the countryside
+/// is added - grass to the horizon, paddies, the far tree line, the hills - at the village's ground
+/// level; what stood in the sky in those modules stands in fields here. The village itself is left as
+/// it is: no painted track, no fences or poles of ours, no palms round the yards, its houses in their
+/// own materials, and its own walls round the Pilot.
+///
 /// Scenery only: no colliders, nothing the model or the player interacts with.
 /// </summary>
 public class M3Surroundings : MonoBehaviour
@@ -69,9 +75,11 @@ public class M3Surroundings : MonoBehaviour
 
     /// <summary>
     /// Called by M3NeighbourhoodBuilder once the plots stand; <paramref name="village"/> covers the
-    /// houses. The plots themselves (whose yards get worn) are read from the builder on this object.
+    /// houses, its bottom at ground level. The plots themselves (whose yards get worn) are read from
+    /// the builder on this object. <paramref name="sceneVillage"/> is true when the village is the
+    /// scene's own (Modules 1 and 2's) rather than built: then only the countryside round it is added.
     /// </summary>
-    public void Build(Bounds village)
+    public void Build(Bounds village, bool sceneVillage = false)
     {
         // Not the builder's static HouseholdViews: that is only set in Awake, so it is empty when the
         // neighbourhood is built in edit mode (the scene smoke test).
@@ -84,19 +92,21 @@ public class M3Surroundings : MonoBehaviour
         rng = new System.Random(seed);
 
         BuildSky();
-        BuildGround(village, plots);
+        if (sceneVillage) BuildFields(village); else BuildGround(village, plots);
         BuildPaddies(village);
-        BuildTrees(village);
-        BuildHills(village.center);
-        M3WorldBounds.Build(root, village);   // walking is the only way to move: keep the Pilot on the ground
+        BuildTrees(village, nearTrees: !sceneVillage);
+        BuildHills(village);
+        // Walking is the only way to move: keep the Pilot on the ground. The scene's village has walls of its own.
+        if (!sceneVillage) M3WorldBounds.Build(root, village);
         // What makes the lane a village: fences, poles and wires, washing, lean-tos, trees between the
         // houses, hens. Before the outdoor life, so the trees it plants get the wind too.
-        if (villageDressing) Debug.Log("Module 3: " + M3VillageDressing.Build(root, village, plots, seed, nearTrees, farTrees));
+        if (villageDressing && !sceneVillage) Debug.Log("Module 3: " + M3VillageDressing.Build(root, village, plots, seed, nearTrees, farTrees));
         // Wind in the trees, drifting clouds, animals and a few walkers: decoration, from the same seed.
-        M3OutdoorLife.Build(root, village, plots, seed);
+        M3OutdoorLife.Build(root, village, plots, seed, lane: !sceneVillage);
 
-        // The houses are part of the look too: give them their surface texture now that they stand.
-        M3HouseSurface.ApplyToPlots(plots);
+        // The houses are part of the look too: give them their surface texture now that they stand. The
+        // scene's own houses keep the look they have in Modules 1 and 2.
+        if (!sceneVillage) M3HouseSurface.ApplyToPlots(plots);
 
         // Last, once every material is final: the broad trees and bushes of the ring become static batches.
         BatchStaticTrees();
@@ -150,13 +160,21 @@ public class M3Surroundings : MonoBehaviour
         if (cam != null) cam.farClipPlane = Mathf.Max(cam.farClipPlane, farClip);
     }
 
-    private void BuildGround(Bounds village, IReadOnlyList<HouseholdView> plots)
+    /// <summary>Grass to the horizon: a small seamless tile repeated, since out there the repeats vanish into the haze.</summary>
+    private void BuildFields(Bounds village)
     {
-        // Grass to the horizon: a small seamless tile repeated, since out there the repeats vanish into the haze.
         float fieldSize = hillRadius * 2.2f;
-        var fields = Quad("Fields", village.center + Vector3.down * 0.03f, new Vector2(fieldSize, fieldSize), grass);
+        var fields = Quad("Fields", GroundCentre(village) + Vector3.down * 0.03f, new Vector2(fieldSize, fieldSize), grass);
         fields.GetComponent<Renderer>().sharedMaterial = PaintedMat(
             M3GroundPainter.PaintTile(256, grass, groundContrast, seed), Vector2.one * (fieldSize / FieldTile));
+    }
+
+    /// <summary>The middle of the village at its ground level.</summary>
+    private static Vector3 GroundCentre(Bounds village) => new Vector3(village.center.x, village.min.y, village.center.z);
+
+    private void BuildGround(Bounds village, IReadOnlyList<HouseholdView> plots)
+    {
+        BuildFields(village);
 
         // Over the village and its lane, one image that never repeats, with the dirt track between the
         // two rows of houses painted into the grass, and the worn yard and side-door path of every house.
@@ -180,7 +198,7 @@ public class M3Surroundings : MonoBehaviour
             doorZ = ModelDoorZ * houseScale,
             pathX = ModelMaxX * houseScale + PathOffset,
         };
-        var painted = Quad("Ground (painted)", new Vector3(area.center.x, 0f, area.center.y), area.size, grass);
+        var painted = Quad("Ground (painted)", new Vector3(area.center.x, village.min.y, area.center.y), area.size, grass);
         painted.GetComponent<Renderer>().sharedMaterial = PaintedMat(
             M3GroundPainter.PaintVillage(area, groundTexel, 4096, TrackWidth * 0.5f,
                                          frames, yard, grass, track, groundContrast, seed), Vector2.one);
@@ -221,7 +239,7 @@ public class M3Surroundings : MonoBehaviour
                 for (float x = x0; x < x1; x += cell)
                 {
                     if (Next() < 0.12f) continue; // a few gaps read as fallow ground
-                    var centre = new Vector3(x + cell * 0.5f, 0f, z);
+                    var centre = new Vector3(x + cell * 0.5f, village.min.y, z);
                     matte.Quad(centre + Vector3.up * 0.01f, cell, 0);
                     bool flooded = Next() < 0.35f;
                     int green = 2 + rng.Next(Greens);
@@ -291,19 +309,19 @@ public class M3Surroundings : MonoBehaviour
         }
     }
 
-    private void BuildTrees(Bounds village)
+    private void BuildTrees(Bounds village, bool nearTrees)
     {
         var keepOut = village;
         keepOut.Expand(new Vector3(6f, 0f, 6f));
 
-        // Palms and bananas close around the houses, as in the Module 1 village.
-        if (nearTrees != null && nearTrees.Length > 0)
+        // Palms and bananas close around the houses, as in the Module 1 village (which has its own).
+        if (nearTrees && this.nearTrees != null && this.nearTrees.Length > 0)
         {
             for (int i = 0; i < 46; i++)
             {
                 var p = RingPoint(village, 3f, 14f);
                 if (keepOut.Contains(new Vector3(p.x, keepOut.center.y, p.z))) continue;
-                Place(nearTrees, p, 0.9f, 1.3f);
+                Place(this.nearTrees, p, 0.9f, 1.3f);
             }
         }
 
@@ -314,7 +332,7 @@ public class M3Surroundings : MonoBehaviour
             {
                 float a = (float)(Next() * Mathf.PI * 2f);
                 float r = Mathf.Lerp(95f, 160f, (float)Next());
-                var p = village.center + new Vector3(Mathf.Cos(a) * r * 1.2f, 0f, Mathf.Sin(a) * r);
+                var p = GroundCentre(village) + new Vector3(Mathf.Cos(a) * r * 1.2f, 0f, Mathf.Sin(a) * r);
                 Place(farTrees, p, 1.4f, 2.4f);
             }
         }
@@ -324,12 +342,13 @@ public class M3Surroundings : MonoBehaviour
     private Vector3 RingPoint(Bounds b, float inner, float outer)
     {
         float d = Mathf.Lerp(inner, outer, (float)Next());
+        float y = b.min.y;
         switch (rng.Next(4))
         {
-            case 0: return new Vector3(Mathf.Lerp(b.min.x - d, b.max.x + d, (float)Next()), 0f, b.max.z + d);
-            case 1: return new Vector3(Mathf.Lerp(b.min.x - d, b.max.x + d, (float)Next()), 0f, b.min.z - d);
-            case 2: return new Vector3(b.min.x - d, 0f, Mathf.Lerp(b.min.z, b.max.z, (float)Next()));
-            default: return new Vector3(b.max.x + d, 0f, Mathf.Lerp(b.min.z, b.max.z, (float)Next()));
+            case 0: return new Vector3(Mathf.Lerp(b.min.x - d, b.max.x + d, (float)Next()), y, b.max.z + d);
+            case 1: return new Vector3(Mathf.Lerp(b.min.x - d, b.max.x + d, (float)Next()), y, b.min.z - d);
+            case 2: return new Vector3(b.min.x - d, y, Mathf.Lerp(b.min.z, b.max.z, (float)Next()));
+            default: return new Vector3(b.max.x + d, y, Mathf.Lerp(b.min.z, b.max.z, (float)Next()));
         }
     }
 
@@ -349,8 +368,9 @@ public class M3Surroundings : MonoBehaviour
     }
 
     /// <summary>A low ring of hills on the horizon: one mesh, a few hundred triangles.</summary>
-    private void BuildHills(Vector3 centre)
+    private void BuildHills(Bounds village)
     {
+        var centre = GroundCentre(village);
         const int segments = 72;
         var verts = new List<Vector3>();
         var tris = new List<int>();

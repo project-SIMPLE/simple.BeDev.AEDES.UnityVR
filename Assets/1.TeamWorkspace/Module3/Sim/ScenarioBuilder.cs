@@ -55,6 +55,20 @@ namespace Aedes.Module3.Sim
         /// </summary>
         public int GuaranteedWarningSignCases;
 
+        /// <summary>
+        /// Houses the scene already has, one household each, in lane order. Null (the default) lays out
+        /// <see cref="Lanes"/> rows of <see cref="HouseholdsPerLane"/> for VillageLayout to place. M3Session
+        /// sets this when the scene carries Modules 1 and 2's village, so the neighbourhood is exactly the
+        /// houses standing there - the Pilot can only visit a house that exists - and nothing else.
+        /// </summary>
+        public PlotSite[] Sites;
+
+        /// <summary>True when the households come from <see cref="Sites"/> rather than the lane grid.</summary>
+        public bool HasSites => Sites != null && Sites.Length > 0;
+
+        /// <summary>How many households this scenario builds.</summary>
+        public int HouseholdCount => HasSites ? Sites.Length : Lanes * HouseholdsPerLane;
+
         public static ScenarioOptions Default => new ScenarioOptions
         {
             // Section 11: "eight to ten household plots packed along two or three narrow lanes".
@@ -76,60 +90,49 @@ namespace Aedes.Module3.Sim
 
             int containerId = 0;
 
-            for (int y = 0; y < options.Lanes; y++)
+            if (options.HasSites)
             {
-                for (int x = 0; x < options.HouseholdsPerLane; x++)
+                // The scene's own houses, in the order they were handed over (lane order, see
+                // PlotSites.LaneOrder): one row as far as the model is concerned.
+                for (int i = 0; i < options.Sites.Length; i++)
                 {
-                    var h = new Household
-                    {
-                        Id = n.Households.Count,
-                        LaneX = x,
-                        LaneY = y,
-                        Name = $"house.{y}.{x}",
-                    };
-
-                    // Section 6: screens are "widespread, though often torn or missing on one
-                    // window - a good thing for the player to notice and fix."
-                    double screenRoll = Rng.Unit(seed, 0, RngStream.Layout, h.Id, 1);
-                    h.Screens = screenRoll < 0.35 ? ScreenState.Missing
-                              : screenRoll < 0.80 ? ScreenState.Torn
-                              : ScreenState.Intact;
-
-                    // Fans are "very common"; air conditioning is "uncommon in the households this
-                    // module depicts" and the game must not depend on it.
-                    h.HasFan = Rng.Unit(seed, 0, RngStream.Layout, h.Id, 2) < 0.35;
-                    h.HasAirConditioning = Rng.Unit(seed, 0, RngStream.Layout, h.Id, 3) < 0.08;
-
-                    int containers = Rng.Range(2, 6, seed, 0, RngStream.Containers, h.Id);
-                    for (int c = 0; c < containers; c++)
-                    {
-                        h.Containers.Add(new Container
-                        {
-                            Id = containerId++,
-                            HouseholdId = h.Id,
-                            Kind = (ContainerKind)Rng.Range(0, 5, seed, 0, RngStream.Containers, h.Id, 10 + c),
-                            ClearedInModule2 =
-                                Rng.Unit(seed, 0, RngStream.Containers, h.Id, 100 + c) < options.Module2.ContainerClearance,
-                        });
-                    }
-
-                    EnsureResidualContainers(h, options.MinProductiveContainersPerHousehold);
+                    var h = MakeHousehold(n, seed, options, ref containerId, i, 0, $"house.{i}");
+                    h.Site = options.Sites[i];
                     n.Households.Add(h);
                 }
             }
-
-            // Neighbours: along the lane and directly across it. Section 5 - Aedes aegypti does not
-            // travel far, so the chain runs between neighbours rather than across a district.
-            for (int i = 0; i < n.Households.Count; i++)
+            else
             {
-                var a = n.Households[i];
-                for (int j = 0; j < n.Households.Count; j++)
+                for (int y = 0; y < options.Lanes; y++)
                 {
-                    if (i == j) continue;
-                    var b = n.Households[j];
-                    int dx = a.LaneX - b.LaneX; if (dx < 0) dx = -dx;
-                    int dy = a.LaneY - b.LaneY; if (dy < 0) dy = -dy;
-                    if (dx + dy == 1) a.NeighbourIds.Add(b.Id);
+                    for (int x = 0; x < options.HouseholdsPerLane; x++)
+                        n.Households.Add(MakeHousehold(n, seed, options, ref containerId, x, y, $"house.{y}.{x}"));
+                }
+            }
+
+            // Neighbours. Section 5 - Aedes aegypti does not travel far, so the chain runs between
+            // neighbours rather than across a district.
+            if (options.HasSites)
+            {
+                // Houses standing where the scene put them: within a mosquito's reach of each other.
+                var neighbours = PlotSites.Neighbours(options.Sites);
+                for (int i = 0; i < n.Households.Count; i++)
+                    n.Households[i].NeighbourIds.AddRange(neighbours[i]);
+            }
+            else
+            {
+                // The lane grid: along the lane and directly across it.
+                for (int i = 0; i < n.Households.Count; i++)
+                {
+                    var a = n.Households[i];
+                    for (int j = 0; j < n.Households.Count; j++)
+                    {
+                        if (i == j) continue;
+                        var b = n.Households[j];
+                        int dx = a.LaneX - b.LaneX; if (dx < 0) dx = -dx;
+                        int dy = a.LaneY - b.LaneY; if (dy < 0) dy = -dy;
+                        if (dx + dy == 1) a.NeighbourIds.Add(b.Id);
+                    }
                 }
             }
 
@@ -155,6 +158,46 @@ namespace Aedes.Module3.Sim
             SeedStandingMosquitoes(n);
             SeedIndexCases(n, options);
             return n;
+        }
+
+        private static Household MakeHousehold(Neighbourhood n, int seed, ScenarioOptions options, ref int containerId,
+                                               int laneX, int laneY, string name)
+        {
+            var h = new Household
+            {
+                Id = n.Households.Count,
+                LaneX = laneX,
+                LaneY = laneY,
+                Name = name,
+            };
+
+            // Section 6: screens are "widespread, though often torn or missing on one
+            // window - a good thing for the player to notice and fix."
+            double screenRoll = Rng.Unit(seed, 0, RngStream.Layout, h.Id, 1);
+            h.Screens = screenRoll < 0.35 ? ScreenState.Missing
+                      : screenRoll < 0.80 ? ScreenState.Torn
+                      : ScreenState.Intact;
+
+            // Fans are "very common"; air conditioning is "uncommon in the households this
+            // module depicts" and the game must not depend on it.
+            h.HasFan = Rng.Unit(seed, 0, RngStream.Layout, h.Id, 2) < 0.35;
+            h.HasAirConditioning = Rng.Unit(seed, 0, RngStream.Layout, h.Id, 3) < 0.08;
+
+            int containers = Rng.Range(2, 6, seed, 0, RngStream.Containers, h.Id);
+            for (int c = 0; c < containers; c++)
+            {
+                h.Containers.Add(new Container
+                {
+                    Id = containerId++,
+                    HouseholdId = h.Id,
+                    Kind = (ContainerKind)Rng.Range(0, 5, seed, 0, RngStream.Containers, h.Id, 10 + c),
+                    ClearedInModule2 =
+                        Rng.Unit(seed, 0, RngStream.Containers, h.Id, 100 + c) < options.Module2.ContainerClearance,
+                });
+            }
+
+            EnsureResidualContainers(h, options.MinProductiveContainersPerHousehold);
+            return h;
         }
 
         private static void EnsureResidualContainers(Household h, int minimum)
@@ -200,12 +243,15 @@ namespace Aedes.Module3.Sim
             // than one patient, which is what makes the net budget a choice from the first turn.
             // Both show symptoms on day 0, so "cover the first two patients on the first day"
             // is something a Pilot can actually do rather than a hidden requirement.
+            // In a village of only a few houses the three index cases land in the same house or two;
+            // they are still three different people, never the same person seeded twice.
+            var seeded = new HashSet<int>();
             int middle = n.Households.Count / 2;
-            int patientZero = FirstAdult(n, middle);
+            int patientZero = FirstAdult(n, middle, seeded);
             if (patientZero >= 0)
                 n.SeedIndexCase(patientZero, options.IndexCaseHeadStartDays, false, onsetDay: 0, forceSymptomatic: true);
 
-            int second = FirstAdult(n, middle + 1 < n.Households.Count ? middle + 1 : 0);
+            int second = FirstAdult(n, middle + 1 < n.Households.Count ? middle + 1 : 0, seeded);
             if (second >= 0 && second != patientZero)
                 n.SeedIndexCase(second, options.IndexCaseHeadStartDays, false, onsetDay: 0, forceSymptomatic: true);
 
@@ -223,20 +269,30 @@ namespace Aedes.Module3.Sim
             // they are infected." Placed at the far end so its chain is distinguishable on the
             // outbreak map from patient zero's.
             int farEnd = n.Households.Count - 1;
-            int invisible = FirstAdult(n, farEnd);
+            int invisible = FirstAdult(n, farEnd, seeded);
             if (invisible >= 0) n.SeedIndexCase(invisible, options.IndexCaseHeadStartDays, forceAsymptomatic: true);
         }
 
-        private static int FirstAdult(Neighbourhood n, int householdId)
+        /// <summary>
+        /// The first adult of household <paramref name="householdId"/> not yet in <paramref name="taken"/>
+        /// (any resident failing that), added to it; -1 when everyone there is taken.
+        /// </summary>
+        private static int FirstAdult(Neighbourhood n, int householdId, HashSet<int> taken)
         {
             var h = n.HouseholdById(householdId);
             if (h == null) return -1;
-            for (int i = 0; i < h.ResidentIds.Count; i++)
+            int pick = -1;
+            for (int i = 0; i < h.ResidentIds.Count && pick < 0; i++)
             {
                 var p = n.PersonById(h.ResidentIds[i]);
-                if (p != null && p.Age == AgeBand.Adult) return p.Id;
+                if (p != null && p.Age == AgeBand.Adult && !taken.Contains(p.Id)) pick = p.Id;
             }
-            return h.ResidentIds.Count > 0 ? h.ResidentIds[0] : -1;
+            for (int i = 0; i < h.ResidentIds.Count && pick < 0; i++)
+            {
+                if (!taken.Contains(h.ResidentIds[i])) pick = h.ResidentIds[i];
+            }
+            if (pick >= 0) taken.Add(pick);
+            return pick;
         }
     }
 }

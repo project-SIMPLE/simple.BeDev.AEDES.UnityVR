@@ -6,20 +6,35 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Generates the Module 3 scene from scratch.
+/// Generates the Module 3 scene: the village Modules 1 and 2 share, plus Module 3's own few objects.
+///
+/// Module 3 plays in the same village as the other two modules. That village is the `Environment`
+/// object of the Module 2 scene (road, terraces, fences, trees, houses), so this builder opens that
+/// scene, throws away everything that is Module 2's own game and saves what is left as the Module 3
+/// scene, with the Module 3 managers, player and screens added. The Module 2 scene itself is never
+/// written to. Which of the village's houses hold households is decided at runtime, by
+/// M3NeighbourhoodBuilder and M3VillageSites: the ones with a room the Pilot can enter.
 ///
 /// The scene is a build artefact, not something anybody hand-dresses. CLAUDE.md §9 and the roadmap
-/// both name Unity YAML merges as the likeliest thing to hurt this project - Module 1's main scene
-/// is about 38,000 lines and two people editing one conflict irreconcilably. So the scene contains
-/// four root objects and nothing else; the neighbourhood is laid out at runtime by
-/// M3NeighbourhoodBuilder from the simulation's own parameters.
-///
-/// Regenerating is how you change the scene. If you find yourself dragging things into it by hand,
-/// the change probably belongs in this file instead.
+/// both name Unity YAML merges as the likeliest thing to hurt this project. Regenerating is how you
+/// change the scene - and how a change to the village in the Module 2 scene reaches this one. If you
+/// find yourself dragging things into it by hand, the change probably belongs in this file instead.
 /// </summary>
 public static class Module3SceneBuilder
 {
     public const string ScenePath = "Assets/1.TeamWorkspace/Module3/Scenes/Module_3_MainScene.unity";
+
+    /// <summary>The scene whose village this one is built in: Modules 1 and 2 share it, and so does Module 3.</summary>
+    public const string VillageScenePath = "Assets/1.TeamWorkspace/Module2/Scene/Module_2_MainScene.unity";
+
+    /// <summary>
+    /// Where the Pilot starts: on the kerb at the road's south end, on the houses' side of it, facing up
+    /// the road with the houses ahead on the left - between the fence line (x 18.5) and the electric
+    /// poles (x 20.5, at z -42 and -39.5), clear of both. Module 2's own invisible walls keep the Pilot
+    /// to that half of the road and the yards along it.
+    /// </summary>
+    private static readonly Vector3 VillageSpawn = new Vector3(19.4f, 0.2f, -38.3f);
+    private const float VillageSpawnYaw = 0f;
 
     private const string House = "Assets/1.TeamWorkspace/Team Assets/Prefabs/Buildings/PF_Lao_House_One_FloorV2.prefab";
     private const string Bed = "Assets/1.TeamWorkspace/Team Assets/Prefabs/PF_Bed.prefab";
@@ -37,10 +52,10 @@ public static class Module3SceneBuilder
     [MenuItem("AEDES/Module 3/Generate Main Scene")]
     public static void Generate()
     {
-        var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+        var scene = OpenVillageScene();
 
         BuildLighting();
-        BuildGround();
+        // No ground plane of our own: the village brings its terrain and road, and the Pilot walks on those.
         BuildManagers();
         BuildNeighbourhood();
         BuildPlayer();
@@ -52,11 +67,49 @@ public static class Module3SceneBuilder
 
         RegisterInBuildSettings();
 
-        Debug.Log($"Module 3: generated {ScenePath}. The neighbourhood itself is built at runtime, "
-                  + "so this scene stays small and two people can work on the module at once.");
+        Debug.Log($"Module 3: generated {ScenePath} in the village of {VillageScenePath}. The households are "
+                  + "built at runtime on the village's own houses, so nothing of Module 3's is dressed by hand here.");
     }
 
     // -------------------------------------------------------------------------------------
+
+    /// <summary>
+    /// Opens the Module 2 scene and strips it to its village: the `Environment` object, with the road, the
+    /// terraces, the fences, the trees and the houses. Everything else there is Module 2's own game - its
+    /// rig, manager, canvas, mosquito spawner, cars and props - and goes. The Module 2 scene file is not
+    /// touched: what is left is saved as this module's scene.
+    /// </summary>
+    private static Scene OpenVillageScene()
+    {
+        var scene = EditorSceneManager.OpenScene(VillageScenePath, OpenSceneMode.Single);
+
+        GameObject village = null;
+        foreach (var root in scene.GetRootGameObjects())
+        {
+            if (village == null && root.name == M3VillageSites.VillageRoot) village = root;
+            else Object.DestroyImmediate(root);
+        }
+        if (village == null)
+        {
+            throw new System.InvalidOperationException(
+                $"{VillageScenePath} has no root object named '{M3VillageSites.VillageRoot}' to build the Module 3 scene in.");
+        }
+
+        // Modules 1 and 2's play rides on some of the village's props - containers that fill when it rains,
+        // jars that score a lid - and their scripts read managers this scene does not have. Scenery only here.
+        int stripped = 0;
+        foreach (var script in village.GetComponentsInChildren<MonoBehaviour>(true))
+        {
+            Object.DestroyImmediate(script);
+            stripped++;
+        }
+
+        // Baked lighting belongs to the Module 2 scene; this one lights the village live (M3TimeOfDay).
+        Lightmapping.lightingDataAsset = null;
+
+        Debug.Log($"Module 3: took the village from {VillageScenePath}; {stripped} Module 1/2 scripts stripped from it.");
+        return scene;
+    }
 
     private static void BuildLighting()
     {
@@ -66,16 +119,6 @@ public static class Module3SceneBuilder
         light.intensity = 1.1f;
         light.shadows = LightShadows.Soft;
         sun.transform.rotation = Quaternion.Euler(48f, 150f, 0f);
-    }
-
-    private static void BuildGround()
-    {
-        // A plain plane under the lanes. Real ground art is a later job; nothing binds to this.
-        var ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
-        ground.name = "Ground";
-        ground.transform.localScale = new Vector3(12f, 1f, 12f);
-        ground.transform.position = new Vector3(18f, 0f, 8f);
-        ground.isStatic = true;
     }
 
     private static void BuildManagers()
@@ -151,7 +194,8 @@ public static class Module3SceneBuilder
     private static void BuildPlayer()
     {
         var player = new GameObject("Player");
-        player.transform.position = new Vector3(0f, 1.6f, -4f);
+        player.transform.position = VillageSpawn + Vector3.up * 1.6f;
+        player.transform.rotation = Quaternion.Euler(0f, VillageSpawnYaw, 0f);
 
         var camera = player.AddComponent<Camera>();
         camera.nearClipPlane = 0.05f;
@@ -170,6 +214,8 @@ public static class Module3SceneBuilder
         var rig = AssetDatabase.LoadAssetAtPath<GameObject>(XRRigPrefab);
         if (rig == null) Debug.LogWarning($"Module 3: no XR rig at {XRRigPrefab}; the scene will run on the desktop camera.");
         xr.FindProperty("rigPrefab").objectReferenceValue = rig;
+        xr.FindProperty("spawnPosition").vector3Value = VillageSpawn;
+        xr.FindProperty("spawnYaw").floatValue = VillageSpawnYaw;
         xr.ApplyModifiedPropertiesWithoutUndo();
 
         // The conversation panel and the "walking in counts as a visit" tracker.

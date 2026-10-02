@@ -46,6 +46,12 @@ namespace Aedes.Module3.Sim
         public int LaneX;
         public int LaneY;
 
+        /// <summary>
+        /// Where the house stands when the scene's own village supplied it (one of ScenarioOptions.Sites);
+        /// null when the neighbourhood is generated and VillageLayout places the house.
+        /// </summary>
+        public PlotSite? Site;
+
         public readonly List<int> ResidentIds = new List<int>();
         public readonly List<Container> Containers = new List<Container>();
 

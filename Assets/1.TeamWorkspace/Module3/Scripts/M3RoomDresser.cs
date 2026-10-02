@@ -205,9 +205,10 @@ public class M3RoomDresser : ScriptableObject
     /// <summary>
     /// Furnishes plot <paramref name="plot"/> (house <paramref name="householdId"/>, standing with +z toward
     /// the lane) for the session <paramref name="seed"/>. Called by M3NeighbourhoodBuilder once the house,
-    /// bed and yard jar stand.
+    /// bed and yard jar stand. <paramref name="yard"/> false leaves the yard alone - a house of the scene's
+    /// own village has its yard dressed already.
     /// </summary>
-    public static void Dress(Transform plot, int householdId, int seed, float houseScale, float floorY)
+    public static void Dress(Transform plot, int householdId, int seed, float houseScale, float floorY, bool yard = true)
     {
         if (loaded == null) loaded = Resources.Load<M3RoomDresser>(ResourcePath);
         if (loaded == null)
@@ -217,14 +218,14 @@ public class M3RoomDresser : ScriptableObject
             warned = true;
             return;
         }
-        loaded.DressPlot(plot, householdId, seed, houseScale, floorY);
+        loaded.DressPlot(plot, householdId, seed, houseScale, floorY, yard);
     }
 
     private System.Random rng;
     private Transform plot;
     private float scale, floorY;
 
-    private void DressPlot(Transform plotRoot, int householdId, int seed, float houseScale, float floor)
+    private void DressPlot(Transform plotRoot, int householdId, int seed, float houseScale, float floor, bool dressYard)
     {
         rng = new System.Random(unchecked(seed * 486187739 + householdId * 16777619) ^ 0x5bd1e995);
         plot = plotRoot;
@@ -245,7 +246,7 @@ public class M3RoomDresser : ScriptableObject
 
         TintHouse();
         FurnishRooms(indoors);
-        FillYard(yard);
+        if (dressYard) FillYard(yard);
         VaryJar(householdId);
 
         // Everything indoors, and the small things in the yard, are left undrawn from two houses away.

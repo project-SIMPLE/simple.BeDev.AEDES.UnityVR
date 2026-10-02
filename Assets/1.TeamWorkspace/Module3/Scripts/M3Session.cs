@@ -66,6 +66,9 @@ public class M3Session : MonoBehaviour
     public event Action<ActionResult> OnActionResolved;
 
     private ParameterSet parameters;
+    /// <summary>What this session was actually built from: the parameters, with the scene's village applied.</summary>
+    private Module3Config config;
+    private ScenarioOptions scenario;
 
     private void Awake()
     {
@@ -88,19 +91,38 @@ public class M3Session : MonoBehaviour
 
         Seed = seed != 0 ? seed : Environment.TickCount & 0x7FFFFFFF;
 
-        var neighbourhood = ScenarioBuilder.Build(Seed, parameters.Config, parameters.Scenario);
+        config = parameters.Config;
+        scenario = parameters.Scenario;
+        // The scene's own village, when it has one (Modules 1 and 2's): its houses are the households.
+        var sites = M3NeighbourhoodBuilder.ScenePlotSites();
+        if (sites != null)
+        {
+            scenario.Sites = sites;
+            if (config.NetsPerSession >= sites.Length)
+            {
+                // Section 5: fewer nets than households, or there is nothing to choose. ParameterSet holds
+                // this invariant against the lane grid, which the village has just replaced.
+                config = config.Clone();
+                config.NetsPerSession = Mathf.Max(1, sites.Length - 1);
+                Debug.Log($"Module 3: the village has {sites.Length} houses, so there are {config.NetsPerSession} nets "
+                          + $"this session, not {parameters.Config.NetsPerSession}.");
+            }
+        }
+
+        var neighbourhood = ScenarioBuilder.Build(Seed, config, scenario);
         Session = new Session(neighbourhood);
 
         // So a mid-session parameter delivery knows what to stage onto.
         if (Module3Parameters.Instance != null) Module3Parameters.Instance.LiveNeighbourhood = neighbourhood;
 
-        TurnSecondsTotal = parameters.Config.TurnSeconds;
+        TurnSecondsTotal = config.TurnSeconds;
         TurnSecondsRemaining = TurnSecondsTotal;
         Running = true;
 
         Debug.Log($"Module 3: session started, seed {Seed}, "
-                  + $"{parameters.Config.Rounds} rounds x {parameters.Config.TurnsPerRound} turns of "
-                  + $"{TurnSecondsTotal:0}s, parameters from {parameters.Origin}.");
+                  + $"{config.Rounds} rounds x {config.TurnsPerRound} turns of "
+                  + $"{TurnSecondsTotal:0}s, parameters from {parameters.Origin}"
+                  + (sites != null ? $", {sites.Length} households on the scene's village." : "."));
 
         WaitingForPilot = waitForPilot;
         OnTurnStarted?.Invoke(0);
@@ -171,7 +193,7 @@ public class M3Session : MonoBehaviour
     public RunResult BuildCounterfactual()
     {
         if (Session == null) return default;
-        return SimRunner.Counterfactual(Seed, parameters.Config, parameters.Scenario,
+        return SimRunner.Counterfactual(Seed, config, scenario,
                                         Session.RecordedActions(), Session.PatientZeroId());
     }
 

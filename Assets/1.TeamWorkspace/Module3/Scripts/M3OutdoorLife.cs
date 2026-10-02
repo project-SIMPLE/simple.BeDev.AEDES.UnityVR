@@ -79,7 +79,12 @@ public class M3OutdoorLife : MonoBehaviour
     /// <paramref name="village"/> covers the houses and their yards; <paramref name="plots"/> are the
     /// houses, whose yard edges the frogs sit at.
     /// </summary>
-    public static M3OutdoorLife Build(Transform surroundings, Bounds village, IReadOnlyList<HouseholdView> plots, int seed)
+    /// <summary>
+    /// Builds the life round <paramref name="village"/> (its bottom at ground level). <paramref name="lane"/>
+    /// false means the village is the scene's own, with a road of its own that is not the generated lane:
+    /// then nobody walks it and the dragonflies keep to the paddies.
+    /// </summary>
+    public static M3OutdoorLife Build(Transform surroundings, Bounds village, IReadOnlyList<HouseholdView> plots, int seed, bool lane = true)
     {
         var set = M3OutdoorLifeSet.Load();
         if (set == null)
@@ -97,9 +102,9 @@ public class M3OutdoorLife : MonoBehaviour
         life.ApplyWind(surroundings, set);
         if (plots != null)
             for (int i = 0; i < plots.Count; i++) life.ApplyWind(plots[i].transform, set);   // the yards' own banana plants
-        life.BuildDragonflies(village, set);
-        life.BuildFrogs(plots, set);
-        life.BuildWalkers(village, set);
+        life.BuildDragonflies(village, set, lane);
+        life.BuildFrogs(plots, set, village.min.y);
+        if (lane) life.BuildWalkers(village, set);
         go.SetActive(true);
         return life;
     }
@@ -134,7 +139,7 @@ public class M3OutdoorLife : MonoBehaviour
 
     // ---------- dragonflies ----------
 
-    private void BuildDragonflies(Bounds village, M3OutdoorLifeSet set)
+    private void BuildDragonflies(Bounds village, M3OutdoorLifeSet set, bool lane)
     {
         if (set.dragonflies == null || set.dragonflies.Length == 0) return;
         // Three over the nearest paddies behind each row's back yards (M3Surroundings.BuildPaddies
@@ -145,7 +150,7 @@ public class M3OutdoorLife : MonoBehaviour
         {
             var prefab = set.dragonflies[i % set.dragonflies.Length];
             if (prefab == null) continue;
-            bool overPaddy = i < 3;
+            bool overPaddy = !lane || i < 3;
             float x = Mathf.Lerp(village.min.x + 8f, village.max.x - 8f, (float)rng.NextDouble());
             float paddyDepth = 14f + 3f + 14f * (float)rng.NextDouble();   // over the first two cells
             float z = overPaddy
@@ -153,7 +158,7 @@ public class M3OutdoorLife : MonoBehaviour
                 : VillageLayout.LaneZ(x) + (rng.Next(2) == 0 ? -1f : 1f) * (0.5f + 3f * (float)rng.NextDouble());
             var d = new Dragonfly
             {
-                centre = new Vector3(x, 0f, z),
+                centre = new Vector3(x, village.min.y, z),
                 ax = overPaddy ? 6f + 3f * (float)rng.NextDouble() : 4f + 3f * (float)rng.NextDouble(),
                 az = overPaddy ? 4f + 2f * (float)rng.NextDouble() : 1.2f + 0.6f * (float)rng.NextDouble(),
                 height = 1.1f + 0.7f * (float)rng.NextDouble(),
@@ -181,7 +186,7 @@ public class M3OutdoorLife : MonoBehaviour
 
     // ---------- frogs ----------
 
-    private void BuildFrogs(IReadOnlyList<HouseholdView> plots, M3OutdoorLifeSet set)
+    private void BuildFrogs(IReadOnlyList<HouseholdView> plots, M3OutdoorLifeSet set, float groundY)
     {
         if (set.frog == null || plots == null || plots.Count == 0) return;
         // Three, each somewhere in a front yard's corner - in front of the house wall (which stands
@@ -197,7 +202,7 @@ public class M3OutdoorLife : MonoBehaviour
             float side = rng.Next(2) == 0 ? -1f : 1f;
             var home = plot.TransformPoint(new Vector3(side * (3.4f + 2.4f * (float)rng.NextDouble()), 0f,
                                                        5.0f + 1.8f * (float)rng.NextDouble()));
-            home.y = 0f;
+            home.y = GroundAt(home, groundY);
             var frog = Instantiate(set.frog, home, Quaternion.Euler(0f, (float)rng.NextDouble() * 360f, 0f), transform);
             frog.name = $"Frog_{i}";
             frog.transform.localScale = Vector3.one * FrogScale;
@@ -214,6 +219,12 @@ public class M3OutdoorLife : MonoBehaviour
             });
         }
         frogs = list.ToArray();
+    }
+
+    /// <summary>The ground under <paramref name="at"/>: whatever a ray down finds (the scene's terrain, a yard), else <paramref name="fallback"/>.</summary>
+    private static float GroundAt(Vector3 at, float fallback)
+    {
+        return Physics.Raycast(new Vector3(at.x, at.y + 10f, at.z), Vector3.down, out var hit, 30f) ? hit.point.y : fallback;
     }
 
     // ---------- walkers ----------

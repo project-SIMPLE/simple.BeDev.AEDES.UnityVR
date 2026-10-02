@@ -11,11 +11,14 @@ using UnityEngine;
 /// scene file to a handful of root objects, makes the layout reviewable as numbers rather than as
 /// serialised transforms, and means two people can work on Module 3 at the same time.
 ///
-/// The geometry comes from the same parameters GAMA sets. `lanes` and `households_per_lane` decide
-/// both how the model's adjacency works and where the houses physically stand, so the two can
-/// never drift apart - the plot you can see from the next plot is the plot a mosquito can reach.
-/// Where exactly each plot stands - a winding lane, houses turned and set back by different
-/// amounts, uneven gaps - is VillageLayout's job; this class only builds what it is told.
+/// Where the plots stand depends on the scene. Module 3 plays in the village Modules 1 and 2 share
+/// (Module3SceneBuilder takes it from the Module 2 scene): its houses that have a room are the plots,
+/// adopted exactly where and how they stand (M3VillageSites), and the simulation has one household
+/// per such house - the plot you can see from the road is the plot a mosquito can reach. In a scene
+/// with no village the neighbourhood is generated instead: `lanes` and `households_per_lane` decide
+/// both the model's adjacency and where the houses physically stand, and VillageLayout places them -
+/// a winding lane, houses turned and set back by different amounts, uneven gaps. This class only
+/// builds what it is told.
 /// </summary>
 public class M3NeighbourhoodBuilder : MonoBehaviour
 {
@@ -85,9 +88,42 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
     /// <summary>The plots of the neighbourhood that is standing now (empty before it is built).</summary>
     public static IReadOnlyList<HouseholdView> HouseholdViews => current != null ? current.Households : none;
 
+    /// <summary>
+    /// The houses of the scene's village the households are built on (see M3VillageSites), in lane order;
+    /// null when the scene has no village and the neighbourhood is generated.
+    /// </summary>
+    private List<M3VillageSite> villageSites;
+    private bool villageScanned;
+
+    private List<M3VillageSite> ScanVillage()
+    {
+        if (!villageScanned)
+        {
+            villageScanned = true;
+            villageSites = M3VillageSites.Find(housePrefab);
+        }
+        return villageSites;
+    }
+
+    /// <summary>
+    /// What M3Session hands ScenarioBuilder as the scenario's sites: one per house of the scene's village
+    /// the builder can furnish, in lane order; null when the scene has no village. Read from the builder in
+    /// the scene - found by search before Awake has run, as when the smoke test builds in edit mode.
+    /// </summary>
+    public static PlotSite[] ScenePlotSites()
+    {
+        var builder = current != null ? current : FindFirstObjectByType<M3NeighbourhoodBuilder>();
+        var sites = builder != null ? builder.ScanVillage() : null;
+        if (sites == null) return null;
+        var plots = new PlotSite[sites.Count];
+        for (int i = 0; i < plots.Length; i++) plots[i] = sites[i].Plot;
+        return plots;
+    }
+
     private void Awake()
     {
         current = this;
+        ScanVillage();
         // Villagers, beds and props beyond a couple of houses are not drawn (see M3DistanceCulling).
         if (GetComponent<M3DistanceCulling>() == null) gameObject.AddComponent<M3DistanceCulling>();
         // The sun, the sky and the light indoors follow the turn clock (see M3TimeOfDay).
@@ -120,37 +156,74 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
         built = true;
 
         var sim = M3Session.Instance.Neighbourhood;
+        var sites = ScanVillage();
+        bool sceneVillage = sites != null;
 
-        // Every plot's place comes from the layout, which needs the shape of the ladder: its rows and
-        // how many houses each holds.
+        PlotPlacement[] layout = null;
         int lanes = 0, perLane = 0;
-        foreach (var h in sim.Households)
+        if (sceneVillage)
         {
-            lanes = Mathf.Max(lanes, h.LaneY + 1);
-            perLane = Mathf.Max(perLane, h.LaneX + 1);
+            // The village's own houses are the plots, as they stand; their size is the neighbourhood's.
+            houseScale = sites[0].Plot.Scale;
         }
-        var layout = VillageLayout.Place(M3Session.Instance.Seed, lanes, perLane, plotWidth, laneSpacing, houseScale);
+        else
+        {
+            // Every plot's place comes from the layout, which needs the shape of the ladder: its rows and
+            // how many houses each holds.
+            foreach (var h in sim.Households)
+            {
+                lanes = Mathf.Max(lanes, h.LaneY + 1);
+                perLane = Mathf.Max(perLane, h.LaneX + 1);
+            }
+            layout = VillageLayout.Place(M3Session.Instance.Seed, lanes, perLane, plotWidth, laneSpacing, houseScale);
+        }
 
         for (int i = 0; i < sim.Households.Count; i++)
         {
             var h = sim.Households[i];
-            BuildPlot(sim, h, layout[h.LaneY * perLane + h.LaneX]);
+            if (!sceneVillage)
+            {
+                BuildPlot(sim, h, layout[h.LaneY * perLane + h.LaneX], null);
+                continue;
+            }
+            if (!h.Site.HasValue || h.Id >= sites.Count)
+            {
+                Debug.LogError($"Module 3: household {h.Number} has no house in the village - the session was not "
+                               + "built from the scene's sites (M3NeighbourhoodBuilder.ScenePlotSites) - so it is left out.");
+                continue;
+            }
+            var site = h.Site.Value;
+            BuildPlot(sim, h, new PlotPlacement { X = site.X, Z = site.Z, Yaw = site.Yaw }, sites[h.Id].House);
         }
 
         var surroundings = GetComponent<M3Surroundings>();
         if (surroundings != null && Households.Count > 0)
         {
-            var village = new Bounds(Households[0].transform.position, Vector3.zero);
-            foreach (var h in Households) village.Encapsulate(h.transform.position);
-            village.Expand(new Vector3(16f, 0f, 14f)); // the houses themselves, plus their yards
-            surroundings.Build(village);
+            Bounds village;
+            if (sceneVillage)
+            {
+                village = M3VillageSites.Footprint(M3VillageSites.FindVillage());
+            }
+            else
+            {
+                village = new Bounds(Households[0].transform.position, Vector3.zero);
+                foreach (var h in Households) village.Encapsulate(h.transform.position);
+                village.Expand(new Vector3(16f, 0f, 14f)); // the houses themselves, plus their yards
+            }
+            surroundings.Build(village, sceneVillage);
         }
 
         Debug.Log($"Module 3: built {Households.Count} plots and {Villagers.Count} villagers "
-                  + $"from seed {M3Session.Instance.Seed}.");
+                  + $"from seed {M3Session.Instance.Seed}"
+                  + (sceneVillage ? $", on the {sites.Count} houses of the scene's village." : "."));
     }
 
-    private void BuildPlot(Neighbourhood sim, Household h, PlotPlacement placement)
+    /// <summary>
+    /// Builds household <paramref name="h"/>'s plot at <paramref name="placement"/>. With <paramref name="adopted"/>,
+    /// a house the scene already has, that house becomes the plot's where it stands; otherwise the house prefab
+    /// is stood there.
+    /// </summary>
+    private void BuildPlot(Neighbourhood sim, Household h, PlotPlacement placement, GameObject adopted)
     {
         // Two rows facing each other across a lane, which is what makes the transmission chain
         // plausible - section 5: houses close together are not set dressing.
@@ -159,18 +232,32 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
         // real heading as the last step. The dressing and the number board measure the house from its
         // renderers' world bounds, which only give its walls while the plot's axes are the world's
         // (see M3RoomDresser.PlotBounds), so they must not see it turned.
-        bool farSide = h.LaneY % 2 == 1;
-        var plotPosition = new Vector3(placement.X, 0f, placement.Z);
+        bool farSide = adopted == null && h.LaneY % 2 == 1;
+        var plotPosition = new Vector3(placement.X, adopted != null ? adopted.transform.position.y : 0f, placement.Z);
         var facing = Quaternion.Euler(0f, farSide ? 180f : 0f, 0f);
 
         var plot = new GameObject($"Plot_{h.Id}");
         plot.transform.SetParent(transform, false);
         plot.transform.SetPositionAndRotation(plotPosition, facing);
 
-        if (housePrefab != null)
+        GameObject house = null;
+        if (adopted != null)
         {
-            var house = Instantiate(housePrefab, plot.transform);
+            // A house the village already has: it keeps its place and heading, and the plot takes them -
+            // then the plot is stood square for the dressing, house and all, like a built one, and turned
+            // back to the house's own heading at the end.
+            plot.transform.rotation = Quaternion.Euler(0f, placement.Yaw, 0f);
+            adopted.transform.SetParent(plot.transform, true);
+            plot.transform.rotation = facing;
+            house = adopted;
+        }
+        else if (housePrefab != null)
+        {
+            house = Instantiate(housePrefab, plot.transform);
             house.transform.localScale = Vector3.one * houseScale;
+        }
+        if (house != null)
+        {
             OpenTheDoors(house);
             // The number the Coach's lines and the journal name, painted where the Pilot can see it.
             M3HouseNumber.Attach(plot.transform, house, h.Number);
@@ -200,8 +287,9 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
         // lined every yard with identical pots. Scenery only needs to say "water stands here": one
         // jar at most, and a stable per-house roll leaves some yards bare. This is presentation
         // only - the simulation's container counts are untouched.
+        // The village's own yards already have their jars, tyres and buckets: nothing is added to them.
         uint roll = (uint)h.Id * 2654435761u;
-        if (containerPrefab != null && h.ProductiveContainerCount > 0
+        if (adopted == null && containerPrefab != null && h.ProductiveContainerCount > 0
             && (int)((roll >> 16) % 100u) < yardJarPercent)
         {
             // In the lane-side yard, in front of the house. At z = -1.8 they were inside the
@@ -215,8 +303,9 @@ public class M3NeighbourhoodBuilder : MonoBehaviour
             Instantiate(containerPrefab, yard);   // outdoors and cheap: not distance-culled, so it never pops on the lane
         }
 
-        // Furniture, yard plants and a tint of its own, chosen per household so no two houses match.
-        if (housePrefab != null) M3RoomDresser.Dress(plot.transform, h.Id, M3Session.Instance.Seed, houseScale, FloorY);
+        // Furniture, yard plants and a tint of its own, chosen per household so no two houses match. A house
+        // of the village keeps its yard as the village dressed it.
+        if (house != null) M3RoomDresser.Dress(plot.transform, h.Id, M3Session.Instance.Seed, houseScale, FloorY, yard: adopted == null);
 
         for (int r = 0; r < h.ResidentIds.Count; r++)
         {

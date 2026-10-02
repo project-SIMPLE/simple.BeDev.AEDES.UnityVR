@@ -38,6 +38,17 @@ public static class Module3SceneSmokeTest
         if (Object.FindFirstObjectByType<M3JournalWriter>() == null)
             failures.Add("no M3JournalWriter - the facilitator gets no record of the session");
 
+        // The scene is built in the village Modules 1 and 2 share; its houses are where the households go.
+        var village = M3VillageSites.FindVillage();
+        if (village == null)
+            failures.Add($"no '{M3VillageSites.VillageRoot}' in the scene - it is built in the Module 2 village "
+                         + "(AEDES > Module 3 > Generate Main Scene)");
+        if (village != null && village.GetComponentInChildren<MonoBehaviour>(true) != null)
+            failures.Add("the village still carries Module 1/2 scripts, which read managers this scene does not have");
+        int villageHouses = M3NeighbourhoodBuilder.ScenePlotSites()?.Length ?? 0;
+        if (village != null && villageHouses == 0)
+            failures.Add("the village has no house the builder can furnish (none named after its house prefab)");
+
         // Only one SimulationManager subclass may exist, or they race over the static Instance.
         var simManagers = Object.FindObjectsByType<SimulationManager>(FindObjectsInactive.Include,
                                                                      FindObjectsSortMode.None);
@@ -69,6 +80,8 @@ public static class Module3SceneSmokeTest
             {
                 if (builder.Households.Count != sim.Households.Count)
                     failures.Add($"built {builder.Households.Count} plots for {sim.Households.Count} households");
+                if (village != null && sim.Households.Count != villageHouses)
+                    failures.Add($"{sim.Households.Count} households for a village of {villageHouses} houses");
                 if (builder.Villagers.Count != sim.People.Count)
                     failures.Add($"built {builder.Villagers.Count} villagers for {sim.People.Count} residents");
 
@@ -81,7 +94,8 @@ public static class Module3SceneSmokeTest
                 }
 
                 // The ground is painted at build time (M3GroundPainter); flat colour means the paint step failed.
-                if (builder.GetComponent<M3Surroundings>() != null)
+                // (The scene's village has its own ground, which is left alone.)
+                if (village == null && builder.GetComponent<M3Surroundings>() != null)
                 {
                     var painted = GameObject.Find("Ground (painted)");
                     var groundTexture = painted != null ? painted.GetComponent<Renderer>().sharedMaterial.mainTexture : null;
@@ -95,8 +109,9 @@ public static class Module3SceneSmokeTest
                     if (houseMaterial == null || !houseMaterial.HasProperty("_M3DetailMap") || houseMaterial.GetTexture("_M3DetailMap") == null)
                         failures.Add($"Resources/{asset} is missing or has no detail texture (AEDES > Module 3 > Generate House Surface Assets)");
                 }
-                // ...and that the swap reached the houses that were actually built (M3Surroundings applies it).
-                if (builder.GetComponent<M3Surroundings>() != null)
+                // ...and that the swap reached the houses that were actually built (M3Surroundings applies it;
+                // the scene's own houses keep their look).
+                if (village == null && builder.GetComponent<M3Surroundings>() != null)
                 {
                     foreach (var plot in builder.Households)
                     {
@@ -119,8 +134,8 @@ public static class Module3SceneSmokeTest
 
                 // The yards and the lane are dressed (M3VillageDressing) - fences, poles, washing, trees, hens -
                 // and within a budget: a Quest draws the whole village, so the dressing is a few meshes per
-                // yard, not a prop per draw call.
-                if (builder.GetComponent<M3Surroundings>() != null)
+                // yard, not a prop per draw call. (The scene's village is dressed already.)
+                if (village == null && builder.GetComponent<M3Surroundings>() != null)
                 {
                     var dressing = GameObject.Find("Village Dressing");
                     if (dressing == null) failures.Add("no Village Dressing under the surroundings: the lane is bare");
@@ -154,6 +169,7 @@ public static class Module3SceneSmokeTest
                 // The whole scene stays drawable on a headset. It was 2,576 renderers before the palms were merged
                 // (each was twenty), the paddies became two meshes and the side number boards were distance-culled;
                 // it is about 850 now. Anything that puts it back over 1,200 has added a renderer per prop somewhere.
+                // In the Module 2 village, with its two households built, the scene is about 710 renderers.
                 int sceneRenderers = 0;
                 foreach (var r in Object.FindObjectsByType<Renderer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
                     if (r.enabled) sceneRenderers++;
