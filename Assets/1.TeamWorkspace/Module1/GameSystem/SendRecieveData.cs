@@ -2,6 +2,9 @@
 using UnityEngine;
 public class SendRecieveData : SimulationManager
 {
+    [Tooltip("Display name reported to GAMA alongside the score.")]
+    [SerializeField] private string playerName = "AEDES Player";
+
     GAMAMessages message = null;
     protected override void ManageOtherMessages(string content)
     {
@@ -16,7 +19,7 @@ public class SendRecieveData : SimulationManager
                {"id", ConnectionManager.Instance.GetConnectionId()},
                {"mes", mes},
                {"score_val", CurrentScore().ToString()},
-               {"name_val", "NIGG"}
+               {"name_val", string.IsNullOrWhiteSpace(playerName) ? ConnectionManager.Instance.GetConnectionId() : playerName}
             };
             Debug.Log("sent to GAMA: " + mes);
             Debug.Log($"Sending to GAMA - ID: {args["id"]}, Score: {args["score_val"]}");
