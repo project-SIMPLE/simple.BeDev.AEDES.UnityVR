@@ -1,88 +1,95 @@
+﻿using TMPro;
 using UnityEngine;
 
-/// <summary>
-/// The four life-cycle quests: DrinkNectar -> Mating -> DrinkBlood -> LayEgg. Each is worth
-/// <see cref="Reward"/> points once. Quests latch: a bar draining again later (blood resets to 0
-/// after laying eggs) does not undo a completed quest. The HUD reads <see cref="Quests"/> to draw
-/// the list and <see cref="CurrentObjective"/> to pick what to point the player at.
-/// </summary>
 public class QuestSystem : MonoBehaviour
 {
-    public const int QuestCount = 4;
-    public const int Reward = 25;
-    public const int EggsToLay = 4;
-
-    public class Quest
-    {
-        public string title;
-        public string hint;
-        public bool done;
-        /// <summary>Optional "n/m" shown after the title.</summary>
-        public string progress;
-    }
-
-    public Quest[] Quests { get; private set; }
+    public string[] QuestList;
+    public bool[] target;
+    public TextMeshProUGUI[] Quest_Text;
     public GameManager gm;
-
-    public int CompletedCount
-    {
-        get
-        {
-            int n = 0;
-            foreach (var q in Quests) if (q.done) n++;
-            return n;
-        }
-    }
-
-    /// <summary>Index of the first unfinished quest in life-cycle order, or -1 when all are done.</summary>
-    public int CurrentObjective
-    {
-        get
-        {
-            for (int i = 0; i < Quests.Length; i++) if (!Quests[i].done) return i;
-            return -1;
-        }
-    }
-
-    private void Awake()
-    {
-        Quests = new[]
-        {
-            new Quest { title = Module1Text.QuestNectar, hint = Module1Text.QuestNectarHint },
-            new Quest { title = Module1Text.QuestMate,   hint = Module1Text.QuestMateHint },
-            new Quest { title = Module1Text.QuestBlood,  hint = Module1Text.QuestBloodHint },
-            new Quest { title = Module1Text.QuestEggs,   hint = Module1Text.QuestEggsHint, progress = "0/" + EggsToLay },
-        };
-    }
-
+    bool n,m,b,l;
+    public GameObject BloodWarning;
+    public GameObject NecWarning;
     private void Start()
     {
         gm = GameManager.instance;
+        target = new bool[QuestList.Length];
+        for (int i = 0; i < QuestList.Length; i++)
+        {
+            QuestList[i] = Quest_Text[i].text;
+        }
+            SetQuest();
     }
-
     private void Update()
     {
-        if (gm == null || gm.player == null) return;
-        CheckProgress();
+        SetQuest();
     }
-
-    public void CheckProgress()
+    public void checkprogess()
     {
-        var p = gm.player;
-        Quests[3].progress = Mathf.Min(p.EggLayed, EggsToLay) + "/" + EggsToLay;
-        // Small tolerance: nectar drains a little every frame, so an exact "== max" is only true
-        // for a frame or two after the bar fills.
-        Complete(0, p.Current_Nec >= p.Max_Nec - 0.05f);
-        Complete(1, p.isMate);
-        Complete(2, p.Current_Blood >= p.Max_Blood - 0.05f);
-        Complete(3, p.EggLayed >= EggsToLay);
+        target[0] = !gm.player.ishungry;
+        target[1] = gm.player.isMate;
+        target[2] = gm.player.Max_Blood <= gm.player.Current_Blood;
+        target[3] = gm.player.EggLayed == 4;
+        
     }
-
-    void Complete(int i, bool condition)
+    public void SetQuest()
     {
-        if (Quests[i].done || !condition) return;
-        Quests[i].done = true;
-        gm.SetScore(Reward, Module1Text.QuestComplete(Quests[i].title));
-        gm.hud.OnQuestCompleted(i);
+        checkprogess();
+        for (int i = 0; i < QuestList.Length; i++)
+        {
+            if (!target[i])
+            {
+                Quest_Text[i].text = "<color=\"red\">" + QuestList[i] + "</color>";
+                if (i == 0 && n)
+                {
+                    n = false;
+
+                }
+                if (i == 1 && m)
+                {
+                    m = false;
+                }
+                if (i == 2 && b)
+                {
+                    b = false;
+                }
+                if (i == 3 && l)
+                {
+                    l = false;
+                }
+            }
+            if (target[i])
+            {
+                Quest_Text[i].text = "<color=\"green\">" + QuestList[i] + "</color>";
+                if (i == 0 && !n)
+                {
+                    GameManager.instance.DrinkNectarScore += 50;
+                    GameManager.instance.setscore(50);
+
+                    n = true;
+
+                }
+                if (i == 1 && !m)
+                {
+                    GameManager.instance.MatingScore += 100;
+                    GameManager.instance.setscore(100);
+
+                    m = true;
+                }
+                if (i == 2 && !b)
+                {
+                    GameManager.instance.DrinkBloodScore += 50;
+                    GameManager.instance.setscore(50);
+
+                    b = true;
+                }
+                if (i == 3 && !l)
+                {
+                    l = true;
+                }
+            }
+            BloodWarning.SetActive(!b&&!GameManager.instance.player.RestartAble&&GameManager.instance.player.isMate);
+            NecWarning.SetActive(!n && !GameManager.instance.player.RestartAble);
+        }
     }
 }

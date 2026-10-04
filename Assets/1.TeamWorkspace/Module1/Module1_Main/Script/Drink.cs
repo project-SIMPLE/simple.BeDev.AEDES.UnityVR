@@ -1,21 +1,56 @@
 using UnityEngine;
 
-/// <summary>
-/// Trigger volume on the proboscis. Holding A over a person or a flower drinks blood / nectar and
-/// parents the player to it so they stay attached; the HUD prompt comes from ReportInteraction.
-/// </summary>
 public class Drink : MonoBehaviour
 {
+    public PlayerMain player;
+    private void Start()
+    {
+        player = PlayerMain.instance;
+    }
     private void OnTriggerStay(Collider collision)
     {
-        var player = PlayerMain.instance;
-        if (player == null) return;
+        if (collision.gameObject.GetComponent<WaterContainer>())
+        {
+            if (player.Current_Blood >= player.Max_Blood && player.isMate)
+            {
+                if (player.R_primaryValue)
+                {
+                    if (player.returnValue)
+                    {
+                        player.LayEggparti.Play();
+                    }
+                    player.Current_Blood = 0;
+                    player.BloodBar.value = player.Current_Blood;
+                    player.EggLayed++;
+                    GameManager.instance.LayEggScore += collision.gameObject.GetComponent<WaterContainer>().Score;
+                    GameManager.instance.setscore(collision.gameObject.GetComponent<WaterContainer>().Score);
 
+                }
+            }
+        }
+        if (collision.gameObject.GetComponent<Wild_Mosquitos>())
+        {
+            if (collision.gameObject.GetComponent<Wild_Mosquitos>().Gender == Wild_Mosquitos.genderlist.male && !player.isMate)
+            {
+                if (player.R_primaryValue)
+                {
+                    if (player.returnValue)
+                    {
+                        player.MateParti.Play();
+                    }
+                    player.isMate = true;
+                }
+            }
+        }
         if (collision.gameObject.GetComponent<Human>())
         {
-            player.ReportInteraction(PlayerMain.Interaction.Human);
+            print("AAAAAA");
             if (player.R_primaryValue && player.Current_Blood < player.Max_Blood)
             {
+                if (player.returnValue)
+                {
+                    player.DrinkBloodParti.Play();
+                }
                 player.Drink();
                 player.canmove = false;
                 player.gameObject.transform.parent = collision.gameObject.transform;
@@ -28,9 +63,12 @@ public class Drink : MonoBehaviour
         }
         if (collision.gameObject.tag == "Flower")
         {
-            player.ReportInteraction(PlayerMain.Interaction.Flower);
             if (player.R_primaryValue && player.Current_Nec < player.Max_Nec)
             {
+                if (player.returnValue)
+                {
+                    player.DrinknectarParti.Play();
+                }
                 player.DrinkNectar();
                 player.canmove = false;
                 player.gameObject.transform.parent = collision.gameObject.transform;
@@ -46,8 +84,8 @@ public class Drink : MonoBehaviour
     {
         if (other.gameObject.GetComponent<Human>())
         {
-            PlayerMain.instance.canmove = true;
-            PlayerMain.instance.transform.parent = null;
+            player.canmove = true;
+            player.transform.parent = null;
         }
     }
 }

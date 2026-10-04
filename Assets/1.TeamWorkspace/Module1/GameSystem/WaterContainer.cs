@@ -13,8 +13,7 @@ public class WaterContainer : MonoBehaviour
     }
     public IEnumerator Fill()
     {
-        // Shared prefabs carry this script into Module 2, which has no GameManager: wait instead of throwing.
-        yield return new WaitUntil(() => GameManager.instance != null && GameManager.instance.IsRain);
+        yield return new WaitUntil(()=>GameManager.instance.IsRain);
         WaterOBJ.SetActive(true);
         isFill = true;
     }

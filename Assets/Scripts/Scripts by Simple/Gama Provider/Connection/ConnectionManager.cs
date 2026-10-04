@@ -5,10 +5,11 @@ using WebSocketSharp;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Linq;
+using UnityEngine.UIElements;
 
 public class ConnectionManager : WebSocketConnector
 {
-     
+    public Image img;
     private ConnectionState currentState;
     private bool connectionRequested; 
 

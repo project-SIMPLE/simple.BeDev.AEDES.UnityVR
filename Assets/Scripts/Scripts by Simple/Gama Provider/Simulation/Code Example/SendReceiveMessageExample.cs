@@ -37,7 +37,6 @@ public class SendReceiveMessageExample : SimulationManager
             message = null;
         }
 
-
  }
 
 

@@ -1,146 +1,126 @@
+using System;
+using System.Data;
+using System.Drawing;
+using TMPro;
 using UnityEngine;
+using WebSocketSharp;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
     public int score;
-    public int time_M,time_S;
+    public int LayEggScore, MatingScore,DrinkBloodScore,DrinkNectarScore;
     public int time,Maxtime;
+    public TextMeshProUGUI ScoreUI, LayEggUI, MatingUI, DrinkBloodUI, DrinkNectarUI;
+    public TextMeshProUGUI scoretext,TimeUI,DeathText;
+    public GameObject DangerUI,DeathUI,TimeOutUI,questUI;
     public GameObject Rain;
     public PlayerMain player;
     public GameObject[] Human;
+    public WaterContainer[] waterContainers;
     public bool IsRain;
-
-    public enum GameOverReason { Starved, Eaten, TimeOut }
-
-    /// <summary>True once the player has dismissed the intro. The timer and the nectar drain wait for it.</summary>
-    public bool GameStarted { get; private set; }
-    public bool GameEnded { get; private set; }
-    public bool IsPlaying => GameStarted && !GameEnded;
-
-    public Module1HUD hud { get; private set; }
-    public QuestSystem quests { get; private set; }
-
-    // The intro is only shown on the first run of a session; after "press any button to restart"
-    // the player already knows the rules and goes straight back in.
-    static bool introShown;
-    float introOpenedAt;
-
     private void Awake()
     {
-        Maxtime = (time_M) * 60 + time_S;
-        time = Maxtime;
         instance = this;
-        quests = GetComponent<QuestSystem>();
-        if (quests == null) quests = FindFirstObjectByType<QuestSystem>();
-        hud = GetComponent<Module1HUD>();
-        if (hud == null) hud = gameObject.AddComponent<Module1HUD>();
+        waterContainers = FindObjectsOfType<WaterContainer>();
     }
 
     private void Start()
     {
-        if (SaveManager.instance != null && SaveManager.instance.a != null)
+        if (SaveManager.instance != null)
         {
             score = SaveManager.instance.a.Score;
-        }
-        if (introShown)
-        {
-            StartGame();
+            LayEggScore = SaveManager.instance.a.LayEggScore;
+            MatingScore = SaveManager.instance.a.MatingScore;
+            DrinkNectarScore = SaveManager.instance.a.DrinkNectarScore;
+            DrinkBloodScore = SaveManager.instance.a.DrinkBloodScore;
+            scoretext.text = "Score: " + score.ToString();
+            time = SaveManager.instance.a.time;
         }
         else
         {
-            introOpenedAt = Time.time;
-            hud.ShowIntro();
+            time = 300;
         }
+        Maxtime = time;
+        CancelInvoke("Settime");
+        InvokeRepeating("Settime", 0, 1);
     }
-
     private void Update()
     {
-        // Half a second of grace so a button still held from the menu does not skip the intro.
-        if (!GameStarted && player != null && player.PrimaryDown && Time.time - introOpenedAt > 0.5f)
-        {
-            StartGame();
-        }
+        questUI.SetActive(player.L_gripValue);
     }
-
-    public void StartGame()
-    {
-        if (GameStarted) return;
-        GameStarted = true;
-        introShown = true;
-        hud.HideIntro();
-        hud.ShowQuestPanel(hud.questPanelOnStart);
-        hud.Toast(Module1Text.StartToast);
-        InvokeRepeating(nameof(Settime), 1, 1);
-    }
-
     public void Settime()
     {
         time -= 1;
-
-        // Rain falls between 66% and 33% of the time; that is when the containers fill up.
-        bool rainNow = time < Maxtime * 0.66f && time > Maxtime * 0.33f;
-        if (rainNow != IsRain)
+        if(SaveManager.instance!= null)
         {
-            IsRain = rainNow;
-            if (Rain != null) Rain.SetActive(rainNow);
-            if (rainNow) hud.Toast(Module1Text.RainStarted, hud.rainColor);
-            else hud.Toast(Module1Text.RainStopped, hud.rainColor);
-        }
-
-        if (time == 60) hud.Toast(Module1Text.OneMinuteLeft, hud.warnColor);
-        else if (time == 30) hud.Toast(Module1Text.ThirtySecondsLeft, hud.warnColor);
-
-        if (time <= 0)
-        {
-            CancelInvoke(nameof(Settime));
-            TimeOut();
-        }
-    }
-
-    public void SetScore(int sc)
-    {
-        SetScore(sc, null);
-    }
-
-    /// <summary>Adds points; with a label the HUD also shows a "+N label" toast.</summary>
-    public void SetScore(int sc, string label)
-    {
-        score += sc;
-        if (SaveManager.instance != null && SaveManager.instance.a != null)
-        {
-            SaveManager.instance.a.Score = score;
+            SaveManager.instance.a.time = time;
             SaveManager.SavePlayerData(SaveManager.instance.a);
         }
-        if (label != null) hud.Toast("+" + sc + "  " + label, hud.doneColor);
+        if (time % 60 <= 9)
+        {
+            TimeUI.text = (time / 60).ToString() + ":0" + (time % 60).ToString();
+        }
+        if (time % 60>9)
+        {
+            TimeUI.text = (time / 60).ToString() + ":" + (time % 60).ToString();
+        }
+        if (time <= 0)
+        {
+            TimeOut();
+            CancelInvoke("Settime");
+        }
+        if(time<Maxtime*0.66f&&time>Maxtime*0.33f)
+        {
+            IsRain = true;
+            Rain.SetActive(true);
+        }
+        if (time < Maxtime * 0.33f)
+        {
+            IsRain = false;
+            Rain.SetActive(false);
+        }
     }
-
-    public void GameOver(GameOverReason reason)
+    public void setscore(int sc)
     {
-        if (GameEnded) return;
-        GameEnded = true;
-        player.Death = true;
-        CancelInvoke(nameof(Settime));
-        hud.SetDanger(false);
-        hud.ShowEnd(reason, score,
-            quests != null ? quests.CompletedCount : 0,
-            quests != null ? QuestSystem.QuestCount : 0,
-            player.EggLayed);
-        Invoke(nameof(RestartAble), 1);
-    }
+        score += sc;
+        scoretext.text = "Score: "+ score.ToString();
+        if (SaveManager.instance != null){
+            if(SaveManager.instance.a!=null)
+            {
+                SaveManager.instance.a.Score = score;
+                SaveManager.instance.a.LayEggScore = LayEggScore;
+                SaveManager.instance.a.MatingScore = MatingScore;
+                SaveManager.instance.a.DrinkNectarScore = DrinkNectarScore;
+                SaveManager.instance.a.DrinkBloodScore = DrinkBloodScore;
+            }
+            else
+            {
 
+            }
+            SaveManager.SavePlayerData(SaveManager.instance.a);
+        }
+    }
+    public void GameOver(string DeathMessage)
+    {
+        player.Death = true;
+        DeathUI.SetActive(true);
+        //CancelInvoke("Settime");
+        Invoke("RestartAble",1);
+        DeathText.text = DeathMessage;
+    }
     public void TimeOut()
     {
-        GameOver(GameOverReason.TimeOut);
+        TimeOutUI.SetActive(true);
+        ScoreUI.text = score.ToString();
+        LayEggUI.text = LayEggScore.ToString();
+        MatingUI.text = MatingScore.ToString();
+        DrinkBloodUI.text = DrinkBloodScore.ToString();
+        DrinkNectarUI.text = DrinkNectarScore.ToString();
+        Invoke("RestartAble", 1);
     }
-
     public void RestartAble()
     {
         player.RestartAble = true;
-    }
-
-    public void SetDanger(bool on)
-    {
-        hud.SetDanger(on);
     }
 }
