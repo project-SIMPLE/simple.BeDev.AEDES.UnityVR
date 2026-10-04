@@ -135,6 +135,9 @@ public class PlayerMain : MonoBehaviour
         BloodBar.value = Current_Blood;
         NectarBar.maxValue = Max_Nec;
         Current_Nec = Max_Nec/2;
+        // Half a bar is hungry. Without this the 'drink nectar' quest counted as done on the first
+        // frame (ishungry only turns on below half), which a latched quest then never undoes.
+        ishungry = true;
         NectarBar.value = Current_Nec;
         StripDeviceSimulatorFromBuild();
     }
