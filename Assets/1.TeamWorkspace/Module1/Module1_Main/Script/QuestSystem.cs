@@ -32,6 +32,8 @@ public class QuestSystem : MonoBehaviour
         SetQuest();
     }
     bool Done(int i) => i == 0 ? n : i == 1 ? m : i == 2 ? b : l;
+    /// <summary>Whether quest i (life-cycle order) is done; read by Module1HUD.</summary>
+    public bool IsDone(int i) => Done(i);
     public void checkprogess()
     {
         target[0] = !gm.player.ishungry;

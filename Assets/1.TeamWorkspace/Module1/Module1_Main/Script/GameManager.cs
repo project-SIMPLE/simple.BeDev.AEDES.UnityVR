@@ -23,6 +23,8 @@ public class GameManager : MonoBehaviour
     {
         instance = this;
         waterContainers = FindObjectsOfType<WaterContainer>();
+        // The in-headset HUD (Module 2 style) is built from code; it hides and mirrors the scene's PlayerUI.
+        if (GetComponent<Module1HUD>() == null) gameObject.AddComponent<Module1HUD>();
     }
 
     private void Start()
