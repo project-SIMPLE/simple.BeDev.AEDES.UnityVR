@@ -47,10 +47,7 @@ public class Drink : MonoBehaviour
             print("AAAAAA");
             if (player.R_primaryValue && player.Current_Blood < player.Max_Blood)
             {
-                if (player.returnValue)
-                {
-                    player.DrinkBloodParti.Play();
-                }
+                // The blood burst plays in PlayerMain.Drink once the bar is full, not on the first press.
                 player.Drink();
                 player.canmove = false;
                 player.gameObject.transform.parent = collision.gameObject.transform;

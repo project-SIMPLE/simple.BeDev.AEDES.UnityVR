@@ -244,7 +244,12 @@ public class PlayerMain : MonoBehaviour
     {
         if(!Death || GameManager.instance.time > 0)
         {
+            bool wasFull = Current_Blood >= Max_Blood;
             Current_Blood += Time.deltaTime;
+            if (!wasFull && Current_Blood >= Max_Blood)
+            {
+                DrinkBloodParti.Play();
+            }
             BloodBar.value = Current_Blood;
             canmove = !R_primaryValue;
         }
