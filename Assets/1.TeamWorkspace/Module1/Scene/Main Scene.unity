@@ -1984,6 +1984,7 @@ GameObject:
   - component: {fileID: 141577329}
   - component: {fileID: 141577328}
   - component: {fileID: 141577331}
+  - component: {fileID: 141577340}
   m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
@@ -1991,6 +1992,26 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &141577340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 141577326}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d7a889ca2904e8487c184a5a9de117b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ProboscisBloodFill
+  bloodColor: {r: 0.55, g: 0.02, b: 0.03, a: 1}
+  snoutTint: {r: 0.4, g: 0.03, b: 0.04, a: 1}
+  lengthCurve: 0.6
+  glow: 0.25
+  thickness: 1.15
+  pulseAmount: 0.06
+  pulseSpeed: 9
+  smoothing: 10
 --- !u!4 &141577327
 Transform:
   m_ObjectHideFlags: 0
