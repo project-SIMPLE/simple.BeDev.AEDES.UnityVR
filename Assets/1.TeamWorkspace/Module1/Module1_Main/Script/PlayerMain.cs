@@ -671,17 +671,65 @@ public class PlayerMain : MonoBehaviour
         }
 
     }
+    [Tooltip("Never respawn this close to a predator's hunting range (dragonfly patrol line, frog), in metres.")]
+    public float SpawnSafeDistance = 1f;
+
     public void BornFromWater()
     {
-        // Random.Range(int, int) excludes the upper bound, so Count (not Count - 1) can pick the
-        // last container; with none filled at the start there is nowhere to be born, so stay put.
+        // With none filled at the start there is nowhere to be born, so stay put.
         if (WC.Count == 0) return;
-        int ran = Random.Range(0, WC.Count);
-        Vector3 pos = WC[ran].transform.position;
+        // Skip containers a predator patrols past: born inside its trigger, it hunts you down
+        // before you can move (the FishTower sits on a dragonfly's route).
+        var safe = new List<WaterContainer>();
+        foreach (var w in WC)
+            if (w != null && DistanceToDanger(w.transform.position) > SpawnSafeDistance) safe.Add(w);
+        var pool = safe.Count > 0 ? safe : WC;
+        // Random.Range(int, int) excludes the upper bound, so Count (not Count - 1) can pick the last one.
+        Vector3 pos = pool[Random.Range(0, pool.Count)].transform.position;
         pos.y += .45f;
         Detach();
         Teleport(pos);
     }
+
+    /// <summary>
+    /// Distance from <paramref name="p"/> to the edge of the nearest predator's trigger: a roaming
+    /// dragonfly counts along its whole patrol line, anything else where it stands.
+    /// </summary>
+    private static float DistanceToDanger(Vector3 p)
+    {
+        float best = float.MaxValue;
+        foreach (var d in FindObjectsByType<DengerSource>(FindObjectsSortMode.None))
+        {
+            float reach = 0f;
+            var sphere = d.GetComponent<SphereCollider>();
+            if (sphere != null)
+            {
+                Vector3 s = sphere.transform.lossyScale;
+                reach = sphere.radius * Mathf.Max(Mathf.Abs(s.x), Mathf.Abs(s.y), Mathf.Abs(s.z));
+            }
+            float dist = Vector3.Distance(p, d.transform.position);
+            if (d is DragonFlyRoaminh roam && roam.TargetPosition != null)
+            {
+                var pts = roam.TargetPosition;
+                for (int i = 0; i < pts.Length; i++)
+                {
+                    Transform next = pts[(i + 1) % pts.Length];
+                    if (pts[i] == null || next == null) continue;
+                    dist = Mathf.Min(dist, DistanceToSegment(p, pts[i].position, next.position));
+                }
+            }
+            best = Mathf.Min(best, dist - reach);
+        }
+        return best;
+    }
+
+    private static float DistanceToSegment(Vector3 p, Vector3 a, Vector3 b)
+    {
+        Vector3 ab = b - a;
+        float t = ab.sqrMagnitude > 0f ? Mathf.Clamp01(Vector3.Dot(p - a, ab) / ab.sqrMagnitude) : 0f;
+        return Vector3.Distance(p, a + ab * t);
+    }
+
     public bool checkreturn,asd, returnValue;
     public bool onclick(bool Bool)
     {
