@@ -16,7 +16,7 @@ public class SendRecieveData : SimulationManager
         if (!isConnected)
         {
             isConnected = true;
-            img.color = Color.green;
+            if (img != null) img.color = Color.green;
         }
     }
     public float lastReceivedTime;
@@ -27,14 +27,15 @@ public class SendRecieveData : SimulationManager
         if (IsGameState(GameState.GAME) && UnityEngine.Random.Range(0.0f, 0.003f) < 0.002f)
         {
             string mes = "A message from Unity at time: " + Time.time;
+            var gm = GameManager.instance;
             Dictionary<string, string> args = new Dictionary<string, string> {
                {"id", ConnectionManager.Instance.GetConnectionId()},
                {"mes", mes},
-               {"score_val", GameManager.instance.score.ToString()},
-               {"Nscore_val", GameManager.instance.DrinkNectarScore.ToString()},
-               {"Bscore_val", GameManager.instance.DrinkBloodScore.ToString()},
-               {"Mscore_val", GameManager.instance.MatingScore.ToString()},
-               {"Lscore_val", GameManager.instance.LayEggScore.ToString()},
+               {"score_val", CurrentScore().ToString()},
+               {"Nscore_val", gm != null ? gm.DrinkNectarScore.ToString() : "0"},
+               {"Bscore_val", gm != null ? gm.DrinkBloodScore.ToString() : "0"},
+               {"Mscore_val", gm != null ? gm.MatingScore.ToString() : "0"},
+               {"Lscore_val", gm != null ? gm.LayEggScore.ToString() : "0"},
                {"end_game", State.ToString()},
                {"name_val", ConnectionManager.Instance.GetConnectionId()}
             };
@@ -50,11 +51,15 @@ public class SendRecieveData : SimulationManager
         if (isConnected && (Time.time - lastReceivedTime > 0.5f))
         {
             isConnected = false;
-            img.color = Color.red;
+            if (img != null) img.color = Color.red;
         }
         if (SceneManager.GetActiveScene().buildIndex!=0)
         {
-            if (GameManager.instance.time <= 1)
+            if (GameManager.instance == null)
+            {
+                SendScore(69);
+            }
+            else if (GameManager.instance.time <= 1)
             {
                 SendScore(0);
             }
@@ -67,7 +72,7 @@ public class SendRecieveData : SimulationManager
         {
             SendScore(1);
         }
-        print("LLLL"+message.status);
+        if (message != null) print("LLLL"+message.status);
         if (GetComponent<MenuController>() != null)
         {
             if (message != null)
@@ -82,6 +87,13 @@ public class SendRecieveData : SimulationManager
             }
         }
 
+    }
+    // The bridge sits in both module scenes: Module 1 has GameManager, Module 2 has M2Manager.
+    static int CurrentScore()
+    {
+        if (GameManager.instance != null) return GameManager.instance.score;
+        if (M2Manager.Instance != null) return M2Manager.Instance.score;
+        return 0;
     }
     public class GAMAMessages
     {
