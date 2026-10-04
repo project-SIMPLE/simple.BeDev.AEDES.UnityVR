@@ -1,88 +1,18 @@
 using UnityEngine;
 
+/// <summary>
+/// Marks the proboscis. Drinking, mating and laying eggs used to run off this object's trigger
+/// volume, but the snout is only a few millimetres thick against a flower barely 0.35 across, so
+/// feeding meant spearing the target almost dead centre. PlayerMain does the detection now - a
+/// distance-and-angle test from the head - and plays the particle effects and scoring from there.
+///
+/// The component is kept so the scene references on the proboscis stay valid.
+/// </summary>
 public class Drink : MonoBehaviour
 {
     public PlayerMain player;
     private void Start()
     {
         player = PlayerMain.instance;
-    }
-    private void OnTriggerStay(Collider collision)
-    {
-        if (collision.gameObject.GetComponent<WaterContainer>())
-        {
-            if (player.Current_Blood >= player.Max_Blood && player.isMate)
-            {
-                if (player.R_primaryValue)
-                {
-                    if (player.returnValue)
-                    {
-                        player.LayEggparti.Play();
-                    }
-                    player.Current_Blood = 0;
-                    player.BloodBar.value = player.Current_Blood;
-                    player.EggLayed++;
-                    GameManager.instance.LayEggScore += collision.gameObject.GetComponent<WaterContainer>().Score;
-                    GameManager.instance.setscore(collision.gameObject.GetComponent<WaterContainer>().Score);
-
-                }
-            }
-        }
-        if (collision.gameObject.GetComponent<Wild_Mosquitos>())
-        {
-            if (collision.gameObject.GetComponent<Wild_Mosquitos>().Gender == Wild_Mosquitos.genderlist.male && !player.isMate)
-            {
-                if (player.R_primaryValue)
-                {
-                    if (player.returnValue)
-                    {
-                        player.MateParti.Play();
-                    }
-                    player.isMate = true;
-                }
-            }
-        }
-        if (collision.gameObject.GetComponent<Human>())
-        {
-            print("AAAAAA");
-            if (player.R_primaryValue && player.Current_Blood < player.Max_Blood)
-            {
-                // The blood burst plays in PlayerMain.Drink once the bar is full, not on the first press.
-                player.Drink();
-                player.canmove = false;
-                player.gameObject.transform.parent = collision.gameObject.transform;
-            }
-            else if (!player.R_primaryValue)
-            {
-                player.canmove = true;
-                player.transform.parent = null;
-            }
-        }
-        if (collision.gameObject.tag == "Flower")
-        {
-            if (player.R_primaryValue && player.Current_Nec < player.Max_Nec)
-            {
-                if (player.returnValue)
-                {
-                    player.DrinknectarParti.Play();
-                }
-                player.DrinkNectar();
-                player.canmove = false;
-                player.gameObject.transform.parent = collision.gameObject.transform;
-            }
-            else if (!player.R_primaryValue)
-            {
-                player.canmove = true;
-                player.transform.parent = null;
-            }
-        }
-    }
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.gameObject.GetComponent<Human>())
-        {
-            player.canmove = true;
-            player.transform.parent = null;
-        }
     }
 }

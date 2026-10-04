@@ -1,5 +1,10 @@
 using UnityEngine;
 
+/// <summary>
+/// Marks something the mosquito can act on. Its Outline used to be switched on when the proboscis
+/// trigger touched it; PlayerMain now outlines whatever is in reach of the head instead, which is
+/// what the A button acts on.
+/// </summary>
 public class InteractableObject : MonoBehaviour
 {
     protected Outline Outline;
@@ -7,19 +12,4 @@ public class InteractableObject : MonoBehaviour
     {
         Outline = GetComponent<Outline>();
     }
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.GetComponent<Drink>())
-        {
-            Outline.enabled = true;
-        }
-    }
-    private void OnTriggerExit(Collider other)
-    {
-        if(other.gameObject.GetComponent<Drink>()) 
-        {
-            Outline.enabled = false; 
-        }
-    }
 }
-
