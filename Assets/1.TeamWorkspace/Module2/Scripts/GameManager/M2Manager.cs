@@ -38,7 +38,7 @@ public class M2Manager : MonoBehaviour
     public float endArmDelay = 1.5f;
     [Tooltip("Show a live input readout on the briefing. Useful on-headset diagnostics; turn off for a real build.")]
     public bool showInputDebug = true;
-
+    
     [Header("Game Setting")]
     public int score = 0;
     public float timer = 180f;
@@ -82,6 +82,10 @@ public class M2Manager : MonoBehaviour
     [Tooltip("Seconds of daylight. Clamped to the round length; half the round if unset or too large.")]
     public float dayDuration = 120.0f;
     public bool isDay, isNight;
+
+    [Header("Sound Setting")]
+    public AudioClip bgMusic;
+    private AudioSource _m_MusicSource;
 
     public Module2HUD hud { get; private set; }
 
@@ -178,6 +182,7 @@ public class M2Manager : MonoBehaviour
         // scene's objects while the fresh one took over Instance.
 
         hud = GetComponent<Module2HUD>();
+        _m_MusicSource = GetComponent<AudioSource>();
         if (hud == null) hud = gameObject.AddComponent<Module2HUD>();
 
         if (GetComponent<Module2Interaction>() == null) gameObject.AddComponent<Module2Interaction>();
@@ -217,6 +222,7 @@ public class M2Manager : MonoBehaviour
         }
 
         RefreshScoreText();
+        PlayMusic();
 
         // With no HUD to dismiss the intro, or on a retry, play starts at once.
         if (hud == null || !showIntro || skipIntro) BeginRound();
@@ -252,6 +258,16 @@ public class M2Manager : MonoBehaviour
 
         Debug.LogWarning("[M2] No confirm press seen - starting the round automatically.");
         BeginRound();
+    }
+
+    private void PlayMusic()
+    {
+        if (_m_MusicSource != null && bgMusic != null)
+        {
+            _m_MusicSource.clip = bgMusic;
+            _m_MusicSource.loop = true;
+            _m_MusicSource.Play();
+        }
     }
 
     #region Confirm input
