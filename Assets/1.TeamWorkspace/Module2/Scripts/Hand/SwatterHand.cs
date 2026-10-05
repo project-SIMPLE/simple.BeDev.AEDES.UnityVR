@@ -6,15 +6,16 @@ public class SwatterHand : MonoBehaviour
     [Tooltip("Unused: swat scoring moved to M2Manager.swatScore so the value is decided in one place.")]
     public int scoreValue = 0;
     public bool isHandActive = false;
-
+    public AudioClip effectShock;
+    public AudioSource audioSource;
     XRGrabInteractable _grab;
-
     /// <summary>True while a hand is holding the racket.</summary>
     public bool Held => _grab != null && _grab.isSelected;
 
     void Awake()
     {
         _grab = GetComponent<XRGrabInteractable>();
+        effectShock = GetComponent<AudioClip>();
 
         // The racket prefab has gravity off, and XRI puts that back on release, so a dropped racket kept
         // whatever speed it left the hand with and drifted out of the house for good - and M2Manager
@@ -41,6 +42,7 @@ public class SwatterHand : MonoBehaviour
         // exactly the measure that does not control the population, so paying for it taught the
         // opposite of the lesson and could out-score a perfect clear.
         if (M2Manager.Instance != null) M2Manager.Instance.NoteMosquitoSwatted();
+        audioSource.PlayOneShot(effectShock);
         Destroy(other.gameObject);
     }
 
