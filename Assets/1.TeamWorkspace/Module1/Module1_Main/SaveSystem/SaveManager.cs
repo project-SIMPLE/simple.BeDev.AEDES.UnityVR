@@ -4,14 +4,23 @@ using UnityEngine.SceneManagement;
 
 public class SaveManager : MonoBehaviour
 {
+    public int time_M, time_S;
     public PlayerSavedData a;
     public static SaveManager instance;
     private void Awake()
     {
-        instance = this;
-        if (SceneManager.GetActiveScene().buildIndex == 0|| SceneManager.GetActiveScene().buildIndex == 1)
+        if (instance != null && instance != this)
         {
+            Destroy(gameObject);
+            return;
+        }
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+        if (SceneManager.GetActiveScene().buildIndex == 0)
+        {
+            a.time = (time_M) * 60 + time_S;
             deleteSave();
+            SavePlayerData(a);
         }
         a = LoadPlayerData();
     }

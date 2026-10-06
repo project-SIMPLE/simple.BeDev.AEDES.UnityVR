@@ -103,6 +103,8 @@ GameObject:
   - component: {fileID: 5922738399864603124}
   - component: {fileID: 9096901153254390115}
   - component: {fileID: 5915132000673020208}
+  - component: {fileID: -1154610651404216179}
+  - component: {fileID: 3491138038924674869}
   m_Layer: 0
   m_Name: PF_Jar
   m_TagString: Untagged
@@ -219,3 +221,33 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.65335745
   m_Center: {x: -0.01309061, y: 0.58160883, z: 0.008202492}
+--- !u!114 &-1154610651404216179
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7376524743313560442}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineMode: 1
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 10
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
+--- !u!114 &3491138038924674869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7376524743313560442}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b41e164b10da24295716e3657fbda2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractableObject

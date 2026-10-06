@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class MenuController : MonoBehaviour
 {
-    [SerializeField] private string host = "127.0.0.1";
+    [SerializeField] private string host = "172.20.10.2";
     [SerializeField] private string portWithMiddleware = "8080";
     [SerializeField] private string portWithoutMiddleware = "1000";
     private bool useMiddleWare;

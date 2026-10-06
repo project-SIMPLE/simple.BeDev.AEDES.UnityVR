@@ -10,8 +10,9 @@ using UnityEngine.Rendering;
 /// where the column starts is only a few pixels wide. The column throbs a little while blood is
 /// actually being drawn, and everything empties again when eggs are laid.
 ///
-/// The snout is the built-in capsule with its +Y pointing forward (rotated 90 deg on X), so the
-/// tip is at local y = +1 and the head end at local y = -1.
+/// The snout is the built-in capsule (local y from -1 to +1). Which end is the tip depends on how
+/// it is rotated in the scene, so it is worked out at start: the end that lies further along the
+/// camera's view direction.
 /// </summary>
 public class ProboscisBloodFill : MonoBehaviour
 {
@@ -37,6 +38,7 @@ public class ProboscisBloodFill : MonoBehaviour
     MaterialPropertyBlock snoutBlock;
     Color snoutBaseColor;
     float shown;
+    float tipSign = 1f;   // +1: tip at local y = +1, -1: tip at local y = -1
 
     void Start()
     {
@@ -76,6 +78,14 @@ public class ProboscisBloodFill : MonoBehaviour
         snoutBaseColor = snoutMat.HasProperty("_BaseColor") ? snoutMat.GetColor("_BaseColor") : snoutMat.color;
         snoutBlock = new MaterialPropertyBlock();
 
+        var cam = Camera.main != null ? Camera.main.transform : transform.parent;
+        if (cam != null)
+        {
+            float plus = Vector3.Dot(transform.TransformPoint(Vector3.up) - cam.position, cam.forward);
+            float minus = Vector3.Dot(transform.TransformPoint(Vector3.down) - cam.position, cam.forward);
+            tipSign = plus >= minus ? 1f : -1f;
+        }
+
         Apply(0f, 1f);
     }
 
@@ -87,19 +97,21 @@ public class ProboscisBloodFill : MonoBehaviour
         float target = player.Max_Blood > 0f ? Mathf.Clamp01(player.Current_Blood / player.Max_Blood) : 0f;
         shown = Mathf.Lerp(shown, target, 1f - Mathf.Exp(-smoothing * Time.deltaTime));
 
-        bool feeding = player.CurrentInteraction == PlayerMain.Interaction.Human && player.R_primaryValue && target < 1f;
+        // Drink.cs parents the player to the person while blood is being drawn.
+        var host = player.transform.parent;
+        bool feeding = host != null && host.GetComponent<Human>() != null && player.R_primaryValue && target < 1f;
         float pulse = feeding ? 1f + pulseAmount * Mathf.Sin(Time.time * pulseSpeed) : 1f;
         Apply(shown, pulse);
     }
 
-    // Column of length `len` (in snout lengths) ending at the tip: local y from 1-2*len to 1.
+    // Column of length `len` (in snout lengths) ending at the tip: local y from 1-2*len to 1 (mirrored when the tip is at -1).
     void Apply(float fraction, float pulse)
     {
         float len = fraction > 0f ? Mathf.Pow(fraction, lengthCurve) : 0f;
         fillRenderer.enabled = len > 0.01f;
         float t = thickness * pulse;
         fill.localScale = new Vector3(t, Mathf.Max(len, 0.01f), t);
-        fill.localPosition = new Vector3(0f, 1f - len, 0f);
+        fill.localPosition = new Vector3(0f, tipSign * (1f - len), 0f);
 
         Color tint = Color.Lerp(snoutBaseColor, snoutTint, fraction);
         snoutBlock.SetColor("_BaseColor", tint);

@@ -4,201 +4,344 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// In-headset HUD for Module 1 (play as a mosquito).
+/// In-headset HUD for Module 1, in the same style as Module2HUD: dark rounded panels, a timer and
+/// bars top left, the score top right, toasts, a prompt at the bottom and end cards - all built from
+/// code at runtime, so the 2.9 MB scene never has to change for a UI tweak.
 ///
-/// Everything is built from code at runtime - no prefab, no scene canvas - so a UI change never
-/// has to touch the 38k-line scene and nothing can go missing on merge. Every object goes on the
-/// UI layer: the Main Camera has an overlay camera in its URP stack that renders only that layer
-/// with depth cleared, so the HUD is always drawn on top of the world (and on top of thermal vision).
+/// It is a skin over the team's game, not a replacement for it. GameManager, PlayerMain and
+/// QuestSystem keep driving their scene UI (PlayerUI under the Main Camera) exactly as before; this
+/// component switches off that UI's Canvas components so it is not drawn, then mirrors its state
+/// every frame: which panels are active, the death message, the warnings.
 ///
-/// Two canvases:
-///   - a lazily-following world-space canvas in front of the player: timer, score, objective
-///     arrow, energy/blood bars, quest list, contextual prompt, toasts, intro and end panels;
-///   - a head-locked vignette canvas for the low-energy and danger warnings.
+/// The Lao text is the team's: every label is read from the scene object that showed it before
+/// (quest names, death and time-out screens, warnings), so editing those texts in the scene still
+/// changes what the player reads. Only the blood warning existed solely as a picture (Warning2 UI.png),
+/// so its sentence is copied into <see cref="BloodWarningText"/>.
 ///
-/// The HUD only reads game state (GameManager / PlayerMain / QuestSystem) each frame. Game code
-/// pushes one-off events through Toast(), ShowIntro(), ShowEnd(), ShowQuestPanel(), SetDanger().
-/// All player-facing copy lives in Module1Text at the bottom of this file.
-///
-/// GameManager adds this component to itself if the scene does not already carry one, so the
-/// serialized fields below are only there for tuning in the inspector.
+/// GameManager adds this component to itself in Awake.
 /// </summary>
 public class Module1HUD : MonoBehaviour
 {
-    public static Module1HUD Instance { get; private set; }
-
-    [Header("Placement (world units - the player rig is scaled 0.5, so 1.0 here reads as ~2 m)")]
-    public float distance = 1.0f;
+    [Header("Placement (in the rig's own units: the Module 1 rig is scaled 1:100)")]
+    [Tooltip("How far in front of the eyes the HUD floats, in rig units. It is scaled with the distance so it always covers the same part of the view as Module 2's HUD at 1.2 m. Kept well out: TextMesh Pro draws nothing at the tiny world scale a 1.2 m HUD would need inside this rig.")]
+    public float distance = 10f;
     public float followSpeed = 6f;
-    public float vignetteDistance = 0.3f;
+
+    [Header("Text")]
+    [Tooltip("Font for all HUD text. Empty: the full Lao font from Resources, else the scene UI's font.")]
+    public TMP_FontAsset fontOverride;
 
     [Header("Timing")]
     public float toastDuration = 3.5f;
-    public float questPanelOnStart = 8f;
-    public float questPanelOnChange = 5f;
 
-    [Header("Thresholds")]
-    [Range(0f, 1f)] public float lowEnergyFraction = 0.3f;
-
-    [Header("Colours")]
-    public Color nectarColor = new Color(1f, 0.78f, 0.2f);
-    public Color bloodColor = new Color(0.85f, 0.18f, 0.18f);
+    [Header("Colours (same palette as Module2HUD)")]
+    public Color accentColor = new Color(0.45f, 0.82f, 1f);
     public Color doneColor = new Color(0.4f, 0.85f, 0.45f);
     public Color warnColor = new Color(1f, 0.55f, 0.1f);
-    public Color dangerColor = new Color(0.9f, 0.05f, 0.05f);
-    public Color rainColor = new Color(0.55f, 0.8f, 1f);
+    public Color dangerColor = new Color(0.9f, 0.18f, 0.18f);
+    public Color bloodColor = new Color(0.86f, 0.12f, 0.16f);
+    public Color nectarColor = new Color(1f, 0.82f, 0.25f);
     public Color textColor = Color.white;
     public Color mutedColor = new Color(0.75f, 0.78f, 0.82f);
     public Color panelColor = new Color(0.04f, 0.05f, 0.07f, 0.72f);
+    public Color endPanelColor = new Color(0.10f, 0.05f, 0.04f, 0.92f);
     public Color barBackColor = new Color(0f, 0f, 0f, 0.55f);
 
-    // Canvas size in millimetres (canvas scale is 0.001, so 1 unit = 1 mm at `distance`).
+    // The blood warning was only ever a picture with the sentence painted in (Warning2 UI.png).
+    const string BloodWarningText = "ຕ້ອງການໂປຣຕີນ (ເລືອດ) ດ່ວນ!";
+    // Fallbacks, used only if the scene object they normally come from is missing.
+    const string EnergyWord = "ພະລັງງານ";          // from PlayerMain.DeathMessage "ພະລັງງານໝົດ"
+    const string BloodWord = "ເລືອດ";              // from the quest "ດື່ມເລືອດ"
+    const string ScoreWord = "ຄະແນນ";              // from the time-out screen "ຄະແນນ:"
+
     const float CanvasW = 1100f, CanvasH = 620f;
-    const float ToastW = 440f, PromptW = 600f;
+    const float ToastW = 460f, PromptW = 640f;
     const int MaxToasts = 3;
 
-    // ---- runtime references ----
+    // ---- game ----
+    GameManager gm;
+    PlayerMain player;
+    QuestSystem quests;
+    Image legacyStatus;
+
+    // ---- strings taken from the scene ----
+    string questTitle, deathTitle, deathFooter, timeOutTitle, timeOutFooter, dangerText, nectarWarningText;
+    string[] timeOutLabels;
+    string energyLabelText = EnergyWord, bloodLabelText = BloodWord, scoreWord = ScoreWord;
+
+    // ---- runtime UI ----
     Transform cam;
     Vector3 smoothForward;
     int uiLayer;
     TMP_FontAsset font;
-
-    RectTransform hudRoot, vignetteRoot;
-    CanvasGroup gameplayGroup, questGroup, promptGroup, introGroup, endGroup;
-    Image vignette;
-
-    TextMeshProUGUI timerText, rainTag, scoreText, objectiveText, promptText;
+    RectTransform hudRoot;
+    CanvasGroup gameplayGroup, promptGroup, questGroup, deathGroup, timeOutGroup;
+    TextMeshProUGUI timerText, scoreText, energyLabel, bloodLabel, promptText;
+    Image energyFill, bloodFill, rainIcon, statusDot, dangerVignette, promptBg;
     RectTransform promptRect;
     string lastPrompt;
-    Image objectiveArrow;
-    Image nectarFill, bloodFill;
-    TextMeshProUGUI introTitle, introBody, introFooter;
-    TextMeshProUGUI endTitle, endSubtitle, endStats, endFact, endFooter;
-
+    TextMeshProUGUI questTitleText;
+    readonly TextMeshProUGUI[] questRows = new TextMeshProUGUI[4];
+    readonly Image[] questMarks = new Image[4];
+    TextMeshProUGUI deathTitleText, deathMessageText, deathFooterText;
+    TextMeshProUGUI timeOutTitleText, timeOutLabelsText, timeOutValuesText, timeOutFooterText;
     RectTransform toastContainer;
-    readonly List<ToastEntry> toasts = new List<ToastEntry>();
-    QuestRow[] questRows;
+    readonly List<Toast> toasts = new List<Toast>();
+    Sprite roundedSprite, dropSprite, ringSprite, dotSprite;
 
-    // ---- state ----
-    float questPanelUntil;
-    bool danger;
-    bool lowEnergyToastArmed = true;
-    int lastObjective = int.MinValue;
-    float objectiveRefreshAt;
-    GameObject[] flowers = System.Array.Empty<GameObject>();
-    Human[] humans = System.Array.Empty<Human>();
-    Wild_Mosquitos[] mosquitoes = System.Array.Empty<Wild_Mosquitos>();
-    WaterContainer[] containers = System.Array.Empty<WaterContainer>();
+    readonly bool[] questWasDone = new bool[4];
+    bool questsPrimed;
 
-    // ---- sprites (generated once) ----
-    Sprite roundedSprite, dropSprite, flowerSprite, arrowSprite, tickSprite, vignetteSprite;
-
-    class ToastEntry
-    {
-        public RectTransform rect;
-        public CanvasGroup group;
-        public float born;
-    }
-
-    class QuestRow
-    {
-        public Image box, tick;
-        public TextMeshProUGUI title, hint;
-    }
+    class Toast { public RectTransform rect; public CanvasGroup group; public float born; }
 
     // ------------------------------------------------------------------ lifecycle
 
     void Awake()
     {
-        Instance = this;
         uiLayer = LayerMask.NameToLayer("UI");
         if (uiLayer < 0) uiLayer = 5;
-        font = TMP_Settings.defaultFontAsset;
+        gm = GetComponent<GameManager>();
+    }
 
+    void Start()
+    {
+        if (gm == null) gm = GameManager.instance;
+        player = gm != null ? gm.player : PlayerMain.instance;
+        quests = FindFirstObjectByType<QuestSystem>();
+
+        ReadSceneText();
+        font = fontOverride;
+        if (font == null) font = Resources.Load<TMP_FontAsset>("Fonts/Lao_SomVang Full SDF");
+        if (font == null && gm != null && gm.scoretext != null) font = gm.scoretext.font;
+
+        HideSceneUI();
         BuildSprites();
         BuildHud();
-        BuildVignette();
-
-        // Start hidden; GameManager decides what to show.
-        gameplayGroup.alpha = 0f;
-        questGroup.alpha = 0f;
-        promptGroup.alpha = 0f;
-        introGroup.alpha = 0f;
-        endGroup.alpha = 0f;
-        vignette.color = new Color(0, 0, 0, 0);
     }
 
     void OnDestroy()
     {
-        if (Instance == this) Instance = null;
         if (hudRoot != null) Destroy(hudRoot.gameObject);
-        if (vignetteRoot != null) Destroy(vignetteRoot.gameObject);
     }
 
     void LateUpdate()
     {
+        if (hudRoot == null || gm == null || player == null) return;
         if (!ResolveCamera()) return;
         Follow();
 
-        var gm = GameManager.instance;
-        var player = PlayerMain.instance;
-        if (gm == null || player == null) return;
+        bool dead = gm.DeathUI != null && gm.DeathUI.activeSelf;
+        bool timedOut = gm.TimeOutUI != null && gm.TimeOutUI.activeSelf;
+        bool ended = dead || timedOut || player.RestartAble;
 
-        bool playing = gm.IsPlaying;
-        Fade(gameplayGroup, playing);
-
-        UpdateStatus(gm);
-        UpdateBars(player);
-        UpdateQuests(gm, player);
-        UpdateObjective(gm, player);
-        UpdatePrompt(gm, player);
+        Fade(gameplayGroup, !ended);
+        UpdateStatus();
+        UpdateBars();
+        UpdateQuests(ended);
+        UpdatePrompt(ended);
+        UpdateDanger(ended);
         UpdateToasts();
-        UpdateVignette(player);
-
-        if (introGroup.alpha > 0f)
-            introFooter.alpha = 0.55f + 0.45f * Mathf.Sin(Time.time * 4f);
-        if (endGroup.alpha > 0f && player.RestartAble)
-            endFooter.alpha = 0.55f + 0.45f * Mathf.Sin(Time.time * 4f);
+        UpdateEnd(dead, timedOut);
     }
 
-    // ------------------------------------------------------------------ public API
+    // ------------------------------------------------------------------ scene text
 
-    public void ShowIntro()
+    /// <summary>Takes every label from the scene object that used to show it, so the team's Lao stays the source.</summary>
+    void ReadSceneText()
     {
-        introTitle.text = Module1Text.IntroTitle;
-        introBody.text = Module1Text.IntroBody;
-        introFooter.text = Module1Text.IntroFooter;
-        introGroup.alpha = 1f;
+        if (gm == null) return;
+        questTitle = ChildText(gm.questUI, "QuestText");
+        deathTitle = ChildText(gm.DeathUI, "DeathText");
+        deathFooter = ChildText(gm.DeathUI, "DeathText (1)");
+        timeOutTitle = ChildText(gm.TimeOutUI, "DeathText");
+        timeOutFooter = ChildText(gm.TimeOutUI, "DeathText (1)");
+        string labels = ChildText(gm.TimeOutUI, "DeathText (2)");
+        if (!string.IsNullOrEmpty(labels))
+        {
+            timeOutLabels = labels.Replace("\r", "").Split('\n');
+            if (timeOutLabels.Length > 0) scoreWord = timeOutLabels[0].Trim().TrimEnd(':', ' ');
+        }
+        dangerText = AnyText(gm.DangerUI);
+        if (quests != null) nectarWarningText = AnyText(quests.NecWarning);
+        if (player != null && !string.IsNullOrEmpty(player.DeathMessage) && player.DeathMessage.EndsWith("ໝົດ"))
+            energyLabelText = player.DeathMessage.Substring(0, player.DeathMessage.Length - "ໝົດ".Length);
     }
 
-    public void HideIntro()
+    static string ChildText(GameObject root, string child)
     {
-        introGroup.alpha = 0f;
+        if (root == null) return null;
+        var t = root.transform.Find(child);
+        var tmp = t != null ? t.GetComponent<TMP_Text>() : null;
+        return tmp != null ? tmp.text : null;
     }
 
-    /// <summary>Keeps the quest list on screen for a while (it is also shown while the left grip is held).</summary>
-    public void ShowQuestPanel(float seconds)
+    static string AnyText(GameObject root)
     {
-        questPanelUntil = Mathf.Max(questPanelUntil, Time.time + seconds);
+        if (root == null) return null;
+        var tmp = root.GetComponentInChildren<TMP_Text>(true);
+        return tmp != null ? tmp.text : null;
     }
 
-    public void OnQuestCompleted(int index)
+    /// <summary>
+    /// Stops the scene's PlayerUI from being drawn. Only the Canvas components are switched off: the
+    /// objects stay, because GameManager and QuestSystem still toggle them and this HUD reads that.
+    /// </summary>
+    void HideSceneUI()
     {
-        ShowQuestPanel(questPanelOnChange);
+        if (gm == null || gm.scoretext == null) return;
+        var root = gm.scoretext.canvas != null ? gm.scoretext.canvas.rootCanvas : null;
+        if (root == null) return;
+        foreach (var c in root.GetComponentsInChildren<Canvas>(true)) c.enabled = false;
+        var status = root.transform.Find("Status");
+        if (status != null) legacyStatus = status.GetComponent<Image>();
     }
 
-    /// <summary>Short message stacked below the timer. Newest on top, at most three at once.</summary>
-    public void Toast(string message, Color? accent = null)
+    // ------------------------------------------------------------------ per-frame
+
+    bool ResolveCamera()
+    {
+        if (cam != null) return true;
+        if (player != null && player.mainCamera != null) cam = player.mainCamera.transform;
+        else if (Camera.main != null) cam = Camera.main.transform;
+        if (cam != null) smoothForward = cam.forward;
+        return cam != null;
+    }
+
+    // Translation follows the head; the view direction is smoothed so the HUD trails a little when
+    // the player turns. The rig is scaled, so distance is in its units, and the canvas is sized to
+    // span the same angle as Module2HUD's 1.1 m canvas at 1.2 m.
+    void Follow()
+    {
+        float worldDistance = distance * Mathf.Abs(cam.lossyScale.z);
+        smoothForward = Vector3.Slerp(smoothForward, cam.forward, 1f - Mathf.Exp(-followSpeed * Time.deltaTime));
+        hudRoot.position = cam.position + smoothForward * worldDistance;
+        hudRoot.rotation = Quaternion.LookRotation(smoothForward, cam.up);
+        hudRoot.localScale = Vector3.one * (0.001f / 1.2f) * worldDistance;
+    }
+
+    void UpdateStatus()
+    {
+        int t = Mathf.Max(0, gm.time);
+        timerText.text = (t / 60) + ":" + (t % 60).ToString("00");
+        bool playing = !player.Death && !player.RestartAble;
+        timerText.color = t <= 10 ? dangerColor : t <= 30 ? warnColor : textColor;
+        timerText.alpha = (t <= 10 && playing) ? 0.6f + 0.4f * Mathf.Abs(Mathf.Sin(Time.time * 6f)) : 1f;
+        rainIcon.enabled = gm.IsRain;
+        scoreText.text = scoreWord + "  " + gm.score;
+        statusDot.enabled = legacyStatus != null;
+        if (legacyStatus != null) statusDot.color = legacyStatus.color;
+    }
+
+    void UpdateBars()
+    {
+        float nec = player.Max_Nec > 0 ? Mathf.Clamp01(player.Current_Nec / player.Max_Nec) : 0f;
+        energyFill.fillAmount = nec;
+        energyFill.color = player.ishungry
+            ? Color.Lerp(warnColor, dangerColor, 0.5f + 0.5f * Mathf.Sin(Time.time * 6f))
+            : nectarColor;
+        float blood = player.Max_Blood > 0 ? Mathf.Clamp01(player.Current_Blood / player.Max_Blood) : 0f;
+        bloodFill.fillAmount = blood;
+        bloodFill.color = blood >= 0.999f ? doneColor : bloodColor;
+    }
+
+    void UpdateQuests(bool ended)
+    {
+        if (quests == null || quests.QuestList == null) { questGroup.alpha = 0f; return; }
+        int n = Mathf.Min(questRows.Length, quests.QuestList.Length);
+        for (int i = 0; i < n; i++)
+        {
+            bool done = quests.IsDone(i);
+            string label = quests.QuestList[i];
+            if (i == 3) label += "  " + Mathf.Min(player.EggLayed, QuestSystem.EggsToLay) + "/" + QuestSystem.EggsToLay;
+            questRows[i].text = label;
+            questRows[i].color = done ? doneColor : textColor;
+            questMarks[i].sprite = done ? dotSprite : ringSprite;
+            questMarks[i].color = done ? doneColor : mutedColor;
+
+            // Quest completion toasts, after the first frame so already-done quests stay quiet.
+            if (questsPrimed && done && !questWasDone[i])
+                ShowToast(quests.QuestList[i] + (QuestReward(i) > 0 ? "   +" + QuestReward(i) : ""), doneColor);
+            questWasDone[i] = done;
+        }
+        questsPrimed = true;
+        // The left grip still decides, as before: GameManager toggles questUI, the HUD shows it.
+        Fade(questGroup, !ended && gm.questUI != null && gm.questUI.activeSelf);
+    }
+
+    static int QuestReward(int i) => i == 0 ? 50 : i == 1 ? 100 : i == 2 ? 50 : 0;
+
+    void UpdatePrompt(bool ended)
+    {
+        string prompt = "";
+        Color back = panelColor, fore = textColor;
+        bool danger = gm.DangerUI != null && gm.DangerUI.activeSelf;
+        if (!ended)
+        {
+            if (danger && !string.IsNullOrEmpty(dangerText))
+            {
+                // White on solid red: the message a player has three seconds to act on.
+                prompt = dangerText; back = new Color(dangerColor.r, dangerColor.g, dangerColor.b, 0.9f);
+            }
+            else if (quests != null && quests.NecWarning != null && quests.NecWarning.activeSelf && !string.IsNullOrEmpty(nectarWarningText))
+            {
+                prompt = nectarWarningText; fore = nectarColor;
+            }
+            else if (quests != null && quests.BloodWarning != null && quests.BloodWarning.activeSelf)
+            {
+                prompt = BloodWarningText; fore = new Color(1f, 0.45f, 0.45f);
+            }
+        }
+
+        Fade(promptGroup, !string.IsNullOrEmpty(prompt));
+        if (string.IsNullOrEmpty(prompt)) return;
+        promptBg.color = back;
+        promptText.color = fore;
+        if (prompt == lastPrompt) return;
+        lastPrompt = prompt;
+        promptText.text = prompt;
+        promptRect.sizeDelta = new Vector2(PromptW, Mathf.Max(60f, promptText.GetPreferredValues(prompt, PromptW - 40f, 0f).y + 26f));
+    }
+
+    void UpdateDanger(bool ended)
+    {
+        bool danger = !ended && gm.DangerUI != null && gm.DangerUI.activeSelf;
+        float a = danger ? 0.18f + 0.12f * Mathf.Abs(Mathf.Sin(Time.time * 5f)) : 0f;
+        dangerVignette.color = new Color(dangerColor.r, dangerColor.g, dangerColor.b, Mathf.MoveTowards(dangerVignette.color.a, a, Time.deltaTime * 2f));
+    }
+
+    void UpdateEnd(bool dead, bool timedOut)
+    {
+        // Time-out wins if both are up: it ends the session, a death only the life.
+        bool showTimeOut = timedOut;
+        bool showDeath = dead && !timedOut;
+        if (showDeath)
+        {
+            string msg = gm.DeathText != null ? gm.DeathText.text : "";
+            if (deathMessageText.text != msg) deathMessageText.text = msg;
+        }
+        if (showTimeOut)
+        {
+            timeOutValuesText.text = gm.score + "\n" + gm.DrinkNectarScore + "\n" + gm.MatingScore + "\n" + gm.DrinkBloodScore + "\n" + gm.LayEggScore;
+        }
+        Fade(deathGroup, showDeath);
+        Fade(timeOutGroup, showTimeOut);
+        // "Press a button" only once a press would actually do something.
+        float pulse = player.RestartAble ? 0.55f + 0.45f * Mathf.Sin(Time.time * 4f) : 0f;
+        deathFooterText.alpha = pulse;
+        timeOutFooterText.alpha = pulse;
+    }
+
+    void ShowToast(string message, Color accent)
     {
         if (string.IsNullOrEmpty(message)) return;
-        var rect = NewRect("Toast", toastContainer, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), Vector2.zero, new Vector2(ToastW, 44));
+        var rect = NewRect("Toast", toastContainer, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), Vector2.zero, new Vector2(ToastW, 48));
         var bg = rect.gameObject.AddComponent<Image>();
         bg.sprite = roundedSprite; bg.type = Image.Type.Sliced; bg.color = panelColor; bg.raycastTarget = false;
-        var text = NewText("Text", rect, message, 24, accent ?? textColor, TextAlignmentOptions.Center, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(-28, 0));
-        rect.sizeDelta = new Vector2(ToastW, Mathf.Max(44f, text.GetPreferredValues(message, ToastW - 28f, 0f).y + 18f));
+        var text = NewText("Text", rect, message, 26, accent, TextAlignmentOptions.Center, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(-28, 0), FontStyles.Bold);
+        rect.sizeDelta = new Vector2(ToastW, Mathf.Max(48f, text.GetPreferredValues(message, ToastW - 28f, 0f).y + 18f));
         var group = rect.gameObject.AddComponent<CanvasGroup>();
         group.alpha = 0f;
-        toasts.Insert(0, new ToastEntry { rect = rect, group = group, born = Time.time });
+        toasts.Insert(0, new Toast { rect = rect, group = group, born = Time.time });
         while (toasts.Count > MaxToasts)
         {
             Destroy(toasts[toasts.Count - 1].rect.gameObject);
@@ -206,350 +349,32 @@ public class Module1HUD : MonoBehaviour
         }
     }
 
-    public void SetDanger(bool on)
-    {
-        danger = on;
-    }
-
-    /// <summary>True while a DangerSource has the player inside its volume.</summary>
-    public bool DangerActive => danger;
-
-    public void ShowEnd(GameManager.GameOverReason reason, int score, int questsDone, int questsTotal, int eggs)
-    {
-        endTitle.text = Module1Text.EndTitle(reason);
-        endSubtitle.text = Module1Text.EndSubtitle(reason);
-        endStats.text = Module1Text.EndStats(score, questsDone, questsTotal, eggs);
-        endFact.text = Module1Text.RandomFact();
-        endFooter.text = Module1Text.EndFooter;
-        endTitle.color = reason == GameManager.GameOverReason.TimeOut ? textColor : warnColor;
-        endGroup.alpha = 1f;
-        promptGroup.alpha = 0f;
-        questGroup.alpha = 0f;
-    }
-
-    // ------------------------------------------------------------------ per-frame updates
-
-    bool ResolveCamera()
-    {
-        if (cam != null) return true;
-        // Two cameras are tagged MainCamera (the thermal one is a child at the same pose), so
-        // prefer the one PlayerMain drives.
-        if (PlayerMain.instance != null && PlayerMain.instance.mainCamera != null)
-            cam = PlayerMain.instance.mainCamera.transform;
-        else if (Camera.main != null)
-            cam = Camera.main.transform;
-        if (cam != null) smoothForward = cam.forward;
-        return cam != null;
-    }
-
-    // Translation follows the head instantly; the view direction is smoothed so the HUD trails a
-    // little when the player turns instead of being glued to the eyes (same idea as Module 2's
-    // CanvasFollower, but also following pitch, since a flying mosquito looks up and down a lot).
-    void Follow()
-    {
-        smoothForward = Vector3.Slerp(smoothForward, cam.forward, 1f - Mathf.Exp(-followSpeed * Time.deltaTime));
-        hudRoot.position = cam.position + smoothForward * distance;
-        hudRoot.rotation = Quaternion.LookRotation(smoothForward, cam.up);
-
-        vignetteRoot.position = cam.position + cam.forward * vignetteDistance;
-        vignetteRoot.rotation = cam.rotation;
-    }
-
-    void UpdateStatus(GameManager gm)
-    {
-        int t = Mathf.Max(0, gm.time);
-        timerText.text = (t / 60) + ":" + (t % 60).ToString("00");
-        timerText.color = t <= 10 ? dangerColor : t <= 30 ? warnColor : textColor;
-        if (t <= 10 && gm.IsPlaying)
-            timerText.alpha = 0.6f + 0.4f * Mathf.Abs(Mathf.Sin(Time.time * 6f));
-        else
-            timerText.alpha = 1f;
-
-        scoreText.text = Module1Text.Score(gm.score);
-        rainTag.text = gm.IsRain ? Module1Text.RainTag : "";
-    }
-
-    void UpdateBars(PlayerMain player)
-    {
-        float nec = player.Max_Nec > 0 ? Mathf.Clamp01(player.Current_Nec / player.Max_Nec) : 0f;
-        float blood = player.Max_Blood > 0 ? Mathf.Clamp01(player.Current_Blood / player.Max_Blood) : 0f;
-        nectarFill.fillAmount = nec;
-        bloodFill.fillAmount = blood;
-
-        bool low = nec < lowEnergyFraction;
-        nectarFill.color = low
-            ? Color.Lerp(nectarColor, warnColor, 0.5f + 0.5f * Mathf.Sin(Time.time * 8f))
-            : nectarColor;
-
-        // One-shot warning when energy first drops low; re-armed once it has been refilled.
-        if (low && lowEnergyToastArmed && GameManager.instance.IsPlaying)
-        {
-            lowEnergyToastArmed = false;
-            Toast(Module1Text.LowEnergy, warnColor);
-        }
-        else if (nec > 0.5f)
-            lowEnergyToastArmed = true;
-    }
-
-    void UpdateQuests(GameManager gm, PlayerMain player)
-    {
-        var quests = gm.quests;
-        bool show = gm.IsPlaying && (player.L_gripValue || Time.time < questPanelUntil);
-        Fade(questGroup, show);
-        if (quests == null || quests.Quests == null) return;
-
-        for (int i = 0; i < questRows.Length && i < quests.Quests.Length; i++)
-        {
-            var q = quests.Quests[i];
-            var row = questRows[i];
-            string title = q.progress != null ? q.title + "  " + q.progress : q.title;
-            row.title.text = title;
-            row.title.color = q.done ? doneColor : textColor;
-            row.hint.text = q.done ? Module1Text.QuestDone : q.hint;
-            row.box.color = q.done ? doneColor : new Color(1f, 1f, 1f, 0.18f);
-            row.tick.enabled = q.done;
-        }
-    }
-
-    // Arrow + label under the timer pointing at the nearest thing the player needs next.
-    void UpdateObjective(GameManager gm, PlayerMain player)
-    {
-        if (Time.time >= objectiveRefreshAt)
-        {
-            objectiveRefreshAt = Time.time + 3f;
-            flowers = GameObject.FindGameObjectsWithTag("Flower");
-            humans = FindObjectsByType<Human>(FindObjectsSortMode.None);
-            mosquitoes = FindObjectsByType<Wild_Mosquitos>(FindObjectsSortMode.None);
-            containers = FindObjectsByType<WaterContainer>(FindObjectsSortMode.None);
-        }
-
-        int objective = gm.quests != null ? gm.quests.CurrentObjective : -1;
-        float nec = player.Max_Nec > 0 ? player.Current_Nec / player.Max_Nec : 1f;
-        bool bloodFull = player.Current_Blood >= player.Max_Blood;
-
-        // A short hint the first time each objective becomes current (this is where the thermal
-        // vision tip lives).
-        if (objective != lastObjective)
-        {
-            if (lastObjective != int.MinValue && gm.IsPlaying)
-                Toast(Module1Text.ObjectiveHint(objective));
-            lastObjective = objective;
-        }
-
-        string label;
-        Vector3 target;
-        bool found;
-        if (nec < lowEnergyFraction + 0.05f)
-        {
-            found = Nearest(flowers, out target);
-            label = Module1Text.TargetFlowerUrgent;
-        }
-        else
-        {
-            switch (objective)
-            {
-                case 0:
-                    found = Nearest(flowers, out target); label = Module1Text.TargetFlower; break;
-                case 1:
-                    found = NearestMale(out target); label = Module1Text.TargetMale; break;
-                case 2:
-                    found = Nearest(humans, out target); label = Module1Text.TargetHuman; break;
-                default:
-                    if (bloodFull && player.isMate)
-                    {
-                        found = NearestFilledContainer(out target); label = Module1Text.TargetContainer;
-                    }
-                    else if (!player.isMate)
-                    {
-                        found = NearestMale(out target); label = Module1Text.TargetMale;
-                    }
-                    else
-                    {
-                        found = Nearest(humans, out target); label = Module1Text.TargetHuman;
-                    }
-                    break;
-            }
-        }
-
-        if (!found)
-        {
-            objectiveArrow.enabled = false;
-            objectiveText.text = Module1Text.TargetNone(label);
-            objectiveText.color = mutedColor;
-            return;
-        }
-
-        Vector3 to = target - cam.position;
-        float dist = to.magnitude;
-        float vertical = to.y;
-        to.y = 0f;
-        Vector3 fwd = smoothForward; fwd.y = 0f;
-        float angle = to.sqrMagnitude > 0.0001f && fwd.sqrMagnitude > 0.0001f ? Vector3.SignedAngle(fwd, to, Vector3.up) : 0f;
-
-        objectiveArrow.enabled = dist > 1.5f;
-        objectiveArrow.rectTransform.localRotation = Quaternion.Euler(0, 0, -angle);
-        objectiveText.color = textColor;
-        objectiveText.text = Module1Text.Target(label, dist, vertical);
-    }
-
-    void UpdatePrompt(GameManager gm, PlayerMain player)
-    {
-        string msg = null;
-        Color color = textColor;
-
-        if (danger)
-        {
-            msg = Module1Text.DangerPrompt;
-            color = dangerColor;
-        }
-        else
-        {
-            bool bloodFull = player.Current_Blood >= player.Max_Blood;
-            bool necFull = player.Current_Nec >= player.Max_Nec;
-            bool holding = player.R_primaryValue;
-            switch (player.CurrentInteraction)
-            {
-                case PlayerMain.Interaction.Flower:
-                    msg = necFull ? Module1Text.EnergyFull : holding ? Module1Text.DrinkingNectar : Module1Text.PromptDrinkNectar;
-                    break;
-                case PlayerMain.Interaction.Human:
-                    if (bloodFull) msg = player.isMate ? Module1Text.BloodFullMated : Module1Text.BloodFullNotMated;
-                    else msg = holding ? Module1Text.DrinkingBlood : Module1Text.PromptDrinkBlood;
-                    break;
-                case PlayerMain.Interaction.Mate:
-                    msg = player.isMate ? Module1Text.AlreadyMated : Module1Text.PromptMate;
-                    break;
-                case PlayerMain.Interaction.FemaleMosquito:
-                    msg = Module1Text.FemaleMosquito;
-                    break;
-                case PlayerMain.Interaction.Container:
-                    var c = player.CurrentContainer;
-                    if (c != null && !c.isFill) { msg = Module1Text.ContainerDry; color = mutedColor; }
-                    else if (!player.isMate) { msg = Module1Text.NeedMate; color = mutedColor; }
-                    else if (!bloodFull) { msg = Module1Text.NeedBlood; color = mutedColor; }
-                    else msg = Module1Text.PromptLayEggs;
-                    break;
-            }
-        }
-
-        bool show = gm.IsPlaying && msg != null;
-        if (show)
-        {
-            if (msg != lastPrompt)
-            {
-                lastPrompt = msg;
-                promptText.text = msg;
-                promptRect.sizeDelta = new Vector2(PromptW, Mathf.Max(52f, promptText.GetPreferredValues(msg, PromptW - 28f, 0f).y + 18f));
-            }
-            promptText.color = color;
-        }
-        Fade(promptGroup, show, 12f);
-    }
-
     void UpdateToasts()
     {
-        float y = 0f;
         for (int i = toasts.Count - 1; i >= 0; i--)
         {
-            var t = toasts[i];
-            float age = Time.time - t.born;
+            var toast = toasts[i];
+            float age = Time.time - toast.born;
             if (age > toastDuration)
             {
-                Destroy(t.rect.gameObject);
+                Destroy(toast.rect.gameObject);
                 toasts.RemoveAt(i);
+                continue;
             }
+            float fadeOut = Mathf.InverseLerp(toastDuration, toastDuration * 0.66f, age);
+            toast.group.alpha = Mathf.Min(Mathf.InverseLerp(0f, 0.18f, age), fadeOut);
         }
+        float y = 0f;
         for (int i = 0; i < toasts.Count; i++)
         {
-            var t = toasts[i];
-            float age = Time.time - t.born;
-            float a = Mathf.Min(age / 0.2f, (toastDuration - age) / 0.4f);
-            t.group.alpha = Mathf.Clamp01(a);
-            var pos = t.rect.anchoredPosition;
-            pos.y = Mathf.Lerp(pos.y, -y, 1f - Mathf.Exp(-14f * Time.deltaTime));
-            t.rect.anchoredPosition = pos;
-            y += t.rect.sizeDelta.y + 6f;
+            toasts[i].rect.anchoredPosition = new Vector2(0f, y);
+            y -= toasts[i].rect.sizeDelta.y + 8f;
         }
     }
 
-    void UpdateVignette(PlayerMain player)
+    void Fade(CanvasGroup group, bool visible)
     {
-        Color c;
-        float a;
-        if (danger)
-        {
-            c = dangerColor;
-            a = 0.6f + 0.15f * Mathf.Sin(Time.time * 10f);
-        }
-        else
-        {
-            float nec = player.Max_Nec > 0 ? player.Current_Nec / player.Max_Nec : 1f;
-            float t = lowEnergyFraction > 0 ? Mathf.Clamp01((lowEnergyFraction - nec) / lowEnergyFraction) : 0f;
-            c = warnColor;
-            a = t * (0.45f + 0.15f * Mathf.Sin(Time.time * 5f));
-        }
-        if (GameManager.instance != null && !GameManager.instance.IsPlaying) a = 0f;
-        c.a = Mathf.MoveTowards(vignette.color.a, a, Time.deltaTime * 2f);
-        vignette.color = c;
-    }
-
-    static void Fade(CanvasGroup g, bool visible, float speed = 6f)
-    {
-        g.alpha = Mathf.MoveTowards(g.alpha, visible ? 1f : 0f, Time.deltaTime * speed);
-    }
-
-    // ------------------------------------------------------------------ target search
-
-    bool Nearest(GameObject[] list, out Vector3 pos)
-    {
-        pos = Vector3.zero;
-        float best = float.MaxValue;
-        foreach (var go in list)
-        {
-            if (go == null) continue;
-            float d = (go.transform.position - cam.position).sqrMagnitude;
-            if (d < best) { best = d; pos = go.transform.position; }
-        }
-        return best < float.MaxValue;
-    }
-
-    bool Nearest<T>(T[] list, out Vector3 pos) where T : Component
-    {
-        pos = Vector3.zero;
-        float best = float.MaxValue;
-        foreach (var c in list)
-        {
-            if (c == null) continue;
-            float d = (c.transform.position - cam.position).sqrMagnitude;
-            if (d < best) { best = d; pos = c.transform.position; }
-        }
-        return best < float.MaxValue;
-    }
-
-    bool NearestMale(out Vector3 pos)
-    {
-        pos = Vector3.zero;
-        float best = float.MaxValue;
-        foreach (var m in mosquitoes)
-        {
-            if (m == null || m.Gender != Wild_Mosquitos.genderlist.male) continue;
-            float d = (m.transform.position - cam.position).sqrMagnitude;
-            if (d < best) { best = d; pos = m.transform.position; }
-        }
-        return best < float.MaxValue;
-    }
-
-    bool NearestFilledContainer(out Vector3 pos)
-    {
-        pos = Vector3.zero;
-        float best = float.MaxValue;
-        foreach (var c in containers)
-        {
-            if (c == null || !c.isFill) continue;
-            float d = (c.transform.position - cam.position).sqrMagnitude;
-            if (d < best) { best = d; pos = c.transform.position; }
-        }
-        return best < float.MaxValue;
+        group.alpha = Mathf.MoveTowards(group.alpha, visible ? 1f : 0f, Time.deltaTime * 6f);
     }
 
     // ------------------------------------------------------------------ construction
@@ -557,147 +382,119 @@ public class Module1HUD : MonoBehaviour
     void BuildHud()
     {
         hudRoot = NewCanvas("Module1HUD (runtime)", CanvasW, CanvasH, 10);
-        var root = hudRoot;
 
-        // --- gameplay layer: everything that is only meaningful while playing
-        var gameplay = NewRect("Gameplay", root, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+        // Behind everything else: a red wash while a predator is on you.
+        dangerVignette = NewImage("DangerVignette", hudRoot, roundedSprite, new Color(dangerColor.r, dangerColor.g, dangerColor.b, 0f),
+            Image.Type.Sliced, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+
+        var gameplay = NewRect("Gameplay", hudRoot, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
         gameplayGroup = gameplay.gameObject.AddComponent<CanvasGroup>();
 
-        // Timer, top centre
-        timerText = NewText("Timer", gameplay, "5:00", 60, textColor, TextAlignmentOptions.Center,
-            new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -8), new Vector2(320, 70), FontStyles.Bold);
-        rainTag = NewText("RainTag", gameplay, "", 22, rainColor, TextAlignmentOptions.Center,
-            new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -76), new Vector2(420, 28));
+        // --- top left: timer (+ rain drop while it rains), energy and blood bars ---
+        timerText = NewText("Timer", gameplay, "0:00", 54, textColor, TextAlignmentOptions.TopLeft,
+            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(28, -22), new Vector2(170, 66), FontStyles.Bold);
+        rainIcon = NewImage("Rain", gameplay, dropSprite, accentColor, Image.Type.Simple,
+            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(178, -34), new Vector2(34, 34));
+        rainIcon.enabled = false;
 
-        // Objective arrow + label
-        var objective = NewRect("Objective", gameplay, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -104), new Vector2(420, 40));
-        objectiveArrow = NewImage("Arrow", objective, arrowSprite, textColor, Image.Type.Simple,
-            new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(24, 0), new Vector2(30, 30));
-        objectiveText = NewText("Label", objective, "", 26, textColor, TextAlignmentOptions.Left,
-            new Vector2(0f, 0.5f), new Vector2(1f, 0.5f), new Vector2(0f, 0.5f), new Vector2(50, 0), new Vector2(-50, 40));
+        energyLabel = NewText("EnergyLabel", gameplay, energyLabelText, 22, mutedColor, TextAlignmentOptions.TopLeft,
+            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(30, -96), new Vector2(300, 32), FontStyles.Bold);
+        energyFill = Bar("Energy", gameplay, new Vector2(30, -132), nectarColor);
+        bloodLabel = NewText("BloodLabel", gameplay, bloodLabelText, 22, mutedColor, TextAlignmentOptions.TopLeft,
+            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(30, -158), new Vector2(300, 32), FontStyles.Bold);
+        bloodFill = Bar("Blood", gameplay, new Vector2(30, -194), bloodColor);
 
-        // Score, top left
-        scoreText = NewText("Score", gameplay, "Score 0", 34, textColor, TextAlignmentOptions.Left,
-            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(24, -18), new Vector2(300, 44), FontStyles.Bold);
+        // --- top right: score, with the GAMA connection dot beside it ---
+        scoreText = NewText("Score", gameplay, "", 40, textColor, TextAlignmentOptions.TopRight,
+            new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-28, -26), new Vector2(360, 56), FontStyles.Bold);
+        statusDot = NewImage("GamaStatus", gameplay, dotSprite, mutedColor, Image.Type.Simple,
+            new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-30, -92), new Vector2(14, 14));
 
-        // Energy (nectar) bar, bottom left; blood bar, bottom right (fills toward the centre)
-        nectarFill = BuildBar(gameplay, Module1Text.EnergyLabel, flowerSprite, nectarColor, right: false);
-        bloodFill = BuildBar(gameplay, Module1Text.BloodLabel, dropSprite, bloodColor, right: true);
+        // --- life-cycle card, left, while the left grip is held ---
+        BuildQuestCard(gameplay);
 
-        // Contextual prompt, bottom centre
-        var prompt = NewRect("Prompt", gameplay, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 92), new Vector2(PromptW, 52));
-        promptRect = prompt;
-        promptGroup = prompt.gameObject.AddComponent<CanvasGroup>();
-        var promptBg = prompt.gameObject.AddComponent<Image>();
+        // --- toasts, top centre ---
+        toastContainer = NewRect("Toasts", gameplay, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -30), new Vector2(ToastW, 10));
+
+        // --- bottom: warnings ---
+        promptRect = NewRect("Prompt", gameplay, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 54), new Vector2(PromptW, 60));
+        promptGroup = promptRect.gameObject.AddComponent<CanvasGroup>();
+        promptGroup.alpha = 0f;
+        promptBg = promptRect.gameObject.AddComponent<Image>();
         promptBg.sprite = roundedSprite; promptBg.type = Image.Type.Sliced; promptBg.color = panelColor; promptBg.raycastTarget = false;
-        promptText = NewText("Text", prompt, "", 28, textColor, TextAlignmentOptions.Center,
-            Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(-28, 0));
+        promptText = NewText("Text", promptRect, "", 30, textColor, TextAlignmentOptions.Center,
+            Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(-40, 0), FontStyles.Bold);
 
-        // Toasts, under the objective line
-        toastContainer = NewRect("Toasts", gameplay, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -166), new Vector2(ToastW, 200));
-
-        // Quest list, right side
-        BuildQuestPanel(gameplay);
-
-        // --- modal panels (outside the gameplay group so they stay visible when it fades)
-        var modals = NewRect("Modals", root, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-        BuildIntroPanel(modals);
-        BuildEndPanel(modals);
+        BuildDeathCard(hudRoot);
+        BuildTimeOutCard(hudRoot);
     }
 
-    Image BuildBar(Transform parent, string label, Sprite icon, Color color, bool right)
+    Image Bar(string name, Transform parent, Vector2 pos, Color color)
     {
-        float ax = right ? 1f : 0f;
-        Vector2 anchor = new Vector2(ax, 0f);
-        float sign = right ? -1f : 1f;
-        var bar = NewRect(right ? "BloodBar" : "EnergyBar", parent, anchor, anchor, anchor, new Vector2(sign * 24, 22), new Vector2(320, 48));
-
-        NewImage("Icon", bar, icon, color, Image.Type.Simple, anchor, anchor, anchor, Vector2.zero, new Vector2(46, 46));
-        NewText("Label", bar, label, 21, mutedColor, right ? TextAlignmentOptions.Right : TextAlignmentOptions.Left,
-            anchor, anchor, anchor, new Vector2(sign * 56, 26), new Vector2(250, 24));
-        var back = NewImage("Back", bar, roundedSprite, barBackColor, Image.Type.Sliced, anchor, anchor, anchor, new Vector2(sign * 56, 0), new Vector2(260, 22));
-        back.pixelsPerUnitMultiplier = 1f;
-        var fill = NewImage("Fill", back.rectTransform, roundedSprite, color, Image.Type.Filled, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(-6, -6));
+        var back = NewImage(name + "Back", parent, roundedSprite, barBackColor, Image.Type.Sliced,
+            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), pos, new Vector2(300, 18));
+        var fill = NewImage(name + "Fill", back.rectTransform, roundedSprite, color, Image.Type.Filled,
+            Vector2.zero, Vector2.one, new Vector2(0f, 0.5f), Vector2.zero, Vector2.zero);
         fill.fillMethod = Image.FillMethod.Horizontal;
-        fill.fillOrigin = right ? (int)Image.OriginHorizontal.Right : (int)Image.OriginHorizontal.Left;
-        fill.fillAmount = 0.5f;
+        fill.fillAmount = 0f;
         return fill;
     }
 
-    void BuildQuestPanel(Transform parent)
+    void BuildQuestCard(Transform parent)
     {
-        var panel = NewRect("Quests", parent, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-20, 20), new Vector2(310, 350));
+        var panel = NewRect("Quests", parent, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(28, -40), new Vector2(380, 300));
         questGroup = panel.gameObject.AddComponent<CanvasGroup>();
+        questGroup.alpha = 0f;
         var bg = panel.gameObject.AddComponent<Image>();
         bg.sprite = roundedSprite; bg.type = Image.Type.Sliced; bg.color = panelColor; bg.raycastTarget = false;
 
-        NewText("Title", panel, Module1Text.QuestPanelTitle, 24, mutedColor, TextAlignmentOptions.Left,
-            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -12), new Vector2(-32, 30), FontStyles.Bold);
-        NewText("GripHint", panel, Module1Text.QuestPanelHint, 16, mutedColor, TextAlignmentOptions.Right,
-            new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 8), new Vector2(-32, 22));
-
-        questRows = new QuestRow[QuestSystem.QuestCount];
+        questTitleText = NewText("Title", panel, questTitle ?? "", 30, accentColor, TextAlignmentOptions.TopLeft,
+            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -16), new Vector2(-48, 44), FontStyles.Bold);
         for (int i = 0; i < questRows.Length; i++)
         {
-            float y = -52 - i * 66;
-            var row = new QuestRow();
-            row.box = NewImage("Box" + i, panel, roundedSprite, new Color(1, 1, 1, 0.18f), Image.Type.Sliced,
-                new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(16, y), new Vector2(28, 28));
-            row.box.pixelsPerUnitMultiplier = 1.4f;
-            row.tick = NewImage("Tick", row.box.rectTransform, tickSprite, Color.white, Image.Type.Simple,
-                Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(-4, -4));
-            row.tick.enabled = false;
-            row.title = NewText("Title" + i, panel, "", 24, textColor, TextAlignmentOptions.Left,
-                new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(54, y + 2), new Vector2(-70, 30));
-            row.hint = NewText("Hint" + i, panel, "", 18, mutedColor, TextAlignmentOptions.TopLeft,
-                new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(54, y - 26), new Vector2(-70, 40));
-            questRows[i] = row;
+            float y = -78 - i * 54;
+            questMarks[i] = NewImage("Mark" + i, panel, ringSprite, mutedColor, Image.Type.Simple,
+                new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(26, y - 8), new Vector2(24, 24));
+            questRows[i] = NewText("Quest" + i, panel, "", 26, textColor, TextAlignmentOptions.TopLeft,
+                new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(64, y), new Vector2(-84, 46));
         }
     }
 
-    void BuildIntroPanel(Transform parent)
+    void BuildDeathCard(Transform parent)
     {
-        var panel = NewRect("Intro", parent, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 0), new Vector2(940, 600));
-        introGroup = panel.gameObject.AddComponent<CanvasGroup>();
+        var panel = NewRect("Death", parent, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(760, 400));
+        deathGroup = panel.gameObject.AddComponent<CanvasGroup>();
+        deathGroup.alpha = 0f;
         var bg = panel.gameObject.AddComponent<Image>();
-        bg.sprite = roundedSprite; bg.type = Image.Type.Sliced; bg.color = new Color(panelColor.r, panelColor.g, panelColor.b, 0.9f); bg.raycastTarget = false;
+        bg.sprite = roundedSprite; bg.type = Image.Type.Sliced; bg.color = endPanelColor; bg.raycastTarget = false;
 
-        introTitle = NewText("Title", panel, "", 48, nectarColor, TextAlignmentOptions.Center,
-            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -22), new Vector2(-40, 60), FontStyles.Bold);
-        introBody = NewText("Body", panel, "", 26, textColor, TextAlignmentOptions.TopLeft,
-            new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0, -16), new Vector2(-80, -170));
-        introFooter = NewText("Footer", panel, "", 30, doneColor, TextAlignmentOptions.Center,
-            new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 22), new Vector2(-40, 44), FontStyles.Bold);
+        deathTitleText = NewText("Title", panel, deathTitle ?? "", 64, dangerColor, TextAlignmentOptions.Center,
+            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -36), new Vector2(-40, 90), FontStyles.Bold);
+        deathMessageText = NewText("Message", panel, "", 34, textColor, TextAlignmentOptions.Center,
+            new Vector2(0f, 0.5f), new Vector2(1f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, -6), new Vector2(-80, 110));
+        deathFooterText = NewText("Footer", panel, deathFooter ?? "", 30, doneColor, TextAlignmentOptions.Center,
+            new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 30), new Vector2(-40, 48), FontStyles.Bold);
     }
 
-    void BuildEndPanel(Transform parent)
+    void BuildTimeOutCard(Transform parent)
     {
-        var panel = NewRect("End", parent, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 0), new Vector2(800, 540));
-        endGroup = panel.gameObject.AddComponent<CanvasGroup>();
+        var panel = NewRect("TimeOut", parent, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(760, 540));
+        timeOutGroup = panel.gameObject.AddComponent<CanvasGroup>();
+        timeOutGroup.alpha = 0f;
         var bg = panel.gameObject.AddComponent<Image>();
-        bg.sprite = roundedSprite; bg.type = Image.Type.Sliced; bg.color = new Color(panelColor.r, panelColor.g, panelColor.b, 0.9f); bg.raycastTarget = false;
+        bg.sprite = roundedSprite; bg.type = Image.Type.Sliced; bg.color = new Color(panelColor.r, panelColor.g, panelColor.b, 0.92f); bg.raycastTarget = false;
 
-        endTitle = NewText("Title", panel, "", 52, textColor, TextAlignmentOptions.Center,
-            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -24), new Vector2(-40, 64), FontStyles.Bold);
-        endSubtitle = NewText("Subtitle", panel, "", 25, mutedColor, TextAlignmentOptions.Center,
-            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -94), new Vector2(-60, 70));
-        endStats = NewText("Stats", panel, "", 32, textColor, TextAlignmentOptions.Center,
-            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -180), new Vector2(-60, 140));
-        endFact = NewText("Fact", panel, "", 23, nectarColor, TextAlignmentOptions.Center,
-            new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 76), new Vector2(-80, 90), FontStyles.Italic);
-        endFooter = NewText("Footer", panel, "", 28, doneColor, TextAlignmentOptions.Center,
-            new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 22), new Vector2(-40, 44), FontStyles.Bold);
-    }
-
-    void BuildVignette()
-    {
-        // Big enough to cover the headset FOV at vignetteDistance; only the edges are opaque.
-        // 1.2 m square at vignetteDistance: with a ~90-110 deg per-eye FOV the edge of the view
-        // lands around half way up the radial gradient, so the central ~25 deg stays clear and
-        // only the periphery colours up.
-        vignetteRoot = NewCanvas("Module1HUD Vignette (runtime)", 1200, 1200, 5);
-        vignette = NewImage("Vignette", vignetteRoot, vignetteSprite, new Color(0, 0, 0, 0), Image.Type.Simple,
-            Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+        timeOutTitleText = NewText("Title", panel, timeOutTitle ?? "", 60, warnColor, TextAlignmentOptions.Center,
+            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -30), new Vector2(-40, 84), FontStyles.Bold);
+        string labels = timeOutLabels != null ? string.Join("\n", timeOutLabels) : "";
+        // Two columns: the team's labels on the left, the numbers right-aligned beside them.
+        timeOutLabelsText = NewText("Labels", panel, labels, 32, mutedColor, TextAlignmentOptions.TopLeft,
+            new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(1f, 1f), new Vector2(110, -136), new Vector2(420, 300));
+        timeOutValuesText = NewText("Values", panel, "", 32, textColor, TextAlignmentOptions.TopRight,
+            new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, 1f), new Vector2(120, -136), new Vector2(160, 300), FontStyles.Bold);
+        timeOutLabelsText.lineSpacing = timeOutValuesText.lineSpacing = 12f;
+        timeOutFooterText = NewText("Footer", panel, timeOutFooter ?? "", 30, doneColor, TextAlignmentOptions.Center,
+            new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 30), new Vector2(-40, 48), FontStyles.Bold);
     }
 
     RectTransform NewCanvas(string name, float w, float h, int sortingOrder)
@@ -753,14 +550,18 @@ public class Module1HUD : MonoBehaviour
         t.overflowMode = TextOverflowModes.Overflow;
         t.richText = true;
         t.raycastTarget = false;
+        // The full Lao font carries a kerning pair that opens a visible gap in "ງງ" (ພະລັງງານ). The
+        // team's scene font has no kerning at all, so leave it off to set their text as they did.
+        var features = new List<UnityEngine.TextCore.OTL_FeatureTag>(t.fontFeatures);
+        features.Remove(UnityEngine.TextCore.OTL_FeatureTag.kern);
+        t.fontFeatures = features;
         return t;
     }
 
-    // ------------------------------------------------------------------ procedural sprites
+    // ------------------------------------------------------------------ procedural sprites (as Module2HUD)
 
     void BuildSprites()
     {
-        // Rounded rectangle, 9-sliced (border 10 px = 10 mm corners at multiplier 1).
         roundedSprite = MakeSprite(Raster(32, (u, v) =>
         {
             float r = 10f / 32f;
@@ -769,37 +570,10 @@ public class Module1HUD : MonoBehaviour
             float d = new Vector2(Mathf.Max(q.x, 0f), Mathf.Max(q.y, 0f)).magnitude + Mathf.Min(Mathf.Max(q.x, q.y), 0f) - r;
             return d < 0f;
         }), new Vector4(10, 10, 10, 10));
-
-        // Blood drop: circle plus a triangle up to the apex, tangent to the circle.
         dropSprite = MakeSprite(Raster(64, (u, v) =>
             InCircle(u, v, 0.5f, 0.36f, 0.28f) || InTri(u, v, 0.5f, 0.97f, 0.251f, 0.4885f, 0.749f, 0.4885f)));
-
-        // Flower: centre plus five petals.
-        flowerSprite = MakeSprite(Raster(64, (u, v) =>
-        {
-            if (InCircle(u, v, 0.5f, 0.5f, 0.12f)) return true;
-            for (int k = 0; k < 5; k++)
-            {
-                float a = (90f + 72f * k) * Mathf.Deg2Rad;
-                if (InCircle(u, v, 0.5f + 0.28f * Mathf.Cos(a), 0.5f + 0.28f * Mathf.Sin(a), 0.16f)) return true;
-            }
-            return false;
-        }));
-
-        // Chevron arrow pointing up.
-        arrowSprite = MakeSprite(Raster(64, (u, v) =>
-            InTri(u, v, 0.5f, 0.95f, 0.08f, 0.1f, 0.92f, 0.1f) && !InTri(u, v, 0.5f, 0.5f, 0.24f, 0.05f, 0.76f, 0.05f)));
-
-        // Tick mark.
-        tickSprite = MakeSprite(Raster(32, (u, v) =>
-            SegDist(u, v, 0.2f, 0.5f, 0.42f, 0.28f) < 0.09f || SegDist(u, v, 0.42f, 0.28f, 0.82f, 0.72f) < 0.09f));
-
-        // Radial vignette: clear in the middle, solid at the edges.
-        vignetteSprite = MakeSprite(RasterAlpha(128, (u, v) =>
-        {
-            float d = new Vector2(u - 0.5f, v - 0.5f).magnitude / 0.7071f;
-            return Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.15f, 0.55f, d));
-        }));
+        dotSprite = MakeSprite(Raster(64, (u, v) => InCircle(u, v, 0.5f, 0.5f, 0.46f)));
+        ringSprite = MakeSprite(Raster(64, (u, v) => InCircle(u, v, 0.5f, 0.5f, 0.46f) && !InCircle(u, v, 0.5f, 0.5f, 0.32f)));
     }
 
     static Sprite MakeSprite(Texture2D tex, Vector4 border = default)
@@ -807,197 +581,47 @@ public class Module1HUD : MonoBehaviour
         return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect, border);
     }
 
-    // Supersampled hard-edged shape -> antialiased alpha.
     static Texture2D Raster(int size, System.Func<float, float, bool> inside, int ss = 4)
     {
         var px = new Color32[size * size];
-        float inv = 1f / (size * ss);
         for (int y = 0; y < size; y++)
             for (int x = 0; x < size; x++)
             {
                 int hits = 0;
                 for (int sy = 0; sy < ss; sy++)
                     for (int sx = 0; sx < ss; sx++)
-                        if (inside((x * ss + sx + 0.5f) * inv, (y * ss + sy + 0.5f) * inv)) hits++;
-                px[y * size + x] = new Color32(255, 255, 255, (byte)(255 * hits / (ss * ss)));
+                    {
+                        float u = (x + (sx + 0.5f) / ss) / size;
+                        float v = (y + (sy + 0.5f) / ss) / size;
+                        if (inside(u, v)) hits++;
+                    }
+                byte a = (byte)(255 * hits / (ss * ss));
+                px[y * size + x] = new Color32(255, 255, 255, a);
             }
-        return ToTexture(size, px);
-    }
-
-    static Texture2D RasterAlpha(int size, System.Func<float, float, float> alpha)
-    {
-        var px = new Color32[size * size];
-        for (int y = 0; y < size; y++)
-            for (int x = 0; x < size; x++)
-                px[y * size + x] = new Color32(255, 255, 255, (byte)Mathf.RoundToInt(255f * Mathf.Clamp01(alpha((x + 0.5f) / size, (y + 0.5f) / size))));
-        return ToTexture(size, px);
-    }
-
-    static Texture2D ToTexture(int size, Color32[] px)
-    {
-        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false)
-        {
-            wrapMode = TextureWrapMode.Clamp,
-            filterMode = FilterMode.Bilinear
-        };
+        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
         tex.SetPixels32(px);
-        tex.Apply(false, true);
+        tex.Apply();
         return tex;
     }
 
     static bool InCircle(float u, float v, float cx, float cy, float r)
     {
         float dx = u - cx, dy = v - cy;
-        return dx * dx + dy * dy < r * r;
+        return dx * dx + dy * dy <= r * r;
     }
 
     static bool InTri(float u, float v, float ax, float ay, float bx, float by, float cx, float cy)
     {
-        float d1 = (u - bx) * (ay - by) - (ax - bx) * (v - by);
-        float d2 = (u - cx) * (by - cy) - (bx - cx) * (v - cy);
-        float d3 = (u - ax) * (cy - ay) - (cx - ax) * (v - ay);
+        float d1 = Sign(u, v, ax, ay, bx, by);
+        float d2 = Sign(u, v, bx, by, cx, cy);
+        float d3 = Sign(u, v, cx, cy, ax, ay);
         bool neg = d1 < 0 || d2 < 0 || d3 < 0;
         bool pos = d1 > 0 || d2 > 0 || d3 > 0;
         return !(neg && pos);
     }
 
-    static float SegDist(float u, float v, float ax, float ay, float bx, float by)
+    static float Sign(float px, float py, float ax, float ay, float bx, float by)
     {
-        float vx = bx - ax, vy = by - ay;
-        float t = Mathf.Clamp01(((u - ax) * vx + (v - ay) * vy) / (vx * vx + vy * vy));
-        float px = ax + t * vx - u, py = ay + t * vy - v;
-        return Mathf.Sqrt(px * px + py * py);
+        return (px - bx) * (ay - by) - (ax - bx) * (py - by);
     }
-}
-
-/// <summary>
-/// Every string the Module 1 HUD shows, in one place. Only glyphs from the baked LiberationSans
-/// atlas (ASCII + Latin-1 + bullet) are safe here; the fallback font is dynamic and may not be
-/// available on device.
-/// </summary>
-public static class Module1Text
-{
-    public const string EnergyLabel = "ENERGY (nectar)";
-    public const string BloodLabel = "BLOOD";
-    public const string RainTag = "Raining - containers are filling up";
-    public static string Score(int score) => "Score " + score;
-
-    // Quests
-    public const string QuestPanelTitle = "LIFE CYCLE";
-    public const string QuestPanelHint = "hold left grip to show";
-    public const string QuestNectar = "Drink nectar";
-    public const string QuestNectarHint = "Find a flower and hold A. Nectar is your energy.";
-    public const string QuestMate = "Find a mate";
-    public const string QuestMateHint = "Fly next to a male mosquito and press A.";
-    public const string QuestBlood = "Drink blood";
-    public const string QuestBloodHint = "Hold A on a person. Right trigger = thermal vision.";
-    public const string QuestEggs = "Lay eggs";
-    public const string QuestEggsHint = "Full blood meal, then press A in a container of rainwater.";
-    public const string QuestDone = "Done";
-    public static string QuestComplete(string title) => title + " complete";
-
-    // Objective arrow
-    public const string TargetFlower = "Flower";
-    public const string TargetFlowerUrgent = "Flower - energy low!";
-    public const string TargetMale = "Male mosquito";
-    public const string TargetHuman = "Person";
-    public const string TargetContainer = "Rainwater container";
-    public static string TargetNone(string what) => what + ": none nearby";
-    public static string Target(string what, float dist, float vertical)
-    {
-        string s = what + "  " + Mathf.RoundToInt(dist) + " m";
-        if (vertical > 2f) s += "  (above)";
-        else if (vertical < -2f) s += "  (below)";
-        return s;
-    }
-
-    public static string ObjectiveHint(int objective)
-    {
-        switch (objective)
-        {
-            case 0: return "Flowers grow all around the gardens - hold A on one to drink";
-            case 1: return "Look for a male mosquito and press A next to it";
-            case 2: return "Hold the right trigger: thermal vision shows people, even through walls";
-            case 3: return "Jars, buckets and old tyres hold rainwater - lay your eggs there";
-            default: return "Life cycle complete! Keep laying eggs for more points";
-        }
-    }
-
-    // Prompts
-    public const string PromptDrinkNectar = "Hold A to drink nectar";
-    public const string DrinkingNectar = "Drinking nectar...";
-    public const string EnergyFull = "Energy full";
-    public const string PromptDrinkBlood = "Hold A to drink blood";
-    public const string DrinkingBlood = "Feeding...";
-    public const string BloodFullMated = "Blood full - find a container of rainwater and lay your eggs";
-    public const string BloodFullNotMated = "Blood full - now find a mate";
-    public const string PromptMate = "Press A to mate";
-    public const string AlreadyMated = "Already mated";
-    public const string FemaleMosquito = "That's a female - you need a male to mate";
-    public const string ContainerDry = "This container is dry - wait for the rain";
-    public const string NeedMate = "You need a mate before you can lay eggs";
-    public const string NeedBlood = "You need a full blood meal to lay eggs";
-    public const string PromptLayEggs = "Press A to lay eggs";
-    public const string DangerPrompt = "DANGER - get away!";
-
-    // Toasts
-    public const string StartToast = "Go! Find a flower first - nectar keeps you flying";
-    public const string LowEnergy = "Energy low - find a flower!";
-    public const string RainStarted = "It's raining - containers are filling with water";
-    public const string RainStopped = "The rain has stopped";
-    public const string OneMinuteLeft = "One minute left!";
-    public const string ThirtySecondsLeft = "30 seconds left!";
-    public const string EggsLaid = "Eggs laid";
-
-    // Intro
-    public const string IntroTitle = "You are an Aedes mosquito";
-    public const string IntroBody =
-        "Complete your life cycle before the clock runs out:\n" +
-        "<color=#FFC733>1.</color>  Drink nectar from flowers - it is your energy. Run out and you fall.\n" +
-        "<color=#FFC733>2.</color>  Find a male mosquito and mate.\n" +
-        "<color=#FFC733>3.</color>  Drink blood from a person - you need it to make eggs.\n" +
-        "<color=#FFC733>4.</color>  Lay eggs in a container of rainwater. Rain comes mid-game.\n" +
-        "\n" +
-        "<color=#BFC7D1>Left stick</color>  fly       <color=#BFC7D1>Right stick</color>  turn, up / down\n" +
-        "<color=#BFC7D1>A (hold)</color>  drink, mate, lay eggs\n" +
-        "<color=#BFC7D1>Right trigger (hold)</color>  thermal vision - see people through walls\n" +
-        "<color=#BFC7D1>Left grip (hold)</color>  your life-cycle list";
-    public const string IntroFooter = "Press A to begin";
-
-    // End
-    public const string EndFooter = "Press any button to fly again";
-    public static string EndTitle(GameManager.GameOverReason reason)
-    {
-        switch (reason)
-        {
-            case GameManager.GameOverReason.Starved: return "Out of energy";
-            case GameManager.GameOverReason.Eaten: return "Eaten!";
-            default: return "Time's up";
-        }
-    }
-    public static string EndSubtitle(GameManager.GameOverReason reason)
-    {
-        switch (reason)
-        {
-            case GameManager.GameOverReason.Starved: return "Mosquitoes burn nectar to fly. Yours ran out - keep the energy bar topped up from flowers.";
-            case GameManager.GameOverReason.Eaten: return "Predators like dragonflies and fish eat mosquitoes - one reason guppies are put in water jars.";
-            default: return "A mosquito's day is over. Here is how your life cycle went.";
-        }
-    }
-    public static string EndStats(int score, int questsDone, int questsTotal, int eggs)
-    {
-        return "Score  " + score + "\n" +
-               "Life cycle  " + questsDone + " / " + questsTotal + "\n" +
-               "Eggs laid  " + eggs;
-    }
-
-    static readonly string[] Facts =
-    {
-        "One Aedes female lays about 100 eggs per clutch, in as little water as a bottle cap holds.",
-        "Aedes eggs can survive months in a dry container and hatch as soon as the rain returns.",
-        "Only female mosquitoes bite - they need the protein in blood to produce eggs.",
-        "Emptying and scrubbing water containers once a week breaks the mosquito life cycle.",
-        "Aedes mosquitoes bite mostly during the day, and they rarely fly further than 200 m in their life.",
-    };
-    public static string RandomFact() => Facts[Random.Range(0, Facts.Length)];
 }
