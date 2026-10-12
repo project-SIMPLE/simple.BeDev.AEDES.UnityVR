@@ -45083,6 +45083,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: DrivingCar (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 1056565930225717058, guid: 09bba727647092746bc2a04c2e46c4ec, type: 3}
+      propertyPath: m_Resource
+      value: 
+      objectReference: {fileID: 8300000, guid: e271aa506c9e13c4699d872713f62efc, type: 3}
     - target: {fileID: 2794378512566543274, guid: 09bba727647092746bc2a04c2e46c4ec, type: 3}
       propertyPath: m_LocalPosition.x
       value: 5.35
@@ -90456,7 +90460,7 @@ AudioSource:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2102266609}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
