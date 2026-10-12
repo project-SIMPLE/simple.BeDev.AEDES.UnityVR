@@ -97,7 +97,8 @@ public class M3XRPlayer : MonoBehaviour
     /// <summary>
     /// What is Module 2's game rather than its controls stands down: the "game over" card that follows
     /// the camera, and the device poller that only logs. The sticks, hands, grab and poke are left exactly
-    /// as Module 2 has them. The watch stays too, with Module 3's buttons on it.
+    /// as Module 2 has them, with Module 2's interaction repairs. The watch stays too, with Module 3's
+    /// buttons on it.
     /// </summary>
     private void TakeOverModule2Rig()
     {
@@ -105,6 +106,12 @@ public class M3XRPlayer : MonoBehaviour
         if (lose != null) lose.gameObject.SetActive(false);
         foreach (var poller in Rig.GetComponentsInChildren<InputVR>(true)) poller.enabled = false;
         M3WristMenu.Attach(Rig);
+
+        // Module 2's fixes from headset testing come with its rig: hand spheres that no longer shove
+        // things, a wider grab (so reaching a villager is easier too) and an EventSystem that turns pokes
+        // into clicks. M2Manager adds this in Module 2; there is no litter to make grabbable here.
+        var repairs = Rig.AddComponent<Module2Interaction>();
+        repairs.makeTrashGrabbable = false;
     }
 
     /// <summary>
