@@ -81,8 +81,8 @@ public class PlayerMain : MonoBehaviour
     /// <summary>Enough blood left for one more egg. Small tolerance so 4 eggs really fit in one meal.</summary>
     public bool HasBloodForEgg => Current_Blood >= BloodPerEgg - 0.01f;
 
-    /// <summary>Alive, with time left and not on a death / time-out screen.</summary>
-    public bool Playing => !Death && !RestartAble && GameManager.instance != null && GameManager.instance.time > 0;
+    /// <summary>Alive, with time left and not on a death / time-out / win screen.</summary>
+    public bool Playing => !Death && !RestartAble && GameManager.instance != null && GameManager.instance.time > 0 && !GameManager.instance.Won;
 
     private bool primaryHeldLastFrame;
     /// <summary>When A was last pressed, so a press can be honoured slightly before arrival.</summary>
