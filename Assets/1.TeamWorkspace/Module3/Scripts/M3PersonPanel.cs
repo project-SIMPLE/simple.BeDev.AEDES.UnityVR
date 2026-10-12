@@ -5,15 +5,20 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// The conversation with one villager, as a panel standing beside them in the room.
+/// The conversation with one villager, as a small card standing beside them in the room.
 ///
-/// It is the whole household visit of section 7 in one place: who this is, what you can see
-/// (step 3), what the family tells you in plain words (step 2), and what you can do about it -
-/// the closed verb list of section 4, never "diagnose" or "treat". Everything on it comes from
-/// Observe, so the panel can show nothing the model says the volunteer could not have seen.
+/// It is the household visit of section 7 in pictures: what you notice (a thermometer and how many
+/// days, a drop of blood, a bucket, no water within reach, a net already up) and what you can do for
+/// them (water, rest, repellent, the health centre) and for the house (shut up at dawn and dusk) - the
+/// closed verb list of section 4, never "diagnose" or "treat". Everything on it comes from Observe, so
+/// the card can show nothing the model says the volunteer could not have seen.
 ///
-/// Framing rule (section 5): every villager opens the same panel the same way. Nothing about a
-/// sick person's panel looks like a warning; it is a conversation, not an alert.
+/// No paragraphs: each icon's sentence appears in the caption line only while the Pilot points at it,
+/// and a done action keeps its place with a tick. The net, the window screen and the fan are not on
+/// the card at all - they are things in the room, and the Pilot acts on them directly (M3PropAction).
+///
+/// Framing rule (section 5): every villager opens the same card the same way, in the same colours.
+/// Nothing about a sick person's card looks like a warning; it is a conversation, not an alert.
 ///
 /// Pressable with the ray (point and pull the trigger) or by poking it with a finger.
 /// </summary>
@@ -37,22 +42,27 @@ public class M3PersonPanel : MonoBehaviour
 
     private RectTransform root;
     private RectTransform stack;
-    private TextMeshProUGUI feedback;
+    private TextMeshProUGUI caption;
     private Transform villager;
     private Vector3 conversationAt;   // where the villager stood when it began
     private string lastFeedbackKey;
+    /// <summary>What the card says back after the last action, if that action needs saying anything.</summary>
+    private string replyKey;
+    /// <summary>The sentence of whatever the Pilot is pointing at, shown instead of the reply while they point.</summary>
+    private string hoverKey;
+    private object[] hoverArgs;
 
     private M3Session S => M3Session.Instance;
 
     private void Awake()
     {
         Instance = this;
-        root = M3Ui.WorldCanvas("Person Panel", transform, new Vector2(PanelWidth, 900f), unitsPerMetre);
+        root = M3Ui.WorldCanvas("Person Panel", transform, new Vector2(PanelWidth, 400f), unitsPerMetre);
         // On the UI layer, after the world: a card hung beside a villager by a wall used to lose its
         // right third inside the wall.
         M3Ui.OnTop(root);
         M3Ui.Panel(root, "Background", M3Ui.PanelColour);
-        stack = M3Ui.Stack(root, "Content", 7f, new RectOffset((int)PanelPadding, (int)PanelPadding, 22, 22));
+        stack = M3Ui.Stack(root, "Content", 18f, new RectOffset((int)PanelPadding, (int)PanelPadding, 22, 22));
         root.gameObject.SetActive(false);
     }
 
@@ -79,8 +89,21 @@ public class M3PersonPanel : MonoBehaviour
     {
         if (!IsOpen) return;
         lastFeedbackKey = r.MessageKey;
+        replyKey = ReplyKey(r);
         Rebuild();
     }
+
+    /// <summary>
+    /// Most actions answer in the room - water appears by the bed, the fan spins up - and need no words.
+    /// The referral is the one that teaches by its reply (section 10), so it keeps a short one.
+    /// </summary>
+    private static string ReplyKey(ActionResult r) => r.Outcome switch
+    {
+        ActionOutcome.ReferralCorrect => "m3.short.referralCorrect",
+        ActionOutcome.ReferralNotNeeded => r.MessageKey == "m3.action.referralNotNeededWell"
+            ? "m3.short.referralNotNeededWell" : "m3.short.referralNotNeeded",
+        _ => null,
+    };
 
     /// <summary>Opens the conversation with <paramref name="personId"/>, standing beside <paramref name="body"/>.</summary>
     public void Open(int personId, Transform body)
@@ -91,6 +114,8 @@ public class M3PersonPanel : MonoBehaviour
         villager = body;
         conversationAt = body.position;
         lastFeedbackKey = null;
+        replyKey = null;
+        hoverKey = null;
 
         // Talking to someone is looking in on their household.
         var p = S.Neighbourhood.PersonById(personId);
@@ -154,87 +179,150 @@ public class M3PersonPanel : MonoBehaviour
     private void Rebuild()
     {
         M3Ui.Clear(stack);
+        hoverKey = null;
         var sim = S.Neighbourhood;
         var obs = Observe.Person(sim, PersonId);
         if (obs == null) { Close(); return; }
 
-        // Who.
-        M3Ui.Line(stack, $"<b>{M3Ui.L(WhoKey(obs.Age))}</b>", 38f, M3Ui.Text);
+        // What you notice, and the way out.
+        var top = M3Ui.Row(stack, "Noticed", 12f);
+        AddNoticed(top, obs);
+        M3Ui.Spacer(top);
+        var close = M3Ui.IconButton(top, M3Icons.Close, CloseSize, Close);
+        close.GetComponent<Image>().color = M3Ui.ChipColour;
+        M3Hover.On(close, on => Hover(on, "m3.ui.close"));
 
-        // What you can see.
-        M3Ui.Line(stack, M3Ui.L("m3.ui.youSee"), ReadingSize, M3Ui.Muted);
-        var seen = new List<string>();
-        foreach (var sign in obs.Signs) seen.Add(M3Ui.L(sign.Key));
-        if (seen.Count == 0) seen.Add(M3Ui.L("m3.see.nothingOutOfTheOrdinary"));
-        M3Ui.Line(stack, string.Join("\n", seen), ReadingSize, M3Ui.Text);
-
-        // What the household says.
-        if (!string.IsNullOrEmpty(obs.DialogueKey))
+        if (obs.Condition != VisibleCondition.AtTheHealthCentre)
         {
-            M3Ui.Line(stack, M3Ui.L("m3.ui.theySay"), ReadingSize, M3Ui.Muted);
-            M3Ui.Line(stack, $"<i>\"{M3Ui.L(obs.DialogueKey, obs.DialogueDays)}\"</i>", ReadingSize, M3Ui.Accent);
+            // What you can do: for them, then - after a thin rule - for the house.
+            var row = M3Ui.Row(stack, "Actions", ButtonGap, TextAnchor.MiddleCenter);
+            foreach (var a in Observe.ActionsFor(sim, PersonId))
+                if (OnTheCard(a.Kind)) AddAction(row, a);
+            var rule = M3Ui.Rect("Rule", row, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero).gameObject.AddComponent<Image>();
+            rule.color = M3Ui.ChipColour;
+            rule.raycastTarget = false;
+            var le = rule.gameObject.AddComponent<LayoutElement>();
+            le.preferredWidth = le.minWidth = 4f;
+            le.preferredHeight = le.minHeight = ButtonSize * 0.8f;
+            foreach (var a in Observe.ActionsFor(sim, obs.HouseholdId, household: true))
+                if (OnTheCard(a.Kind)) AddAction(row, a);
         }
 
-        if (obs.Condition == VisibleCondition.AtTheHealthCentre)
-        {
-            AddFooter();
-            return;
-        }
+        // Room for two lines, always, so the card does not grow and shrink under a moving ray.
+        caption = M3Ui.Line(stack, "", ReadingSize, M3Ui.Muted);
+        caption.alignment = TextAlignmentOptions.Top;
+        M3Ui.Height(caption, ReadingSize * 2.6f);
+        ShowCaption();
 
-        // What you can do for them.
-        M3Ui.Line(stack, M3Ui.L("m3.ui.forThem"), ReadingSize, M3Ui.Muted);
-        foreach (var a in Observe.ActionsFor(sim, PersonId)) AddAction(a);
-
-        // And for the house.
-        M3Ui.Line(stack, M3Ui.L("m3.ui.forTheHouse"), ReadingSize, M3Ui.Muted);
-        foreach (var a in Observe.ActionsFor(sim, obs.HouseholdId, household: true)) AddAction(a);
-
-        AddFooter();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(stack);
+        // Grow the card to fit its content.
+        float h = LayoutUtility.GetPreferredHeight(stack);
+        root.sizeDelta = new Vector2(root.sizeDelta.x, Mathf.Max(200f, h));
+        KeepInsideTheRoom();
     }
 
     /// <summary>
-    /// The section labels ("You see:", "They tell you:", ...) were 22 units: a degree tall at arm's length,
-    /// too small to read across a room. This is the smallest size whose letters are 1.5 degrees tall at
-    /// 1.5 m, worked out from this panel's own scale so it still holds if the scale is changed. What you
-    /// see and what they say go up with the labels, so a label is never bigger than the words it labels;
-    /// the colour (muted, white, gold) tells them apart.
+    /// What the Pilot can see and hear, one chip each. The household's words and the signs in the room
+    /// often say the same thing (they are bleeding / blood on a cloth), so the chip is the thing itself
+    /// and both sentences are its caption.
+    /// </summary>
+    private void AddNoticed(Transform row, PersonObservation obs)
+    {
+        string icon = obs.DialogueKey switch
+        {
+            "m3.say.hotSinceYesterday" or "m3.say.hotForDays" => M3Icons.Fever,
+            "m3.say.feelingBetterToday" => M3Icons.FeverDown,
+            "m3.say.bleeding" => M3Icons.Bleeding,
+            "m3.say.cannotKeepWaterDown" => M3Icons.Vomiting,
+            "m3.say.atHealthCentre" => M3Icons.HealthCentre,
+            _ => M3Icons.Fine,
+        };
+        // How long they have been unwell is the one number the household gives: a sun and a count.
+        bool counted = obs.Condition != VisibleCondition.Seems_Well && obs.Condition != VisibleCondition.AtTheHealthCentre;
+        int days = Mathf.Max(1, obs.DialogueDays);
+        var said = M3Ui.Chip(row, icon, ChipSize, M3Ui.Text, counted ? M3Icons.Day : null, counted ? days.ToString() : null);
+        string sentence = M3Ui.L(obs.DialogueKey, obs.DialogueDays);
+        foreach (var sign in obs.Signs)
+            if (sign.Key != "m3.see.netIsUp" && sign.Key != "m3.see.noWaterWithinReach") sentence += "\n" + M3Ui.L(sign.Key);
+        M3Hover.On(said, on => HoverText(on, sentence));
+
+        foreach (var sign in obs.Signs)
+        {
+            if (sign.Key == "m3.see.netIsUp") Sign(row, M3Icons.NetUp, sign.Key);
+            else if (sign.Key == "m3.see.noWaterWithinReach") Sign(row, M3Icons.NoWater, sign.Key);
+        }
+    }
+
+    private void Sign(Transform row, string icon, string key)
+    {
+        var chip = M3Ui.Chip(row, icon, ChipSize, M3Ui.Text);
+        M3Hover.On(chip, on => Hover(on, key));
+    }
+
+    /// <summary>The net, the screen and the fan are acted on in the room itself, not from the card.</summary>
+    private static bool OnTheCard(ActionKind kind) => kind switch
+    {
+        ActionKind.BringWater or ActionKind.HelpRest or ActionKind.GiveRepellent
+            or ActionKind.ReferToHealthCentre or ActionKind.AdviseClosingHours => true,
+        _ => false,
+    };
+
+    private static string IconFor(ActionKind kind) => kind switch
+    {
+        ActionKind.BringWater => M3Icons.Water,
+        ActionKind.HelpRest => M3Icons.Rest,
+        ActionKind.GiveRepellent => M3Icons.Repellent,
+        ActionKind.ReferToHealthCentre => M3Icons.HealthCentre,
+        ActionKind.AdviseClosingHours => M3Icons.CloseAtDusk,
+        _ => M3Icons.Check,
+    };
+
+    private void AddAction(Transform row, AvailableAction a)
+    {
+        var action = a.ToAction();
+        // Every verb on the card is disabled only because it is done already (Observe gives the reason).
+        bool done = !a.Enabled;
+        var button = M3Ui.IconButton(row, IconFor(a.Kind), ButtonSize, () => S.Do(action), a.Enabled, done);
+        string key = done && !string.IsNullOrEmpty(a.DisabledReasonKey) ? a.DisabledReasonKey : a.LabelKey;
+        M3Hover.On(button, on => Hover(on, key));
+    }
+
+    private void Hover(bool on, string key) => SetHover(on, key, null);
+    private void HoverText(bool on, string text) => SetHover(on, null, text);
+
+    private string hoverText;
+
+    private void SetHover(bool on, string key, string text)
+    {
+        if (on) { hoverKey = key; hoverText = text; }
+        else if ((key != null && hoverKey == key) || (text != null && hoverText == text)) { hoverKey = null; hoverText = null; }
+        ShowCaption();
+    }
+
+    private void ShowCaption()
+    {
+        if (caption == null) return;
+        bool pointing = hoverKey != null || hoverText != null;
+        caption.text = hoverText ?? (hoverKey != null ? M3Ui.L(hoverKey) : replyKey != null ? M3Ui.L(replyKey) : "");
+        caption.color = pointing ? M3Ui.Muted : M3Ui.Accent;
+    }
+
+    /// <summary>
+    /// The caption follows the 1.5 degree rule: the smallest size whose letters are 1.5 degrees tall at
+    /// 1.5 m, worked out from this panel's own scale so it still holds if the scale is changed.
     /// </summary>
     private float ReadingSize => M3TextSize.Floor(unitsPerMetre);
 
-    // The card's width and the padding round its content (see Awake). The buttons and the reply lines
-    // used to sit below the reading size (26 / 28 / 24 units, against 34): smaller than the labels
-    // above them, and under the 1.5 degree rule. They follow ReadingSize now, and the card is a little
-    // wider so the longer labels still fit on one line.
-    private const float PanelWidth = 680f, PanelPadding = 26f;
-    /// <summary>The text width inside a button: the card minus its padding, minus the button's own 16 + 16.</summary>
-    private const float ButtonLabelWidth = PanelWidth - 2f * PanelPadding - 32f;
-
-    private void AddAction(AvailableAction a)
-    {
-        var action = a.ToAction();
-        M3Ui.Button(stack, M3Ui.L(a.LabelKey), ReadingSize * 1.6f, () => S.Do(action), a.Enabled, ReadingSize, ButtonLabelWidth);
-        if (!a.Enabled && !string.IsNullOrEmpty(a.DisabledReasonKey))
-            M3Ui.Line(stack, M3Ui.L(a.DisabledReasonKey), ReadingSize, M3Ui.Muted);
-    }
-
-    private void AddFooter()
-    {
-        if (!string.IsNullOrEmpty(lastFeedbackKey))
-            feedback = M3Ui.Line(stack, M3Ui.L(lastFeedbackKey), ReadingSize, M3Ui.Accent);
-        M3Ui.Button(stack, M3Ui.L("m3.ui.close"), ReadingSize * 1.6f, Close, true, ReadingSize, ButtonLabelWidth);
-        LayoutRebuilder.ForceRebuildLayoutImmediate(stack);
-        // Grow the card to fit its content, so a short conversation is not a tall empty panel.
-        float h = LayoutUtility.GetPreferredHeight(stack);
-        root.sizeDelta = new Vector2(root.sizeDelta.x, Mathf.Max(300f, h));
-        KeepInsideTheRoom();
-    }
+    // Five buttons and a rule across: 5 x 120 + 5 x 16 gaps + 4 + padding. A button is 14 cm square,
+    // big enough to poke without looking twice and to hit with the ray from across the room.
+    private const float PanelWidth = 740f, PanelPadding = 26f;
+    private const float ButtonSize = 120f, ButtonGap = 16f, ChipSize = 72f, CloseSize = 80f;
 
     /// <summary>The lowest the card may hang above the floor, and the highest its top may reach: a room is about 2.7 m under its roof.</summary>
     private const float LowestAboveFloor = 0.15f, HighestAboveFloor = 2.5f;
 
     /// <summary>
-    /// The card is centred a little below the Pilot's eyes, and the bigger text makes it up to 1.8 m tall
-    /// (more in a language with taller lines). A Pilot taller than about 1.9 m would have had its top
+    /// The card is centred a little below the Pilot's eyes. A Pilot taller than about 1.9 m would have had its top
     /// through the ceiling, and a short child its bottom in the floor. Slides it up or down to fit
     /// between the floor and the ceiling. The floor is the XR rig's origin (M3XRPlayer asks for
     /// floor tracking, so that is where the Pilot stands). A ray down from the head does not do: it
@@ -252,11 +340,4 @@ public class M3PersonPanel : MonoBehaviour
         at.y = lowest <= highest ? Mathf.Clamp(at.y, lowest, highest) : floor + (LowestAboveFloor + HighestAboveFloor) * 0.5f;
         root.position = at;
     }
-
-    private static string WhoKey(AgeBand age) => age switch
-    {
-        AgeBand.Child => "m3.who.child",
-        AgeBand.Elder => "m3.who.elder",
-        _ => "m3.who.adult",
-    };
 }

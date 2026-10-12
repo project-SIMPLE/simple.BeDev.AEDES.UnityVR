@@ -134,11 +134,17 @@ namespace Aedes.Module3.Sim.Tests
                 Add("m3.debrief.noInvisibleEvidence");
                 foreach (var k in new[]
                 {
-                    "m3.coach.nothingUrgent", "m3.coach.handItOver", "m3.coach.neverVisited",
-                    "m3.coach.newCases", "m3.coach.noNetsLeft", "m3.coach.sameDay",
-                    "m3.coach.oneDayLater", "m3.coach.daysLater",
-                    "m3.debrief.title", "m3.debrief.caseCount", "m3.debrief.preventable",
-                    "m3.debrief.chainsStopped", "m3.debrief.casesAvoided",
+                    "m3.coach.neverVisited", "m3.coach.newCases", "m3.coach.noNetsLeft",
+                    "m3.coach.sameDay", "m3.coach.oneDayLater", "m3.coach.daysLater",
+                    "m3.debrief.title",
+                    // The icon HUD and person card (M3Hud, M3PersonPanel): their few words.
+                    "m3.ui.playerN", "m3.ui.startShort", "m3.ui.endTurnShort", "m3.ui.close",
+                    "m3.ui.wristReady", "m3.ui.wristEndTurn", "m3.ui.wristYes", "m3.ui.wristNo", "m3.ui.wristTurn",
+                    "m3.short.referralCorrect", "m3.short.referralNotNeeded", "m3.short.referralNotNeededWell",
+                    "m3.short.fellIll", "m3.short.caughtHere", "m3.short.fromUncovered", "m3.short.neverFelt",
+                    "m3.short.chainsStopped", "m3.short.asPlayed", "m3.short.netDayOne",
+                    "m3.short.score.chainBroken", "m3.short.score.referredCorrectly", "m3.short.score.goodHomeCare",
+                    "m3.short.score.missedWarningSign", "m3.short.score.unnecessaryReferral",
                 }) Add(k);
             }
 

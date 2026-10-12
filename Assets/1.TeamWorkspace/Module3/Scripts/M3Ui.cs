@@ -140,13 +140,40 @@ public static class M3Ui
         if (!baseData.cameraStack.Contains(overlayCamera)) baseData.cameraStack.Add(overlayCamera);
     }
 
+    /// <summary>
+    /// The text for <paramref name="key"/> in the current language, with {0}.. filled in. Never the raw key
+    /// while the CSV has an English line for it: with no LocalizationManager in the scene (Module 3 entered
+    /// from a menu that has none), or one that does not know the key, a headset in a classroom showed
+    /// "m3.ui...." placeholders. Then the English column is read straight from the CSV.
+    /// </summary>
     public static string L(string key, params object[] args)
     {
         if (string.IsNullOrEmpty(key)) return "";
-        if (LocalizationManager.Instance == null) return key;
-        return args == null || args.Length == 0
-            ? LocalizationManager.Instance.GetLocalizedValue(key)
-            : LocalizationManager.Instance.GetLocalizedValue(key, args);
+        string value = LocalizationManager.Instance != null ? LocalizationManager.Instance.GetLocalizedValue(key) : null;
+        if (string.IsNullOrEmpty(value) || value == key) value = English(key) ?? key;
+        if (args == null || args.Length == 0) return value;
+        try { return string.Format(value, args); }
+        catch (FormatException) { return value; }
+    }
+
+    private static System.Collections.Generic.Dictionary<string, string> english;
+
+    private static string English(string key)
+    {
+        if (english == null)
+        {
+            english = new System.Collections.Generic.Dictionary<string, string>();
+            var csv = Resources.Load<TextAsset>("Localization/LocalizationData");
+            if (csv != null)
+            {
+                var rows = Aedes.Module3.Sim.Csv.Parse(csv.text);
+                for (int r = 1; r < rows.Count; r++)
+                    if (rows[r].Count > 1 && rows[r][1].Length > 0) english[rows[r][0].Trim()] = rows[r][1];
+            }
+        }
+        if (english.TryGetValue(key, out string text)) return text;
+        Debug.LogWarning($"Module 3: no text for '{key}' in the localization CSV.");
+        return null;
     }
 
     /// <summary>
@@ -269,6 +296,142 @@ public static class M3Ui
         var t = Label(stack, "Line", size, colour);
         t.text = text;
         return t;
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // Icons. Module 3 talks in pictures first (M3Icons); words are the caption, not the button.
+    // ---------------------------------------------------------------------------------------
+
+    /// <summary>The backing of a chip: a little lighter than the panel it sits on.</summary>
+    public static readonly Color ChipColour = new Color(1f, 1f, 1f, 0.08f);
+
+    /// <summary>An icon <paramref name="size"/> units square, sized for a layout group.</summary>
+    public static Image Icon(Transform parent, string icon, float size, Color colour)
+    {
+        var rt = Rect("Icon: " + icon, parent, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
+        rt.sizeDelta = new Vector2(size, size);
+        var img = rt.gameObject.AddComponent<Image>();
+        img.sprite = M3Icons.Get(icon);
+        img.preserveAspect = true;
+        img.color = colour;
+        img.raycastTarget = false;
+        var le = rt.gameObject.AddComponent<LayoutElement>();
+        le.preferredWidth = le.minWidth = size;
+        le.preferredHeight = le.minHeight = size;
+        return img;
+    }
+
+    /// <summary>Puts <paramref name="rt"/> at a point of its parent, <paramref name="size"/> units square, outside any layout.</summary>
+    public static RectTransform Pin(RectTransform rt, Vector2 anchor, float size, Vector2 offset = default)
+    {
+        var le = rt.GetComponent<LayoutElement>() ?? rt.gameObject.AddComponent<LayoutElement>();
+        le.ignoreLayout = true;
+        rt.anchorMin = rt.anchorMax = anchor;
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.sizeDelta = new Vector2(size, size);
+        rt.anchoredPosition = offset;
+        return rt;
+    }
+
+    /// <summary>A horizontal row that sizes its children from their LayoutElements.</summary>
+    public static RectTransform Row(Transform parent, string name, float spacing,
+                                    TextAnchor align = TextAnchor.MiddleLeft, RectOffset padding = null)
+    {
+        var rt = Rect(name, parent, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+        var h = rt.gameObject.AddComponent<HorizontalLayoutGroup>();
+        h.spacing = spacing;
+        h.childAlignment = align;
+        h.padding = padding ?? new RectOffset();
+        h.childControlWidth = true;
+        h.childControlHeight = true;
+        h.childForceExpandWidth = false;
+        h.childForceExpandHeight = false;
+        return rt;
+    }
+
+    /// <summary>One line of text in a row, as wide as it needs to be.</summary>
+    public static TextMeshProUGUI Word(Transform row, string text, float size, Color colour)
+    {
+        var t = Label(row, "Word", size, colour, TextAlignmentOptions.MidlineLeft);
+        t.textWrappingMode = TextWrappingModes.NoWrap;
+        t.text = text;
+        return t;
+    }
+
+    /// <summary>Space that takes up whatever a row has left, pushing what follows it to the far end.</summary>
+    public static void Spacer(Transform row)
+    {
+        var rt = Rect("Spacer", row, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+        rt.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
+    }
+
+    /// <summary>
+    /// Something the Pilot has noticed, as an icon on a soft backing, with an optional small icon and
+    /// word after it ("fever, 3 days" is a thermometer, a sun and a 3). The backing is what the ray
+    /// hovers, so a chip can carry its sentence as a caption (<see cref="M3Hover"/>).
+    /// </summary>
+    public static RectTransform Chip(Transform parent, string icon, float size, Color colour,
+                                     string smallIcon = null, string word = null)
+    {
+        int pad = Mathf.RoundToInt(size * 0.14f);
+        var row = Row(parent, "Chip: " + icon, size * 0.1f, TextAnchor.MiddleCenter,
+                      new RectOffset(pad, pad + (word != null ? pad : 0), pad, pad));
+        Round(row.gameObject.AddComponent<Image>()).color = ChipColour;
+        Icon(row, icon, size, colour);
+        if (smallIcon != null) Icon(row, smallIcon, size * 0.5f, colour);
+        if (word != null) Word(row, word, size * 0.62f, colour);
+        return row;
+    }
+
+    /// <summary>
+    /// A square button showing <paramref name="icon"/>. One that has been done stays where it was,
+    /// dimmed, with a tick on its corner, so the row never shuffles and the Pilot sees what is left.
+    /// </summary>
+    public static Button IconButton(Transform parent, string icon, float size, UnityAction onClick,
+                                    bool enabled = true, bool done = false)
+    {
+        var rt = Rect("Button: " + icon, parent, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+        var img = Round(rt.gameObject.AddComponent<Image>());
+        img.color = enabled ? ButtonColour : ButtonDisabled;
+        var button = rt.gameObject.AddComponent<Button>();
+        button.interactable = enabled;
+        var colours = button.colors;
+        colours.normalColor = Color.white;
+        colours.highlightedColor = new Color(1.25f, 1.25f, 1.25f, 1f);
+        colours.pressedColor = new Color(0.8f, 0.8f, 0.8f, 1f);
+        colours.disabledColor = new Color(0.85f, 0.85f, 0.85f, 1f);
+        colours.colorMultiplier = 1.2f;
+        button.colors = colours;
+        if (onClick != null) button.onClick.AddListener(onClick);
+        rt.gameObject.AddComponent<M3ButtonJuice>();   // eased hover/press, and a buzz in the hand
+
+        Pin(Icon(rt, icon, size * 0.64f, enabled ? Text : Muted).rectTransform, new Vector2(0.5f, 0.5f), size * 0.64f);
+        if (done)
+        {
+            var tick = Round(Rect("Done", rt, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero).gameObject.AddComponent<Image>());
+            tick.color = Accent;
+            tick.raycastTarget = false;
+            Pin(tick.rectTransform, new Vector2(1f, 0f), size * 0.4f, new Vector2(-size * 0.08f, size * 0.08f));
+            Pin(Icon(tick.rectTransform, M3Icons.Check, size * 0.3f, PanelColour).rectTransform, new Vector2(0.5f, 0.5f), size * 0.3f);
+        }
+
+        var le = rt.gameObject.AddComponent<LayoutElement>();
+        le.preferredWidth = le.minWidth = size;
+        le.preferredHeight = le.minHeight = size;
+        return button;
+    }
+
+    /// <summary>A house with its number in it: how the handover names a household.</summary>
+    public static Image HouseIcon(Transform parent, int number, float size, Color colour)
+    {
+        var img = Icon(parent, M3Icons.House, size, colour);
+        var t = Label(img.rectTransform, "Number", size * 0.4f, colour, TextAlignmentOptions.Center);
+        // Inside the walls: the house's body is the lower 14%..60% of the icon.
+        t.rectTransform.offsetMin = new Vector2(0f, size * 0.13f);
+        t.rectTransform.offsetMax = new Vector2(0f, -size * 0.4f);
+        t.fontStyle = FontStyles.Bold;
+        t.text = number.ToString();
+        return img;
     }
 
     public static void Clear(Transform t)

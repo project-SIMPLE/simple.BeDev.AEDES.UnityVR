@@ -110,45 +110,69 @@ public class HouseholdView : MonoBehaviour
         shownScreens = state;
 
         if (screenInstance != null) Destroy(screenInstance);
-        if (screenMount == null || state == ScreenState.Missing) return;
+        if (screenMount == null) return;
+
+        if (state == ScreenState.Missing)
+        {
+            // An empty window. The screen that will fill it is placed but not drawn, so it can be taken
+            // hold of where it will go; the disc in the middle of the opening says what reaching there does.
+            screenInstance = Place(Resolve(ref screenIntactPrefab, Module3Props.WindowScreenIntact), screenMount);
+            if (screenInstance != null)
+                foreach (var r in screenInstance.GetComponentsInChildren<Renderer>()) r.enabled = false;
+            M3PropAction.Attach(screenInstance, M3Icons.Screen, ScreenAction, discInTheMiddle: true);
+            return;
+        }
 
         GameObject prefab = state == ScreenState.Intact
             ? Resolve(ref screenIntactPrefab, Module3Props.WindowScreenIntact)
             : Resolve(ref screenTornPrefab, Module3Props.WindowScreenTorn);
 
         screenInstance = Place(prefab, screenMount);
+        // A torn screen is mended by taking hold of it.
+        if (state == ScreenState.Torn) M3PropAction.Attach(screenInstance, M3Icons.Screen, ScreenAction);
         if (!animateChanges) return;
         if (state == ScreenState.Intact) M3PropSettle.SlideIn(screenInstance, Vector3.forward);   // +z is into the room
         else M3PropSettle.ShakeIn(screenInstance);
+    }
+
+    private PlayerAction? ScreenAction()
+    {
+        var h = Household;
+        return h != null && h.Screens != ScreenState.Intact
+            ? PlayerAction.OnHousehold(ActionKind.RepairScreen, householdId) : (PlayerAction?)null;
     }
 
     private void ShowFan(bool on)
     {
         if (on == shownFan && fanInstance != null) return;
         shownFan = on;
-        var spin = fanInstance != null ? fanInstance.GetComponent<FanBladeSpin>() : null;
-        // A fan whose blade has just stopped destroys itself in its own Update, and a destroyed object lives on
-        // until the end of the frame. Switching on in that same frame found it, wound it "back up", and the fan
-        // was gone a moment later. Treat one that is going as gone, and stand a new one.
-        if (spin != null && spin.Removing) { spin = null; fanInstance = null; }
 
-        if (!on)
+        // Every house has its fan; the question is whether it is going. A still one is switched on by
+        // taking hold of it.
+        if (fanInstance == null)
         {
-            // Winds down, and FanBladeSpin takes the fan away once the blade has stopped.
-            if (spin != null && animateChanges) spin.SpinDown(removeWhenStopped: true);
-            else if (fanInstance != null) Destroy(fanInstance);
+            if (fanStand == null) return;
+            fanInstance = Place(Resolve(ref fanPrefab, Module3Props.ElectricFan), fanStand);
+            if (fanInstance == null) return;
+            fanInstance.transform.localScale = Vector3.one * fanScale;
+            var fresh = fanInstance.AddComponent<FanBladeSpin>();
+            if (!on) fresh.StandStill();
+            else if (animateChanges) fresh.SpinUpFromRest();
+            M3PropAction.Attach(fanInstance, M3Icons.Fan, FanAction);
             return;
         }
 
-        if (spin != null) { spin.SpinUp(); return; }   // switched back on while it was winding down
-        if (fanStand == null || fanInstance != null) return;
-        fanInstance = Place(Resolve(ref fanPrefab, Module3Props.ElectricFan), fanStand);
-        if (fanInstance != null)
-        {
-            fanInstance.transform.localScale = Vector3.one * fanScale;
-            spin = fanInstance.AddComponent<FanBladeSpin>();
-            if (animateChanges) spin.SpinUpFromRest();
-        }
+        var spin = fanInstance.GetComponent<FanBladeSpin>();
+        if (spin == null) return;
+        if (on) spin.SpinUp();
+        else if (animateChanges) spin.SpinDown();
+        else spin.StandStill();
+    }
+
+    private PlayerAction? FanAction()
+    {
+        var h = Household;
+        return h != null && !h.HasFan ? PlayerAction.OnHousehold(ActionKind.SetFan, householdId) : (PlayerAction?)null;
     }
 
     private void ShowNet(bool deployed)
@@ -169,9 +193,57 @@ public class HouseholdView : MonoBehaviour
 
         netInstance = Place(prefab, bedNetAnchor);
         if (!deployed) HangFromBedPost(netInstance);
+        // The rolled net goes up when taken hold of. The one over the bed comes down the same way, to
+        // carry on to someone else (D6) - but it never invites it: its disc shows only while pointed at,
+        // and only its canopy can be held, so reaching for the person in the bed still reaches them.
+        if (deployed) M3PropAction.Attach(netInstance, M3Icons.Net, NetDownAction, discOnlyOnHover: true, colliderTop: 0.3f);
+        else M3PropAction.Attach(netInstance, M3Icons.Net, NetUpAction);
         if (!animateChanges) return;
         if (deployed) M3PropSettle.DropNet(netInstance);
         else M3PropSettle.GatherNet(netInstance);
+    }
+
+    private Household Household
+    {
+        get
+        {
+            var sim = M3Session.Instance != null ? M3Session.Instance.Neighbourhood : null;
+            return sim?.HouseholdById(householdId);
+        }
+    }
+
+    /// <summary>
+    /// The net goes over the bed, so it covers whoever is lying in it: someone unwell, or someone
+    /// whose fever has just broken (VillagerView lays both down). With nobody in bed it goes to the
+    /// first person at home, as a well household would hang it.
+    /// </summary>
+    private PlayerAction? NetUpAction()
+    {
+        var sim = M3Session.Instance != null ? M3Session.Instance.Neighbourhood : null;
+        var h = sim?.HouseholdById(householdId);
+        if (h == null || AnyoneHereHasANet(sim, h)) return null;
+        int chosen = -1;
+        for (int i = 0; i < h.ResidentIds.Count; i++)
+        {
+            var o = Observe.Person(sim, h.ResidentIds[i]);
+            if (o == null || o.Condition == VisibleCondition.AtTheHealthCentre) continue;
+            if (o.IsUnwell || o.Condition == VisibleCondition.Improving) { chosen = o.PersonId; break; }
+            if (chosen < 0) chosen = o.PersonId;
+        }
+        return chosen >= 0 ? PlayerAction.OnPerson(ActionKind.PutUpNet, chosen) : (PlayerAction?)null;
+    }
+
+    private PlayerAction? NetDownAction()
+    {
+        var sim = M3Session.Instance != null ? M3Session.Instance.Neighbourhood : null;
+        var h = sim?.HouseholdById(householdId);
+        if (h == null) return null;
+        for (int i = 0; i < h.ResidentIds.Count; i++)
+        {
+            var p = sim.PersonById(h.ResidentIds[i]);
+            if (p != null && p.HasNet) return PlayerAction.OnPerson(ActionKind.ReclaimNet, p.Id);
+        }
+        return null;
     }
 
     /// <summary>
@@ -246,6 +318,14 @@ public class FanBladeSpin : MonoBehaviour
     {
         power = 0f;
         SpinUp();
+    }
+
+    /// <summary>Switched off and still, as a fan nobody has turned on yet.</summary>
+    public void StandStill()
+    {
+        power = 0f;
+        running = false;
+        removeWhenStopped = false;
     }
 
     public void SpinUp()

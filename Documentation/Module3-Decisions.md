@@ -191,3 +191,28 @@ over the pale walls, and the number has to sit in the village, not on top of it.
 | 3b | How Module 2's state reaches Module 3 | Solved in principle: `module2_container_clearance` in the GAMA parameter CSV |
 | 4 | Is the health centre a place the player travels to? | **Still the only open question with real build cost.** Modelled off-screen for now; adding travel later is additive |
 | 5 | Lao terminology for the warning signs | Localization rows; NUOL to fill in |
+
+### D12 — The headset UI is icons; the net, screen and fan are acted on in the room · *pedagogical*
+
+**In force:** the person card shows what the Pilot notices as icon chips (fever with a day count,
+blood, bucket, no water, net already up) and offers five icon buttons: water, rest, repellent, the
+health centre, and shutting up at dawn and dusk. Each icon's sentence appears as a caption only while
+it is pointed at; a done action keeps its place with a tick. Putting up a net is gripping the rolled
+net on the bed post, mending or fitting a screen is gripping the window, starting the fan is
+gripping the fan; a small icon disc floats over each while there is something to do. Taking a net
+down is gripping the net's canopy, and its disc appears only while pointed at. The HUD is a clock,
+a net count and a day count; the handover is one row per house (house number, what was seen, what it
+needs); the debrief is a handful of numbers, the replay as two bars, and the closing question.
+
+**Why:** the old card was nine text buttons and four headings for one person, and the handover and
+debrief were paragraphs — too much to read in a headset with a clock running. The verbs, the order
+of the debrief and the framing rules are unchanged: no icon is ever placed on a person, a sick
+person's card looks like anyone else's, and the referral button is always offered (D8).
+
+**Also changed:** the replay headline is gone. It said "you covered the first patient on day one"
+whenever the replay came out no better (D9) — including for squads that put up no net. Two bars of
+cases now show the comparison without a verdict.
+
+**For review:** whether the icon meanings need a one-minute briefing card for teachers, and the
+Lao captions (still English only).
+

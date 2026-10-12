@@ -11,7 +11,8 @@ using UnityEngine.XR.Interaction.Toolkit.UI;
 /// Module 3 controls exactly like Module 2, because it is Module 2's rig, untouched:
 ///   Left stick           walk (forward is where you look), at Module 2's pace
 ///   Right stick          turn left/right, smoothly
-///   Grip (reach out)     talk to a villager within arm's reach - where Module 2 grabs a jar
+///   Grip (reach out)     talk to a villager within arm's reach - where Module 2 grabs a jar - or
+///                        use the net, the window screen or the fan (M3PropAction)
 ///   Right index finger   poke a button, on the person panel or on the watch
 ///   Look at your wrist   the watch menu: Ready at the start of a turn, End turn during one, then
 ///                        Yes / No - where Module 2 keeps its swatter and cream (M3WristMenu)
