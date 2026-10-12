@@ -22,6 +22,9 @@ TagManager:
   - Trash
   - Hand
   - Swatter
+  - textPN
+  - useMiddleWare
+  - textIP
   layers:
   - Default
   - TransparentFX
@@ -33,8 +36,8 @@ TagManager:
   - Camera
   - Ground
   - Wall
+  - WorldBoarder
   - DistanceCulled
-  - 
   - 
   - 
   - 
