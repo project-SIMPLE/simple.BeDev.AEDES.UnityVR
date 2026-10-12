@@ -13,7 +13,7 @@ using UnityEngine.UI;
 /// closed verb list of section 4, never "diagnose" or "treat". Everything on it comes from Observe, so
 /// the card can show nothing the model says the volunteer could not have seen.
 ///
-/// No paragraphs: each icon's sentence appears in the caption line only while the Pilot points at it,
+/// No paragraphs: each icon's sentence appears in a caption under the card only while the Pilot points at it,
 /// and a done action keeps its place with a tick. The net, the window screen and the fan are not on
 /// the card at all - they are things in the room, and the Pilot acts on them directly (M3PropAction).
 ///
@@ -43,6 +43,7 @@ public class M3PersonPanel : MonoBehaviour
     private RectTransform root;
     private RectTransform stack;
     private TextMeshProUGUI caption;
+    private RectTransform captionPill;
     private Transform villager;
     private Vector3 conversationAt;   // where the villager stood when it began
     private string lastFeedbackKey;
@@ -61,8 +62,21 @@ public class M3PersonPanel : MonoBehaviour
         // On the UI layer, after the world: a card hung beside a villager by a wall used to lose its
         // right third inside the wall.
         M3Ui.OnTop(root);
-        M3Ui.Panel(root, "Background", M3Ui.PanelColour);
-        stack = M3Ui.Stack(root, "Content", 18f, new RectOffset((int)PanelPadding, (int)PanelPadding, 22, 22));
+        M3Ui.Round(M3Ui.Panel(root, "Background", M3Ui.PanelColour), M3Ui.CardRadius);
+        int pad = (int)PanelPadding;
+        stack = M3Ui.Stack(root, "Content", ButtonGap, new RectOffset(pad, pad, pad, pad));
+
+        // The caption is a tooltip under the card, there only while it has something to say. Kept inside
+        // the card it was an empty band at the bottom most of the time, and the card's own size never
+        // changes under a moving ray.
+        captionPill = M3Ui.Rect("Caption", root, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), Vector2.zero, Vector2.zero);
+        captionPill.pivot = new Vector2(0.5f, 1f);
+        captionPill.anchoredPosition = new Vector2(0f, -ButtonGap);
+        M3Ui.Round(captionPill.gameObject.AddComponent<Image>(), M3Ui.ChipRadius * 1.5f).color = M3Ui.PanelColour;
+        caption = M3Ui.Label(captionPill, "Text", ReadingSize, M3Ui.Text, TextAlignmentOptions.Center);
+        caption.rectTransform.offsetMin = new Vector2(CaptionPadX, CaptionPadY);
+        caption.rectTransform.offsetMax = new Vector2(-CaptionPadX, -CaptionPadY);
+        captionPill.gameObject.SetActive(false);
         root.gameObject.SetActive(false);
     }
 
@@ -195,29 +209,26 @@ public class M3PersonPanel : MonoBehaviour
         if (obs.Condition != VisibleCondition.AtTheHealthCentre)
         {
             // What you can do: for them, then - after a thin rule - for the house.
-            var row = M3Ui.Row(stack, "Actions", ButtonGap, TextAnchor.MiddleCenter);
+            var row = M3Ui.Row(stack, "Actions", ButtonGap);
             foreach (var a in Observe.ActionsFor(sim, PersonId))
                 if (OnTheCard(a.Kind)) AddAction(row, a);
             var rule = M3Ui.Rect("Rule", row, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero).gameObject.AddComponent<Image>();
-            rule.color = M3Ui.ChipColour;
+            rule.color = M3Ui.RuleColour;
             rule.raycastTarget = false;
             var le = rule.gameObject.AddComponent<LayoutElement>();
-            le.preferredWidth = le.minWidth = 4f;
-            le.preferredHeight = le.minHeight = ButtonSize * 0.8f;
+            le.preferredWidth = le.minWidth = 2f;
+            le.preferredHeight = le.minHeight = ButtonSize * 0.7f;
             foreach (var a in Observe.ActionsFor(sim, obs.HouseholdId, household: true))
                 if (OnTheCard(a.Kind)) AddAction(row, a);
         }
 
         // Room for two lines, always, so the card does not grow and shrink under a moving ray.
-        caption = M3Ui.Line(stack, "", ReadingSize, M3Ui.Muted);
-        caption.alignment = TextAlignmentOptions.Top;
-        M3Ui.Height(caption, ReadingSize * 2.6f);
         ShowCaption();
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(stack);
         // Grow the card to fit its content.
         float h = LayoutUtility.GetPreferredHeight(stack);
-        root.sizeDelta = new Vector2(root.sizeDelta.x, Mathf.Max(200f, h));
+        root.sizeDelta = new Vector2(root.sizeDelta.x, h);
         KeepInsideTheRoom();
     }
 
@@ -303,8 +314,17 @@ public class M3PersonPanel : MonoBehaviour
     {
         if (caption == null) return;
         bool pointing = hoverKey != null || hoverText != null;
-        caption.text = hoverText ?? (hoverKey != null ? M3Ui.L(hoverKey) : replyKey != null ? M3Ui.L(replyKey) : "");
-        caption.color = pointing ? M3Ui.Muted : M3Ui.Accent;
+        string text = hoverText ?? (hoverKey != null ? M3Ui.L(hoverKey) : replyKey != null ? M3Ui.L(replyKey) : "");
+        bool show = text.Length > 0;
+        if (captionPill.gameObject.activeSelf != show) captionPill.gameObject.SetActive(show);
+        if (!show) return;
+        caption.text = text;
+        // What the Pilot points at reads in the body colour; the game's reply to an action in the accent.
+        caption.color = pointing ? M3Ui.Text : M3Ui.Accent;
+        // As wide as the words, up to the card's width, and as tall as they wrap to.
+        float max = PanelWidth - 2f * CaptionPadX;
+        Vector2 size = caption.GetPreferredValues(text, max, 0f);
+        captionPill.sizeDelta = new Vector2(Mathf.Min(size.x, max) + 2f * CaptionPadX, size.y + 2f * CaptionPadY);
     }
 
     /// <summary>
@@ -313,10 +333,12 @@ public class M3PersonPanel : MonoBehaviour
     /// </summary>
     private float ReadingSize => M3TextSize.Floor(unitsPerMetre);
 
-    // Five buttons and a rule across: 5 x 120 + 5 x 16 gaps + 4 + padding. A button is 14 cm square,
-    // big enough to poke without looking twice and to hit with the ray from across the room.
-    private const float PanelWidth = 740f, PanelPadding = 26f;
-    private const float ButtonSize = 120f, ButtonGap = 16f, ChipSize = 72f, CloseSize = 80f;
+    // Exactly five buttons and a rule across: 5 x 120 + 5 x 16 gaps + 2 + padding, so the chips above, the
+    // buttons and the close button all meet the same two edges. A button is 14 cm square, big enough to
+    // poke without looking twice and to hit with the ray from across the room. 8-unit grid throughout.
+    private const float ButtonSize = 120f, ButtonGap = 16f, ChipSize = 72f, CloseSize = 64f, PanelPadding = 24f;
+    private const float PanelWidth = 5f * ButtonSize + 5f * ButtonGap + 2f + 2f * PanelPadding;
+    private const float CaptionPadX = 24f, CaptionPadY = 14f;
 
     /// <summary>The lowest the card may hang above the floor, and the highest its top may reach: a room is about 2.7 m under its roof.</summary>
     private const float LowestAboveFloor = 0.15f, HighestAboveFloor = 2.5f;

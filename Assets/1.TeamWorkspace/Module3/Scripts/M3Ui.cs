@@ -25,7 +25,7 @@ public static class M3Ui
     public static readonly Color ButtonColour = new Color(0.20f, 0.42f, 0.33f, 1f);
     public static readonly Color ButtonDisabled = new Color(0.25f, 0.27f, 0.30f, 1f);
     public static readonly Color Muted = new Color(0.75f, 0.78f, 0.82f, 1f);
-    public static readonly Color Text = new Color(0.95f, 0.95f, 0.95f, 1f);
+    public static readonly Color Text = new Color(0.93f, 0.94f, 0.95f, 1f);   // off-white: pure white haloes on a dark panel in a headset
     public static readonly Color Accent = new Color(0.45f, 0.82f, 1f, 1f);
     public static readonly Color Warn = new Color(1f, 0.55f, 0.1f, 1f);
     public static readonly Color Danger = new Color(0.9f, 0.18f, 0.18f, 1f);
@@ -88,12 +88,60 @@ public static class M3Ui
         }
     }
 
-    /// <summary>Gives <paramref name="image"/> the rounded panel shape.</summary>
-    public static Image Round(Image image)
+    /// <summary>Gives <paramref name="image"/> the rounded panel shape, with corners <paramref name="radius"/> canvas units round.</summary>
+    public static Image Round(Image image, float radius = 10f)
     {
         image.sprite = Rounded;
         image.type = Image.Type.Sliced;
+        image.pixelsPerUnitMultiplier = 10f / Mathf.Max(1f, radius);   // the sprite's corners are 10 px
         return image;
+    }
+
+    // One shape language for every surface: cards are the roundest, then buttons and chips.
+    public const float CardRadius = 24f, ButtonRadius = 16f, ChipRadius = 14f;
+
+    /// <summary>A hairline across a card, between its header and its body.</summary>
+    public static readonly Color RuleColour = new Color(1f, 1f, 1f, 0.12f);
+
+    /// <summary>
+    /// A card: a rounded panel centred on its parent, <paramref name="width"/> units wide and as tall as
+    /// its content, whose rows stack top to bottom and share one left edge.
+    /// </summary>
+    public static RectTransform Card(Transform parent, string name, float width, RectOffset padding, float spacing)
+    {
+        var rt = Rect(name, parent, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.sizeDelta = new Vector2(width, 100f);
+        Round(rt.gameObject.AddComponent<Image>(), CardRadius).color = PanelColour;
+        var v = rt.gameObject.AddComponent<VerticalLayoutGroup>();
+        v.padding = padding;
+        v.spacing = spacing;
+        v.childAlignment = TextAnchor.UpperLeft;
+        v.childControlWidth = v.childControlHeight = true;
+        v.childForceExpandWidth = true;
+        v.childForceExpandHeight = false;
+        rt.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        return rt;
+    }
+
+    /// <summary>A hairline the width of the card.</summary>
+    public static Image Rule(Transform parent)
+    {
+        var img = Rect("Rule", parent, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero).gameObject.AddComponent<Image>();
+        img.color = RuleColour;
+        img.raycastTarget = false;
+        var le = img.gameObject.AddComponent<LayoutElement>();
+        le.preferredHeight = le.minHeight = 2f;
+        le.flexibleWidth = 1f;
+        return img;
+    }
+
+    /// <summary>Keeps <paramref name="c"/> at least <paramref name="width"/> units wide, so a changing number does not make its row twitch.</summary>
+    public static LayoutElement MinWidth(Component c, float width)
+    {
+        var le = c.gameObject.GetComponent<LayoutElement>() ?? c.gameObject.AddComponent<LayoutElement>();
+        le.minWidth = le.preferredWidth = width;
+        return le;
     }
 
     /// <summary>
@@ -376,7 +424,7 @@ public static class M3Ui
         int pad = Mathf.RoundToInt(size * 0.14f);
         var row = Row(parent, "Chip: " + icon, size * 0.1f, TextAnchor.MiddleCenter,
                       new RectOffset(pad, pad + (word != null ? pad : 0), pad, pad));
-        Round(row.gameObject.AddComponent<Image>()).color = ChipColour;
+        Round(row.gameObject.AddComponent<Image>(), ChipRadius).color = ChipColour;
         Icon(row, icon, size, colour);
         if (smallIcon != null) Icon(row, smallIcon, size * 0.5f, colour);
         if (word != null) Word(row, word, size * 0.62f, colour);
@@ -391,7 +439,7 @@ public static class M3Ui
                                     bool enabled = true, bool done = false)
     {
         var rt = Rect("Button: " + icon, parent, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-        var img = Round(rt.gameObject.AddComponent<Image>());
+        var img = Round(rt.gameObject.AddComponent<Image>(), ButtonRadius);
         img.color = enabled ? ButtonColour : ButtonDisabled;
         var button = rt.gameObject.AddComponent<Button>();
         button.interactable = enabled;
@@ -408,7 +456,7 @@ public static class M3Ui
         Pin(Icon(rt, icon, size * 0.64f, enabled ? Text : Muted).rectTransform, new Vector2(0.5f, 0.5f), size * 0.64f);
         if (done)
         {
-            var tick = Round(Rect("Done", rt, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero).gameObject.AddComponent<Image>());
+            var tick = Round(Rect("Done", rt, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero).gameObject.AddComponent<Image>(), size * 0.2f);
             tick.color = Accent;
             tick.raycastTarget = false;
             Pin(tick.rectTransform, new Vector2(1f, 0f), size * 0.4f, new Vector2(-size * 0.08f, size * 0.08f));

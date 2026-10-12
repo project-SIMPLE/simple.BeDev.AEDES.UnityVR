@@ -44,19 +44,24 @@ public class M3Hud : MonoBehaviour
     private TMP_Text clockText, netsText, dayText;
     private Image netsIcon;
     private float netsFlash;
-    private GameObject handoverPanel;
-    private RectTransform handoverContent;
-    private GameObject debriefPanel;
-    private RectTransform debriefContent;
-    private GameObject bannerPanel;
+    /// <summary>The card in the middle of the view: the start card, a handover or the debrief.</summary>
+    private RectTransform card;
+    private GameObject banner;
     private TMP_Text bannerText;
-    /// <summary>Text and icon sizes, worked out once from the HUD's scale in the headset (BuildCanvas).</summary>
-    private float textSize, bigText, iconSize, bigIcon;
+
+    // One type scale and one spacing grid for the whole HUD, in canvas units (556 to the metre, read
+    // at 1.7 m). Small is the 1.5 degree floor (M3TextSize); everything else steps up from it.
+    private float small, body, title;
+    private const float IconS = 36f, IconM = 52f, IconL = 64f;
+    private const float Pad = 40f, Gap = 24f, Tight = 12f;
+    /// <summary>Cards stay inside the middle ~40 degrees of the view, where reading needs no head turn.</summary>
+    private const float CardWidth = 680f, DebriefWidth = 920f;
     private Canvas canvas;
     private bool worldSpace;
     private Vector3 smoothForward = Vector3.forward;
 
     private float handoverShownAt = -1f;
+    private bool CardUp => card != null && card.gameObject.activeSelf;
 
     private void Awake()
     {
@@ -105,20 +110,20 @@ public class M3Hud : MonoBehaviour
         UpdateBanner();
 
         var s = M3Session.Instance;
-        if (s == null || s.Session == null || handoverPanel == null) return;
+        if (s == null || s.Session == null) return;
 
         if (s.Running && s.WaitingForPilot)
         {
             // The turn is held until the Pilot presses A. The first turn has no handover to show,
             // so it gets a plain "you are player N" card instead.
-            if (!handoverPanel.activeSelf) ShowStartCard();
+            if (!CardUp) ShowStartCard();
         }
-        else if (handoverPanel.activeSelf && handoverShownAt >= 0f
+        else if (s.Running && CardUp && handoverShownAt >= 0f
                  && (!waitedForPilot || Time.time - handoverShownAt > 0.25f)
                  && (waitedForPilot || Time.time - handoverShownAt > handoverSeconds))
         {
             handoverShownAt = -1f;
-            handoverPanel.SetActive(false);
+            card.gameObject.SetActive(false);
         }
     }
 
@@ -165,53 +170,70 @@ public class M3Hud : MonoBehaviour
 
     private void UpdateBanner()
     {
-        if (bannerPanel == null) return;
+        if (banner == null) return;
         var xr = M3XRPlayer.Instance;
         bool asking = xr != null && xr.ConfirmingEndTurn;
-        if (bannerPanel.activeSelf == asking) return;
+        if (banner.activeSelf == asking) return;
         // Worded as it opens, not when it was built: the HUD is built in Awake, which can run before the
         // LocalizationManager has read its CSV - the banner said "m3.ui.endTurnShort".
         if (asking) bannerText.text = Localized("m3.ui.endTurnShort");
-        bannerPanel.SetActive(asking);
+        banner.SetActive(asking);
+    }
+
+    // -------------------------------------------------------------------------------------
+    // The card. Every card is built the same way: a header (icon and title), a hairline, the body,
+    // and - when the next Pilot has to press Ready - a footer. All rows share the card's left edge.
+    // -------------------------------------------------------------------------------------
+
+    private RectTransform NewCard(float width)
+    {
+        if (card != null) Destroy(card.gameObject);
+        card = M3Ui.Card(canvas.transform, "Card", width, new RectOffset((int)Pad, (int)Pad, (int)Pad - 8, (int)Pad), Gap);
+        handoverShownAt = Time.time;
+        return card;
+    }
+
+    private void Header(string icon, string text)
+    {
+        var row = M3Ui.Row(card, "Header", Tight + 4f);
+        M3Ui.Icon(row, icon, IconM, M3Ui.Text);
+        Bold(M3Ui.Word(row, text, title, M3Ui.Text));
+        M3Ui.Rule(card);
+    }
+
+    /// <summary>"Put the headset on, then Ready on your watch": a headset, an arrow, the watch and the word, on a soft chip.</summary>
+    private void ReadyFooter()
+    {
+        // In a row of its own, so the chip is as wide as its content rather than the card.
+        var holder = M3Ui.Row(card, "Footer", 0f);
+        var row = M3Ui.Row(holder, "Ready", Tight, TextAnchor.MiddleLeft, new RectOffset(16, 24, 10, 10));
+        M3Ui.Round(row.gameObject.AddComponent<Image>(), M3Ui.ChipRadius).color = new Color(M3Ui.Accent.r, M3Ui.Accent.g, M3Ui.Accent.b, 0.14f);
+        M3Ui.Icon(row, M3Icons.Headset, IconM, M3Ui.Accent);
+        M3Ui.Icon(row, M3Icons.Arrow, IconS, M3Ui.Accent);
+        M3Ui.Icon(row, M3Icons.Watch, IconM, M3Ui.Accent);
+        Bold(M3Ui.Word(row, Localized("m3.ui.wristReady"), body, M3Ui.Accent));
     }
 
     /// <summary>The first turn has no handover, so it gets this instead: whose turn it is, and the game in pictures.</summary>
     private void ShowStartCard()
     {
         var s = M3Session.Instance;
-        M3Ui.Clear(handoverContent);
-
-        var who = M3Ui.Row(handoverContent, "Player", iconSize * 0.3f, TextAnchor.MiddleCenter);
-        M3Ui.Icon(who, M3Icons.Person, bigIcon, M3Ui.Text);
-        Bold(M3Ui.Word(who, Localized("m3.ui.playerN", s.Session.PilotIndex + 1), bigText, M3Ui.Text));
+        NewCard(CardWidth);
+        Header(M3Icons.Person, Localized("m3.ui.playerN", s.Session.PilotIndex + 1));
 
         // Go into the houses, talk to people, help them: the whole turn in pictures.
-        var story = M3Ui.Row(handoverContent, "How to play", iconSize * 0.35f, TextAnchor.MiddleCenter);
-        M3Ui.Icon(story, M3Icons.House, bigIcon * 1.6f, M3Ui.Text);
-        M3Ui.Icon(story, M3Icons.Arrow, iconSize, M3Ui.Muted);
-        M3Ui.Icon(story, M3Icons.Talk, bigIcon * 1.6f, M3Ui.Text);
-        M3Ui.Icon(story, M3Icons.Arrow, iconSize, M3Ui.Muted);
-        M3Ui.Icon(story, M3Icons.Net, bigIcon * 1.6f, M3Ui.Text);
-        M3Ui.Icon(story, M3Icons.Water, bigIcon * 1.6f, M3Ui.Text);
-        M3Ui.Icon(story, M3Icons.HealthCentre, bigIcon * 1.6f, M3Ui.Text);
+        var story = M3Ui.Row(card, "How to play", Tight);
+        M3Ui.Icon(story, M3Icons.House, IconL, M3Ui.Text);
+        M3Ui.Icon(story, M3Icons.Arrow, IconS, M3Ui.Muted);
+        M3Ui.Icon(story, M3Icons.Talk, IconL, M3Ui.Text);
+        M3Ui.Icon(story, M3Icons.Arrow, IconS, M3Ui.Muted);
+        M3Ui.Icon(story, M3Icons.Net, IconL, M3Ui.Accent);
+        M3Ui.Icon(story, M3Icons.Water, IconL, M3Ui.Accent);
+        M3Ui.Icon(story, M3Icons.HealthCentre, IconL, M3Ui.Accent);
+        M3Ui.Line(card, Localized("m3.ui.startShort"), body, M3Ui.Muted);
 
-        var line = M3Ui.Line(handoverContent, Localized("m3.ui.startShort"), textSize, M3Ui.Muted);
-        line.alignment = TextAlignmentOptions.Center;
-
-        ReadyRow(handoverContent);
-        handoverPanel.SetActive(true);
-        handoverShownAt = Time.time;
+        ReadyFooter();
         waitedForPilot = true;
-    }
-
-    /// <summary>"Put the headset on, then Ready on your watch", as a headset, an arrow and the watch.</summary>
-    private void ReadyRow(Transform parent)
-    {
-        var row = M3Ui.Row(parent, "Ready", iconSize * 0.35f, TextAnchor.MiddleCenter);
-        M3Ui.Icon(row, M3Icons.Headset, bigIcon * 1.2f, M3Ui.Accent);
-        M3Ui.Icon(row, M3Icons.Arrow, iconSize, M3Ui.Accent);
-        M3Ui.Icon(row, M3Icons.Watch, bigIcon * 1.2f, M3Ui.Accent);
-        Bold(M3Ui.Word(row, Localized("m3.ui.wristReady"), bigText * 0.8f, M3Ui.Accent));
     }
 
     // -------------------------------------------------------------------------------------
@@ -220,6 +242,11 @@ public class M3Hud : MonoBehaviour
     {
         var s = M3Session.Instance;
         if (s == null || s.Session == null || statusBar == null) return;
+
+        // One thing at a time: while a card is up, the status bar would only show through it.
+        bool show = !CardUp;
+        if (statusBar.gameObject.activeSelf != show) statusBar.gameObject.SetActive(show);
+        if (!show) return;
 
         var sim = s.Neighbourhood;
         // After the last handover the clock means nothing: only the day and the nets stay.
@@ -251,44 +278,46 @@ public class M3Hud : MonoBehaviour
 
     private void ShowHandover(HandoverBrief brief)
     {
-        if (handoverPanel == null) return;
-        M3Ui.Clear(handoverContent);
-
+        NewCard(CardWidth);
         // How much time has passed: a calendar and "3 days later".
-        var when = M3Ui.Row(handoverContent, "When", iconSize * 0.3f, TextAnchor.MiddleCenter);
-        M3Ui.Icon(when, M3Icons.Calendar, bigIcon, M3Ui.Text);
-        Bold(M3Ui.Word(when, Localized(CoachBrief.TimeJumpKey(brief.DaysElapsed), brief.DaysElapsed), bigText, M3Ui.Text));
+        Header(M3Icons.Calendar, Localized(CoachBrief.TimeJumpKey(brief.DaysElapsed), brief.DaysElapsed));
 
-        // What is waiting, one row each: the house, what was seen there, and what it needs.
+        // What is waiting, one row each: how soon, the house, what was seen there, and what it needs.
+        // Every row has the same columns, so the houses line up under each other.
         var lines = CoachBrief.Compose(brief);
+        var list = M3Ui.Stack(card, "Brief", Tight, new RectOffset());
         if (lines.Count == 0)
         {
-            var calm = M3Ui.Row(handoverContent, "Nothing urgent", iconSize * 0.3f, TextAnchor.MiddleCenter);
-            M3Ui.Icon(calm, M3Icons.Check, iconSize, M3Ui.Accent);
-            M3Ui.Icon(calm, M3Icons.Eye, iconSize, M3Ui.Text);
+            var calm = M3Ui.Row(list, "Nothing urgent", Tight);
+            Dot(calm, M3Ui.Accent);
+            M3Ui.Icon(calm, M3Icons.Check, IconM, M3Ui.Accent);
+            M3Ui.Icon(calm, M3Icons.Eye, IconM, M3Ui.Text);
         }
-        for (int i = 0; i < lines.Count; i++) BriefRow(lines[i]);
+        for (int i = 0; i < lines.Count; i++) BriefRow(list, lines[i]);
 
         var session = M3Session.Instance;
         waitedForPilot = session != null && session.WaitingForPilot;
         // The next Pilot presses Ready once the headset is on; the clock starts then, not before.
-        if (waitedForPilot) ReadyRow(handoverContent);
-
-        handoverPanel.SetActive(true);
-        handoverShownAt = Time.time;
+        if (waitedForPilot) ReadyFooter();
         // Without a ready press, hold the clock for the length of the screen instead.
-        if (!waitedForPilot && session != null) session.HoldTurnClock(handoverSeconds);
+        else if (session != null) session.HoldTurnClock(handoverSeconds);
     }
 
-    private void BriefRow(BriefLine l)
+    /// <summary>How soon, as a dot at the start of the row: red now, orange soon, grey for news.</summary>
+    private static void Dot(Transform row, Color colour)
     {
-        var row = M3Ui.Row(handoverContent, l.MessageKey, iconSize * 0.3f, TextAnchor.MiddleCenter);
-        // How soon, as a bar down the left: red now, orange soon, grey for news.
-        var bar = M3Ui.Rect("Urgency", row, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero).gameObject.AddComponent<Image>();
-        bar.color = l.Urgency == BriefUrgency.Now ? M3Ui.Danger : l.Urgency == BriefUrgency.Soon ? M3Ui.Warn : M3Ui.Muted;
-        var le = bar.gameObject.AddComponent<LayoutElement>();
-        le.preferredWidth = le.minWidth = 10f;
-        le.preferredHeight = le.minHeight = bigIcon;
+        var dot = M3Ui.Round(M3Ui.Rect("Urgency", row, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero)
+                                 .gameObject.AddComponent<Image>(), 8f);
+        dot.color = colour;
+        var le = dot.gameObject.AddComponent<LayoutElement>();
+        le.preferredWidth = le.minWidth = 16f;
+        le.preferredHeight = le.minHeight = 16f;
+    }
+
+    private void BriefRow(Transform list, BriefLine l)
+    {
+        var row = M3Ui.Row(list, l.MessageKey, Tight + 4f);
+        Dot(row, l.Urgency == BriefUrgency.Now ? M3Ui.Danger : l.Urgency == BriefUrgency.Soon ? M3Ui.Warn : M3Ui.Muted);
 
         int n = l.Args != null && l.Args.Length > 0 && l.Args[0] is int i ? i : 0;
         switch (l.MessageKey)
@@ -300,44 +329,45 @@ public class M3Hud : MonoBehaviour
             case "m3.coach.neverVisited": Counted(row, M3Icons.HouseUnvisited, "x" + n); break;
             case "m3.coach.newCases": Counted(row, M3Icons.PersonNew, "+" + n); break;
             case "m3.coach.noNetsLeft": Counted(row, M3Icons.Net, "0"); break;
-            default: M3Ui.Word(row, Localized(l.MessageKey, l.Args), textSize, M3Ui.Text); break;
+            default: M3Ui.Word(row, Localized(l.MessageKey, l.Args), body, M3Ui.Text); break;
         }
     }
 
     /// <summary>House <paramref name="house"/>: what was seen there, an arrow, and what it needs.</summary>
     private void Needs(Transform row, int house, string seen, string needs)
     {
-        M3Ui.HouseIcon(row, house, bigIcon, M3Ui.Text);
-        M3Ui.Icon(row, seen, bigIcon, M3Ui.Text);
-        M3Ui.Icon(row, M3Icons.Arrow, iconSize * 0.8f, M3Ui.Muted);
-        M3Ui.Icon(row, needs, bigIcon, M3Ui.Accent);
+        M3Ui.HouseIcon(row, house, IconL, M3Ui.Text);
+        M3Ui.Icon(row, seen, IconL, M3Ui.Text);
+        M3Ui.Icon(row, M3Icons.Arrow, IconS, M3Ui.Muted);
+        M3Ui.Icon(row, needs, IconL, M3Ui.Accent);
     }
 
+    /// <summary>A count in the house column: an icon where the house would be, then the number.</summary>
     private void Counted(Transform row, string icon, string count)
     {
-        M3Ui.Icon(row, icon, bigIcon, M3Ui.Text);
-        Bold(M3Ui.Word(row, count, bigText * 0.8f, M3Ui.Text));
+        M3Ui.Icon(row, icon, IconL, M3Ui.Text);
+        Bold(M3Ui.Word(row, count, title, M3Ui.Text));
     }
 
     private void ShowDebrief(HandoverBrief finalBrief)
     {
-        if (debriefPanel == null) return;
-        M3Ui.Clear(debriefContent);
-
         var s = M3Session.Instance;
         var sim = s.Neighbourhood;
         var map = OutbreakMap.Build(sim);
 
+        NewCard(DebriefWidth);
+        handoverShownAt = -1f;   // stays up: the session is over
         // Section 5 fixes this order: the map, then the replay, and only then the score.
-        Bold(M3Ui.Line(debriefContent, Localized("m3.debrief.title"), bigText, M3Ui.Text));
+        Header(M3Icons.Mosquito, Localized("m3.debrief.title"));
 
-        // The outbreak, in numbers.
-        var tiles = M3Ui.Row(debriefContent, "Outbreak", iconSize * 0.2f, TextAnchor.UpperCenter);
+        // The outbreak, in numbers: five tiles of the same width.
+        var tiles = M3Ui.Row(card, "Outbreak", 0f, TextAnchor.UpperLeft);
         Tile(tiles, M3Icons.People, map.TotalCases, "m3.short.fellIll");
         Tile(tiles, M3Icons.House, map.SecondaryCases, "m3.short.caughtHere");
         Tile(tiles, M3Icons.NoNet, map.PreventableCases, "m3.short.fromUncovered");
         Tile(tiles, M3Icons.HiddenPerson, map.InvisibleCases, "m3.short.neverFelt");
         Tile(tiles, M3Icons.Shield, map.HouseholdsWhereTheChainStopped.Count, "m3.short.chainsStopped");
+        M3Ui.Rule(card);
 
         // The replay: the same village with a net on the first patient on day one, as two bars of the
         // cases caught here. Numbers, not a verdict - the old headline ("you covered the first patient
@@ -350,57 +380,59 @@ public class M3Hud : MonoBehaviour
         };
         int played = map.SecondaryCases, replay = counterfactual.HadPatientZeroBeenCovered.SecondaryCases;
         int most = Mathf.Max(1, Mathf.Max(played, replay));
-        Bar(M3Icons.People, Localized("m3.short.asPlayed"), played, most, M3Ui.Muted);
-        Bar(M3Icons.Net, Localized("m3.short.netDayOne"), replay, most, M3Ui.Accent);
+        var bars = M3Ui.Stack(card, "Replay", Tight, new RectOffset());
+        Bar(bars, M3Icons.People, Localized("m3.short.asPlayed"), played, most, M3Ui.Muted);
+        Bar(bars, M3Icons.Net, Localized("m3.short.netDayOne"), replay, most, M3Ui.Accent);
 
-        // The score lines, as small tiles.
-        var card = Scoring.Evaluate(sim, s.Session);
-        if (card.Lines.Count > 0)
+        // The score lines, as smaller tiles on the same columns as the ones above.
+        var scorecard = Scoring.Evaluate(sim, s.Session);
+        if (scorecard.Lines.Count > 0)
         {
-            var score = M3Ui.Row(debriefContent, "Score", iconSize * 0.2f, TextAnchor.UpperCenter);
-            for (int i = 0; i < card.Lines.Count; i++)
+            M3Ui.Rule(card);
+            var score = M3Ui.Row(card, "Score", 0f, TextAnchor.UpperLeft);
+            for (int i = 0; i < scorecard.Lines.Count; i++)
             {
-                var line = card.Lines[i];
+                var line = scorecard.Lines[i];
                 Tile(score, ScoreIcon(line.Reason), line.Count, ScoreKey(line.Reason), small: true, muted: line.IsNote);
             }
         }
 
-        var prompt = Bold(M3Ui.Line(debriefContent, FieldJournalExport.ClosingPrompt, textSize * 1.25f, M3Ui.Accent));
-        prompt.alignment = TextAlignmentOptions.Center;
-
-        debriefPanel.SetActive(true);
-        if (handoverPanel != null) handoverPanel.SetActive(false);
+        // The question the class takes away, on its own accent band.
+        var ask = M3Ui.Row(card, "Prompt", Tight, TextAnchor.MiddleLeft, new RectOffset(20, 20, 14, 14));
+        M3Ui.Round(ask.gameObject.AddComponent<Image>(), M3Ui.ChipRadius).color = new Color(M3Ui.Accent.r, M3Ui.Accent.g, M3Ui.Accent.b, 0.14f);
+        M3Ui.Icon(ask, M3Icons.Talk, IconM, M3Ui.Accent);
+        Bold(M3Ui.Word(ask, FieldJournalExport.ClosingPrompt, body, M3Ui.Accent));
     }
 
-    /// <summary>An icon, a big number and a few words under it.</summary>
+    /// <summary>An icon, a number and a few words under it, all centred in a fixed-width column.</summary>
     private void Tile(Transform row, string icon, int count, string captionKey, bool small = false, bool muted = false)
     {
-        var col = M3Ui.Stack(row, "Tile: " + icon, 2f, new RectOffset(8, 8, 4, 4));
+        var col = M3Ui.Stack(row, "Tile: " + icon, 4f, new RectOffset(4, 4, 0, 0));
         col.GetComponent<VerticalLayoutGroup>().childAlignment = TextAnchor.UpperCenter;
-        var le = col.gameObject.AddComponent<LayoutElement>();
-        le.preferredWidth = le.minWidth = small ? 200f : 214f;
+        // A fixed column: without flexibleWidth 0 a lone score tile took the card's whole width.
+        M3Ui.MinWidth(col, (DebriefWidth - 2f * Pad) / 5f).flexibleWidth = 0f;
         Color c = muted ? M3Ui.Muted : M3Ui.Text;
-        M3Ui.Icon(col, icon, small ? iconSize * 0.8f : iconSize, c);
-        var number = Bold(M3Ui.Line(col, small ? "x" + count : count.ToString(), small ? textSize * 1.2f : bigText, c));
+        var img = M3Ui.Icon(col, icon, small ? IconS : IconM, c);
+        img.GetComponent<LayoutElement>().flexibleWidth = 0f;
+        var number = Bold(M3Ui.Line(col, small ? "x" + count : count.ToString(), small ? body : title, c));
         number.alignment = TextAlignmentOptions.Center;
-        var words = M3Ui.Line(col, Localized(captionKey), textSize * 0.8f, M3Ui.Muted);
+        var words = M3Ui.Line(col, Localized(captionKey), this.small, M3Ui.Muted);
         words.alignment = TextAlignmentOptions.Top;
     }
 
     /// <summary>One bar of the replay: an icon, what it is, a bar as long as the count, and the count.</summary>
-    private void Bar(string icon, string label, int value, int most, Color colour)
+    private void Bar(Transform parent, string icon, string label, int value, int most, Color colour)
     {
-        var row = M3Ui.Row(debriefContent, "Bar: " + label, iconSize * 0.25f);
-        M3Ui.Icon(row, icon, iconSize * 0.8f, colour);
-        var name = M3Ui.Word(row, label, textSize, M3Ui.Text);
-        var nle = name.gameObject.AddComponent<LayoutElement>();
-        nle.preferredWidth = nle.minWidth = 330f;
-        var bar = M3Ui.Round(M3Ui.Rect("Bar", row, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero).gameObject.AddComponent<Image>());
+        var row = M3Ui.Row(parent, "Bar: " + label, Tight + 4f);
+        M3Ui.Icon(row, icon, IconS, colour);
+        M3Ui.MinWidth(M3Ui.Word(row, label, body, M3Ui.Text), 340f);
+        var bar = M3Ui.Round(M3Ui.Rect("Bar", row, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero)
+                                 .gameObject.AddComponent<Image>(), 10f);
         bar.color = colour;
         var ble = bar.gameObject.AddComponent<LayoutElement>();
-        ble.preferredWidth = ble.minWidth = Mathf.Max(12f, 560f * value / most);
-        ble.preferredHeight = ble.minHeight = iconSize * 0.5f;
-        Bold(M3Ui.Word(row, value.ToString(), textSize * 1.2f, M3Ui.Text));
+        ble.preferredWidth = ble.minWidth = Mathf.Max(20f, 340f * value / most);
+        ble.preferredHeight = ble.minHeight = 20f;
+        Bold(M3Ui.Word(row, value.ToString(), body, M3Ui.Text));
     }
 
     private static string ScoreIcon(ScoreReason r) => r switch
@@ -443,67 +475,59 @@ public class M3Hud : MonoBehaviour
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1280f, 720f);
 
-        // Every size here holds the 1.5 degree rule at the HUD's distance in the headset.
+        // The type scale, from the 1.5 degree floor at the HUD's distance in the headset.
         float hudUnitsPerMetre = 1280f / vrWidth;
-        textSize = Mathf.Round(M3TextSize.AtLeast(baseFontSize + 4, hudUnitsPerMetre, vrDistance));
-        bigText = Mathf.Round(textSize * 1.7f);
-        iconSize = Mathf.Round(textSize * 1.8f);
-        bigIcon = Mathf.Round(textSize * 2.2f);
+        small = M3TextSize.Floor(hudUnitsPerMetre, vrDistance) + 1f;
+        body = Mathf.Round(M3TextSize.AtLeast(baseFontSize + 4, hudUnitsPerMetre, vrDistance));
+        title = Mathf.Round(body * 1.5f);
 
-        // Top left: the clock, the nets left and the day, each an icon and a number on a dark backing
-        // that hugs them, so they read against a bright sky or a pale wall.
-        statusBar = M3Ui.Row(canvasGo.transform, "Status", textSize * 0.9f, TextAnchor.MiddleLeft,
-                             new RectOffset(18, 22, 8, 8));
-        statusBar.anchorMin = statusBar.anchorMax = statusBar.pivot = new Vector2(0f, 1f);
-        statusBar.anchoredPosition = new Vector2(24f, -12f);
-        M3Ui.Round(statusBar.gameObject.AddComponent<Image>()).color = M3TextBacking.DefaultColour;
+        // The clock, the nets left and the day: one pill, centred a little above the line of sight -
+        // where a glance up finds it and it never sits over a villager or the person card. A corner
+        // of the view is 30+ degrees out, which in a headset means turning the head to read it.
+        statusBar = M3Ui.Row(canvasGo.transform, "Status", Gap, TextAnchor.MiddleCenter, new RectOffset(24, 24, 10, 10));
+        statusBar.anchorMin = statusBar.anchorMax = new Vector2(0.5f, 1f);
+        statusBar.pivot = new Vector2(0.5f, 1f);
+        statusBar.anchoredPosition = new Vector2(0f, -96f);
+        M3Ui.Round(statusBar.gameObject.AddComponent<Image>(), M3Ui.CardRadius).color = M3Ui.PanelColour;
         var fit = statusBar.gameObject.AddComponent<ContentSizeFitter>();
         fit.horizontalFit = fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-        clockText = Counter(statusBar, M3Icons.Clock, out _);
-        netsText = Counter(statusBar, M3Icons.Net, out netsIcon);
-        dayText = Counter(statusBar, M3Icons.Day, out _);
+        clockText = Counter(statusBar, M3Icons.Clock, "0:00", out _);
+        StatusRule(statusBar);
+        netsText = Counter(statusBar, M3Icons.Net, "00", out netsIcon);
+        StatusRule(statusBar);
+        dayText = Counter(statusBar, M3Icons.Day, "00", out _);
 
-        // "End your turn?" while the Pilot decides on the watch.
-        bannerPanel = Panel(canvasGo.transform, "Banner", new Color(0.04f, 0.05f, 0.07f, 0.95f));
-        var bannerRt = (RectTransform)bannerPanel.transform;
-        bannerRt.anchorMin = bannerRt.anchorMax = new Vector2(0.5f, 0.5f);
-        bannerRt.sizeDelta = new Vector2(620f, 150f);
-        var ask = M3Ui.Row(bannerRt, "Ask", textSize, TextAnchor.MiddleCenter);
-        M3Ui.Icon(ask, M3Icons.Watch, bigIcon, M3Ui.Accent);
-        bannerText = Bold(M3Ui.Word(ask, "", bigText, M3Ui.Text));
-        bannerPanel.SetActive(false);
-
-        handoverPanel = Panel(canvasGo.transform, "Handover", new Color(0.04f, 0.05f, 0.07f, 0.94f));
-        handoverContent = M3Ui.Stack(handoverPanel.transform, "Content", textSize * 1.1f, new RectOffset(96, 96, 64, 64));
-        // The start card and the handover are a few rows of pictures: they sit in the middle of the card.
-        handoverContent.GetComponent<VerticalLayoutGroup>().childAlignment = TextAnchor.MiddleCenter;
-        handoverPanel.SetActive(false);
-
-        debriefPanel = Panel(canvasGo.transform, "Debrief", new Color(0.04f, 0.05f, 0.07f, 0.97f));
-        debriefContent = M3Ui.Stack(debriefPanel.transform, "Content", textSize * 0.7f, new RectOffset(72, 72, 44, 44));
-        debriefPanel.SetActive(false);
+        // "End your turn?" while the Pilot decides on the watch: a small card at eye level.
+        var ask = M3Ui.Row(canvasGo.transform, "Banner", Tight + 4f, TextAnchor.MiddleCenter, new RectOffset(32, 36, 20, 20));
+        ask.anchorMin = ask.anchorMax = ask.pivot = new Vector2(0.5f, 0.5f);
+        M3Ui.Round(ask.gameObject.AddComponent<Image>(), M3Ui.CardRadius).color = M3Ui.PanelColour;
+        var askFit = ask.gameObject.AddComponent<ContentSizeFitter>();
+        askFit.horizontalFit = askFit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        M3Ui.Icon(ask, M3Icons.Watch, IconM, M3Ui.Accent);
+        bannerText = Bold(M3Ui.Word(ask, "", title, M3Ui.Text));
+        banner = ask.gameObject;
+        banner.SetActive(false);
     }
 
-    /// <summary>One of the status bar's icon-and-number pairs.</summary>
-    private TMP_Text Counter(Transform bar, string icon, out Image image)
+    /// <summary>One of the status bar's icon-and-number pairs, as wide as its widest value so it never twitches.</summary>
+    private TMP_Text Counter(Transform bar, string icon, string widest, out Image image)
     {
-        var pair = M3Ui.Row(bar, "Counter: " + icon, textSize * 0.3f);
-        image = M3Ui.Icon(pair, icon, textSize * 1.2f, M3Ui.Text);
-        return Bold(M3Ui.Word(pair, "", textSize * 1.1f, M3Ui.Text));
+        var pair = M3Ui.Row(bar, "Counter: " + icon, 8f);
+        image = M3Ui.Icon(pair, icon, IconS, M3Ui.Text);
+        var text = Bold(M3Ui.Word(pair, widest, body, M3Ui.Text));
+        M3Ui.MinWidth(text, text.GetPreferredValues(widest).x + 2f);
+        text.alignment = TextAlignmentOptions.Center;
+        text.text = "";
+        return text;
     }
 
-    private static GameObject Panel(Transform parent, string name, Color colour)
+    private static void StatusRule(Transform bar)
     {
-        var go = new GameObject(name, typeof(RectTransform));
-        go.transform.SetParent(parent, false);
-
-        var rt = (RectTransform)go.transform;
-        rt.anchorMin = Vector2.zero;
-        rt.anchorMax = Vector2.one;
-        rt.offsetMin = Vector2.zero;
-        rt.offsetMax = Vector2.zero;
-
-        M3Ui.Round(go.AddComponent<Image>()).color = colour;
-        return go;
+        var rule = M3Ui.Rect("Rule", bar, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero).gameObject.AddComponent<Image>();
+        rule.color = M3Ui.RuleColour;
+        rule.raycastTarget = false;
+        var le = rule.gameObject.AddComponent<LayoutElement>();
+        le.preferredWidth = le.minWidth = 2f;
+        le.preferredHeight = le.minHeight = IconS;
     }
 }
