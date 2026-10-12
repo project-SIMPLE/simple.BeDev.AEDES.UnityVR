@@ -14,14 +14,15 @@ using UnityEngine.UI;
 /// with the turn and its clock above them where Module 2 shows its score and time. The same answers
 /// are on A, B and the left menu button (M3XRPlayer), so nobody is stuck if they never find the watch.
 ///
-/// Built from the rig at runtime by <see cref="Attach"/>: Module 2's own UIHand (which would also
-/// spawn its swatter) comes off the watch and this takes its place, reading the same canvas and the
-/// same layer mask. The prefab itself is not touched.
+/// Built from the rig at runtime by <see cref="Attach"/>. Module 2's own UIHand stays on the watch and
+/// keeps deciding when the menu shows (its look-at-wrist cone, the fingertip touch, the reach that keeps
+/// it open while you go for a button), so the two modules cannot drift apart; this only rewires its two
+/// buttons, whose swatter and cream calls came from Module 2's scene, and fills the menu while it is up.
+/// The prefab itself is not touched.
 /// </summary>
 public class M3WristMenu : MonoBehaviour
 {
     private GameObject menu;
-    private LayerMask headMask;
     private Button primary, secondary;
     private TextMeshProUGUI primaryLabel, secondaryLabel, turnText, clockText;
 
@@ -34,21 +35,14 @@ public class M3WristMenu : MonoBehaviour
             Debug.LogWarning("Module 3: the rig has no wrist watch (UIHand), so Ready and End turn are on the buttons only.");
             return null;
         }
-        var watch = module2.gameObject;
-        var canvas = module2.uiHand;
-        var mask = module2.layerMaskHand;
-        // Its Awake has already run (it only notes itself as the current watch); off it goes.
-        Destroy(module2);
-
-        var wrist = watch.AddComponent<M3WristMenu>();
-        wrist.Init(canvas, mask);
+        var wrist = module2.gameObject.AddComponent<M3WristMenu>();
+        wrist.Init(module2.uiHand);
         return wrist;
     }
 
-    private void Init(GameObject canvas, LayerMask mask)
+    private void Init(GameObject canvas)
     {
         menu = canvas;
-        headMask = mask;
 
         // Module 2's two tool buttons become Ready / End turn and Yes / No. Their look stays - the
         // rounded backing, the press affordance - only the tool icon goes and a label takes its place.
@@ -100,11 +94,8 @@ public class M3WristMenu : MonoBehaviour
 
     private void Update()
     {
-        // Module 2's rule, kept as it was: the menu shows while the watch face points at the head (the
-        // rig's camera carries a collider on the Camera layer for exactly this).
-        bool shown = Physics.Raycast(transform.position, transform.up, 10f, headMask);
-        if (menu.activeSelf != shown) menu.SetActive(shown);
-        if (!shown) return;
+        // UIHand, next to this on the watch, opens and closes the menu by Module 2's rule.
+        if (!menu.activeSelf) return;
 
         var s = M3Session.Instance;
         var xr = M3XRPlayer.Instance;
