@@ -27965,10 +27965,8 @@ MonoBehaviour:
   gameOver: {fileID: 401769903}
   aButton: {fileID: 5561125842531183599, guid: c348712bda248c246b8c49b3db54643f, type: 3}
   score: 0
-  timer: 120
+  timer: 180
   isOver: 0
-  saveWaterContainer: []
-  notSaveWaterContainer: []
   sun: {fileID: 185372124}
   skybox: {fileID: 2100000, guid: ec46d2188d4b8774e847e75f1e12a8db, type: 2}
   lightColor:
