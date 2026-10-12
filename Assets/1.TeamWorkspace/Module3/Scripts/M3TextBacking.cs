@@ -41,6 +41,7 @@ public class M3TextBacking : MonoBehaviour
     public static M3TextBacking Add(TMP_Text text, Vector2 padding, Color? colour = null)
     {
         var go = new GameObject(text.name + " Backing", typeof(RectTransform), typeof(CanvasRenderer));
+        go.layer = text.gameObject.layer;
         var rt = (RectTransform)go.transform;
         // A sibling just under the text, so it draws first and the letters land on top of it.
         rt.SetParent(text.transform.parent, false);

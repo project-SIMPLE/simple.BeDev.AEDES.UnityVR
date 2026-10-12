@@ -56,6 +56,7 @@ public class M3Hud : MonoBehaviour
 
     private void Awake()
     {
+        if (font == null) font = Resources.Load<TMP_FontAsset>(M3Ui.FontResource);
         M3Ui.Font = font;   // shared with the conversation panel and the other in-world UI
         BuildCanvas();
     }
@@ -149,6 +150,9 @@ public class M3Hud : MonoBehaviour
         var scaler = canvas.GetComponent<CanvasScaler>();
         if (scaler != null) scaler.enabled = false;   // a world canvas is sized by its transform
         canvas.transform.SetParent(null, true);
+        // Drawn after the world like Module 2's HUD: indoors the canvas sits further out than most
+        // walls, which cut into the status line.
+        M3Ui.OnTop(canvas);
         smoothForward = Camera.main.transform.forward;
         smoothForward.y = 0f;
         if (smoothForward.sqrMagnitude < 0.01f) smoothForward = Vector3.forward;
@@ -172,7 +176,7 @@ public class M3Hud : MonoBehaviour
         sb.AppendLine();
         sb.AppendLine(Localized("m3.ui.startCard"));
         sb.AppendLine();
-        sb.AppendLine($"<size={baseFontSize - 2}><color=#E5B25D>{Localized("m3.ui.readyPrompt")}</color></size>");
+        sb.AppendLine($"<size={baseFontSize - 2}><color={M3Ui.AccentHex}>{Localized("m3.ui.readyPrompt")}</color></size>");
         handoverText.text = sb.ToString();
         handoverPanel.SetActive(true);
         handoverShownAt = Time.time;
@@ -199,10 +203,10 @@ public class M3Hud : MonoBehaviour
         float left = Mathf.Max(0f, s.TurnSecondsRemaining);
 
         // The countdown is the Coach's instrument as much as the Pilot's, so it goes first and
-        // turns red where a class can see it from across a table. A red dark enough to be the
-        // "warning" red (#E4572E) was too dim to read on the line's dark backing, so it is a lighter one.
+        // changes colour where a class can see it from across a table: Module 2's warning orange in
+        // the last 30 s. (A dark red was too dim to read on the line's dark backing.)
         string clock = $"{Mathf.FloorToInt(left / 60f)}:{Mathf.FloorToInt(left % 60f):00}";
-        string colour = left <= 30f ? "#FF6B47" : "#F2F2F2";
+        string colour = left <= 30f ? M3Ui.WarnHex : "#F2F2F2";
 
         statusLine.text = Localized("m3.hud.status",
             $"<color={colour}><b>{clock}</b></color>",
@@ -237,15 +241,15 @@ public class M3Hud : MonoBehaviour
             for (int i = 0; i < lines.Count; i++)
             {
                 var l = lines[i];
-                string mark = l.Urgency == BriefUrgency.Now ? "<color=#E4572E>!</color>"
-                            : l.Urgency == BriefUrgency.Soon ? "<color=#E5B25D>-</color>"
-                            : "<color=#9AA5B1>.</color>";
+                string mark = l.Urgency == BriefUrgency.Now ? $"<color={M3Ui.DangerHex}>!</color>"
+                            : l.Urgency == BriefUrgency.Soon ? $"<color={M3Ui.WarnHex}>-</color>"
+                            : $"<color={M3Ui.MutedHex}>.</color>";
                 sb.AppendLine($"{mark}  {Localized(l.MessageKey, l.Args)}");
             }
         }
 
         sb.AppendLine();
-        sb.AppendLine($"<size={baseFontSize - 6}><color=#9AA5B1>{Localized("m3.coach.handItOver")}</color></size>");
+        sb.AppendLine($"<size={baseFontSize - 6}><color={M3Ui.MutedHex}>{Localized("m3.coach.handItOver")}</color></size>");
 
         var session = M3Session.Instance;
         waitedForPilot = session != null && session.WaitingForPilot;
@@ -253,7 +257,7 @@ public class M3Hud : MonoBehaviour
         {
             // The next Pilot presses A once the headset is on; the clock starts then, not before.
             sb.AppendLine();
-            sb.AppendLine($"<size={baseFontSize - 2}><color=#E5B25D>{Localized("m3.ui.readyPrompt")}</color></size>");
+            sb.AppendLine($"<size={baseFontSize - 2}><color={M3Ui.AccentHex}>{Localized("m3.ui.readyPrompt")}</color></size>");
         }
 
         handoverText.text = sb.ToString();
@@ -306,7 +310,7 @@ public class M3Hud : MonoBehaviour
             var line = card.Lines[i];
             string text = Localized(line.MessageKey);
             sb.AppendLine(line.IsNote
-                ? $"<color=#9AA5B1>{text} (x{line.Count})</color>"
+                ? $"<color={M3Ui.MutedHex}>{text} (x{line.Count})</color>"
                 : $"{text} (x{line.Count})");
         }
 
@@ -355,7 +359,7 @@ public class M3Hud : MonoBehaviour
             Mathf.RoundToInt(M3TextSize.AtLeast(baseFontSize - 2, hudUnitsPerMetre, vrDistance)));
         M3TextBacking.Add(coachPanel, new Vector2(20f, 6f));
 
-        var bannerPanel = Panel(canvasGo.transform, "Banner", new Color(0.05f, 0.06f, 0.08f, 0.95f));
+        var bannerPanel = Panel(canvasGo.transform, "Banner", new Color(0.04f, 0.05f, 0.07f, 0.95f));
         var bannerRt = (RectTransform)bannerPanel.transform;
         bannerRt.anchorMin = new Vector2(0.5f, 0.5f);
         bannerRt.anchorMax = new Vector2(0.5f, 0.5f);
@@ -401,7 +405,7 @@ public class M3Hud : MonoBehaviour
         rt.offsetMin = Vector2.zero;
         rt.offsetMax = Vector2.zero;
 
-        go.AddComponent<Image>().color = colour;
+        M3Ui.Round(go.AddComponent<Image>()).color = colour;
         return go;
     }
 
@@ -419,6 +423,7 @@ public class M3Hud : MonoBehaviour
 
         var text = go.AddComponent<TextMeshProUGUI>();
         if (font != null) text.font = font;
+        M3Ui.NoKerning(text);
         text.fontSize = size;
         text.alignment = align;
         text.color = new Color(0.95f, 0.95f, 0.95f);

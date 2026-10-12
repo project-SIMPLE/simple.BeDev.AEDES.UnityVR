@@ -46,8 +46,8 @@ public static class Module3SceneBuilder
     private const string Elder = Characters + "PF_Villager_Elder.prefab";
     private const string Container = "Assets/1.TeamWorkspace/Team Assets/Prefabs/Props/PF_Jar.prefab";
     private const string DebugOverlay = "Assets/Resources/Prefabs/Utils/Debug Overlay.prefab";
-    private const string LaoFont =
-        "Assets/1.TeamWorkspace/Team Assets/TextMesh Pro/Fonts/Lao/Lao_SomVang SDF_Custom.asset";
+    // The font Modules 1 and 2 use (M3Ui.FontResource): the whole Lao block and Basic Latin, static.
+    private const string LaoFont = "Assets/Resources/Fonts/Lao_SomVang Full SDF.asset";
 
     [MenuItem("AEDES/Module 3/Generate Main Scene")]
     public static void Generate()
@@ -235,8 +235,8 @@ public static class Module3SceneBuilder
         var hud = squad.AddComponent<M3Hud>();
         squad.AddComponent<M3JournalWriter>();
 
-        // One font for English and Lao: the Lao face is a dynamic atlas and carries all 95
-        // printable ASCII as well as the Lao block, so nothing needs a fallback.
+        // One font for English and Lao: it carries all 95 printable ASCII as well as the Lao block,
+        // so nothing needs a fallback.
         var so = new SerializedObject(hud);
         var font = so.FindProperty("font");
         var asset = AssetDatabase.LoadAssetAtPath<TMPro.TMP_FontAsset>(LaoFont);

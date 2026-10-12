@@ -48,6 +48,9 @@ public class M3PersonPanel : MonoBehaviour
     {
         Instance = this;
         root = M3Ui.WorldCanvas("Person Panel", transform, new Vector2(PanelWidth, 900f), unitsPerMetre);
+        // On the UI layer, after the world: a card hung beside a villager by a wall used to lose its
+        // right third inside the wall.
+        M3Ui.OnTop(root);
         M3Ui.Panel(root, "Background", M3Ui.PanelColour);
         stack = M3Ui.Stack(root, "Content", 7f, new RectOffset((int)PanelPadding, (int)PanelPadding, 22, 22));
         root.gameObject.SetActive(false);
@@ -169,7 +172,7 @@ public class M3PersonPanel : MonoBehaviour
         if (!string.IsNullOrEmpty(obs.DialogueKey))
         {
             M3Ui.Line(stack, M3Ui.L("m3.ui.theySay"), ReadingSize, M3Ui.Muted);
-            M3Ui.Line(stack, $"<i>“{M3Ui.L(obs.DialogueKey, obs.DialogueDays)}”</i>", ReadingSize, M3Ui.Accent);
+            M3Ui.Line(stack, $"<i>\"{M3Ui.L(obs.DialogueKey, obs.DialogueDays)}\"</i>", ReadingSize, M3Ui.Accent);
         }
 
         if (obs.Condition == VisibleCondition.AtTheHealthCentre)
