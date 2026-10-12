@@ -26,28 +26,21 @@ warn() { printf '\033[33mwarning:\033[0m %s\n' "$*" >&2; }
 usage_modules() {
   cat >&2 <<'USAGE'
 modules:
-  1      Module 1 - play as the mosquito   (Module_1_MainScene)
+  1      Module 1 - play as the mosquito   (Startup Menu_New, IP Menu, Main Scene)
   2      Module 2 - household vector control (Module_2_MainScene)
   tut2   Module 2 tutorial                 (Tutorial_M2)
+  3      Module 3 - the village squad      (Module_3_MainScene)
 USAGE
 }
 
-# Map a module key to its scene file. Located by filename rather than a fixed path so
-# that folder reorganisations (GameTesting -> Module1, Phettae -> Module2) do not break it.
-module_scene() {
-  local key="$1" name
-  case "$key" in
-    1)    name="Module_1_MainScene" ;;
-    2)    name="Module_2_MainScene" ;;
-    tut2) name="Tutorial_M2" ;;
-    *)    usage_modules; die "unknown module '$key'" ;;
-  esac
-
-  local matches count
-  matches="$(cd "$REPO_ROOT" && find Assets/1.TeamWorkspace -name "$name.unity" -not -path '*/_Recovery/*')"
+# Find a scene by filename under a folder, so that folder reorganisations
+# (GameTesting -> Module1, Phettae -> Module2) do not break the scripts.
+find_scene() {
+  local name="$1" root="${2:-Assets/1.TeamWorkspace}" matches count
+  matches="$(cd "$REPO_ROOT" && find "$root" -name "$name.unity" -not -path '*/_Recovery/*')"
   count="$(printf '%s' "$matches" | grep -c . || true)"
 
-  [ "$count" -eq 0 ] && die "scene $name.unity not found under Assets/1.TeamWorkspace"
+  [ "$count" -eq 0 ] && die "scene $name.unity not found under $root"
   if [ "$count" -gt 1 ]; then
     warn "several copies of $name.unity found; using the first:"
     printf '%s\n' "$matches" >&2
@@ -55,11 +48,34 @@ module_scene() {
   printf '%s\n' "$matches" | head -1
 }
 
+# Map a module key to the scenes it ships, ';'-separated, the first one being the one the app
+# opens on.
+module_scene() {
+  local menu ip game
+  case "$1" in
+    # The team's Module 1 (merged in 3d62752) is a flow, not one scene: its start menu loads
+    # "Main Scene" (renamed from Module_1_MainScene, same GUID) and has a button to the IP menu,
+    # and the game returns to the start menu when it ends. The menu stays at index 0 and the
+    # IP menu at 1, so SaveManager (which wipes the save at index 0 or 1) keeps it in the level.
+    # "|| return": set -e is off inside the command substitution that calls this, so a missing
+    # scene has to be passed up explicitly or the build would quietly leave it out.
+    1)    menu="$(find_scene "Startup Menu_New")" || return
+          ip="$(find_scene "IP Menu" "Assets/Scenes/Scenes by Simple/Menu")" || return
+          game="$(find_scene "Main Scene")" || return
+          printf '%s;%s;%s\n' "$menu" "$ip" "$game" ;;
+    2)    find_scene "Module_2_MainScene" ;;
+    tut2) find_scene "Tutorial_M2" ;;
+    3)    find_scene "Module_3_MainScene" ;;
+    *)    usage_modules; die "unknown module '$1'" ;;
+  esac
+}
+
 module_apk() {
   case "$1" in
     1)    printf 'build/Android/AEDES-Module1.apk\n' ;;
     2)    printf 'build/Android/AEDES-Module2.apk\n' ;;
     tut2) printf 'build/Android/AEDES-TutorialM2.apk\n' ;;
+    3)    printf 'build/Android/AEDES-Module3.apk\n' ;;
     *)    usage_modules; die "unknown module '$1'" ;;
   esac
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Install an already-built AEDES module onto an attached Quest and launch it.
 #
-#   Tools/deploy.sh <1|2|tut2> [--no-launch] [--wait <seconds>]
+#   Tools/deploy.sh <1|2|tut2|3> [--no-launch] [--wait <seconds>]
 #
 # Every module installs under the same application id, so only one can be on the headset
 # at a time - deploying module 2 replaces module 1.
@@ -14,7 +14,7 @@ ACTIVITY="$APP_ID/com.unity3d.player.UnityPlayerGameActivity"
 MODULE="${1:-}"
 LAUNCH=1
 WAIT_SECS=180
-[ -z "$MODULE" ] && { echo "usage: Tools/deploy.sh <1|2|tut2> [--no-launch] [--wait <seconds>]" >&2; usage_modules; exit 1; }
+[ -z "$MODULE" ] && { echo "usage: Tools/deploy.sh <1|2|tut2|3> [--no-launch] [--wait <seconds>]" >&2; usage_modules; exit 1; }
 shift
 while [ $# -gt 0 ]; do
   case "$1" in

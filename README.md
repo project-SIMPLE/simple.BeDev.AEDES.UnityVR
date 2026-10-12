@@ -89,12 +89,14 @@ Each module is built and deployed separately for now.
 
 | Key | Module | Scene |
 |---|---|---|
-| `1` | Play as the mosquito | `Module_1_MainScene` |
+| `1` | Play as the mosquito | `Startup Menu_New`, `IP Menu`, `Main Scene` |
 | `2` | Household vector control | `Module_2_MainScene` |
 | `tut2` | Module 2 tutorial | `Tutorial_M2` |
+| `3` | The village squad | `Module_3_MainScene` |
 
 Scenes are located by filename, so moving or renaming their folders will not break the
-scripts. Build Settings are ignored: each build contains only that module's scene.
+scripts. Build Settings are ignored: each build contains only that module's scenes (Module 1
+is its start menu, the IP menu and the game, in that order).
 
 > **Only one module can be installed at a time.** They all share the application id
 > `com.unity.template.vr`, so deploying module 2 replaces module 1 on the headset.
