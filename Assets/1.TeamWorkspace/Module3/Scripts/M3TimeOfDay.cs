@@ -44,7 +44,7 @@ public class M3TimeOfDay : MonoBehaviour
         public Color ambientGround;
         public Color haze;
         public float skyExposure;
-        [Tooltip("Skybox tint; 0.5 grey is neutral on the panoramic shader.")]
+        [Tooltip("Skybox tint; 0.5 grey is neutral on the Unity skybox shaders.")]
         public Color skyTint;
 
         public static Moment Lerp(Moment a, Moment b, float t) => new Moment
@@ -98,7 +98,7 @@ public class M3TimeOfDay : MonoBehaviour
     [Tooltip("Seconds the sun takes to sweep back from the end of one turn to the morning of the next.")]
     [SerializeField] private float sweepSeconds = 0.8f;
 
-    [Tooltip("Turn the sky panorama with the sun, so the clouds are not nailed in place all day.")]
+    [Tooltip("Turn the sky with the sun, so the clouds are not nailed in place all day.")]
     [SerializeField] private bool skyTurnsWithSun = true;
 
     private static readonly int ExposureId = Shader.PropertyToID("_Exposure");

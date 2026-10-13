@@ -176,7 +176,7 @@ public static class Module3SceneBuilder
     private const string BroadTree = Nature + "PF_Tree.prefab";
     private const string Bush1 = Nature + "PF_Bush_1.prefab";
     private const string Bush2 = Nature + "PF_Bush_2.prefab";
-    private const string SkyboxMaterial = "Assets/Packages/Fantasy Skybox FREE/Panoramics/FS002/FS002_Day.mat";
+    private const string SkyboxMaterial = "Assets/Packages/Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_03.mat";
 
     private static void AssignArray(SerializedObject so, string field, params string[] assetPaths)
     {

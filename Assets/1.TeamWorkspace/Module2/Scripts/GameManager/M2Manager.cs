@@ -131,6 +131,7 @@ public class M2Manager : MonoBehaviour
     private float _dayLength;
     private float _skyboxExposureOnLoad;
     private bool _hasSkyboxExposure;
+    private Quaternion _sunRotationOnLoad;
 
     // ---- state the HUD reads ----
     public bool IsPlaying => _started && !_ended;
@@ -197,6 +198,8 @@ public class M2Manager : MonoBehaviour
             _skyboxExposureOnLoad = skybox.GetFloat(Exposure);
             _hasSkyboxExposure = true;
         }
+
+        if (sun != null) _sunRotationOnLoad = sun.transform.localRotation;
 
         if (gameOver != null) gameOver.SetActive(false);
 
@@ -658,12 +661,21 @@ public class M2Manager : MonoBehaviour
         {
             sun.color = lightColor.Evaluate(dayProgress);
             sun.intensity = lightIntensity.Evaluate(dayProgress);
-            sun.transform.localRotation = Quaternion.Euler(dayProgress * 360f + 120f, 30f, 0f);
+            // The round opens with the sun where the scene puts it (the same sun as Module 1) and
+            // pitches it on round from there, rather than snapping to a fixed angle of its own.
+            sun.transform.localRotation = _sunRotationOnLoad * Quaternion.AngleAxis(dayProgress * 360f, Vector3.right);
         }
 
         // Was Evaluate(dayProgress * 0.05f), which only ever sampled the first 5% of the curve
-        // and left the skybox at a fixed exposure for the whole round.
-        if (skybox != null && _hasSkyboxExposure) skybox.SetFloat(Exposure, lightIntensity.Evaluate(dayProgress));
+        // and left the skybox at a fixed exposure for the whole round. The sky dims in step with
+        // the sun, relative to the material's own exposure, so the round opens on the sky exactly
+        // as Module 1 shows it.
+        if (skybox != null && _hasSkyboxExposure)
+        {
+            float start = lightIntensity.Evaluate(0f);
+            float dim = start > 0.0001f ? lightIntensity.Evaluate(dayProgress) / start : 1f;
+            skybox.SetFloat(Exposure, _skyboxExposureOnLoad * dim);
+        }
 
         if (isDay && elapsed >= _dayLength)
         {
