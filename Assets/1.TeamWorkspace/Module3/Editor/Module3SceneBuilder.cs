@@ -116,9 +116,11 @@ public static class Module3SceneBuilder
         var sun = new GameObject("Directional Light");
         var light = sun.AddComponent<Light>();
         light.type = LightType.Directional;
-        light.intensity = 1.1f;
+        // Module 1's sun; M3TimeOfDay takes it from here at runtime.
+        light.color = new Color(0.9150943f, 0.7907398f, 0.56545925f);
+        light.intensity = 0.8f;
         light.shadows = LightShadows.Soft;
-        sun.transform.rotation = Quaternion.Euler(48f, 150f, 0f);
+        sun.transform.rotation = Quaternion.Euler(50f, -30f, 0f);
     }
 
     private static void BuildManagers()

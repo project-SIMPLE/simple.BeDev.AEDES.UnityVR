@@ -32,7 +32,7 @@ public class M3TimeOfDay : MonoBehaviour
     {
         [Tooltip("Sun height above the horizon, degrees. Never 0: there is no night in the module.")]
         public float elevation;
-        [Tooltip("Where the sun stands, as the light's Y rotation. 150 is the angle the scene was built with.")]
+        [Tooltip("Where the sun stands, as the light's Y rotation. 330 (-30) is Module 1's sun.")]
         public float azimuth;
         public Color sun;
         public float sunIntensity;
@@ -62,15 +62,16 @@ public class M3TimeOfDay : MonoBehaviour
         };
     }
 
-    // The sun crosses the lane on a diagonal: it rises beyond the x = 0 end on the paddy side of the
-    // near row and sets beyond the far end on the paddy side of the far row, so over a turn each row
-    // gets direct sun through its own openings for part of the day, and the house shadows swing
-    // right across the lane. The ambient is kept only a little warm: indoors that is what makes the
-    // walls cream rather than blue, outdoors the shade must still read as shade.
+    // A turn opens on Module 1's sun - the same angle, warm colour and strength, over the same sky
+    // turned the same way - so the three modules start out as one village. From there the sun swings
+    // over the houses (the same 176 degree sweep as before, turned to start at Module 1's angle): first
+    // on the road side, where the Lao houses have their doors, then the back of the plots. The
+    // ambient is kept only a little warm: indoors that is what makes the walls cream rather than
+    // blue, outdoors the shade must still read as shade.
     [Header("Start of the turn")]
     [SerializeField] private Moment morning = new Moment
     {
-        elevation = 30f, azimuth = 62f, sun = new Color(1f, 0.93f, 0.82f), sunIntensity = 1.0f,
+        elevation = 50f, azimuth = 330f, sun = new Color(0.9150943f, 0.7907398f, 0.56545925f), sunIntensity = 0.8f,
         ambientSky = new Color(0.56f, 0.59f, 0.64f), ambientEquator = new Color(0.50f, 0.46f, 0.40f),
         ambientGround = new Color(0.28f, 0.25f, 0.22f), haze = new Color(0.78f, 0.83f, 0.88f),
         skyExposure = 0.95f, skyTint = new Color(0.5f, 0.5f, 0.5f),
@@ -79,7 +80,7 @@ public class M3TimeOfDay : MonoBehaviour
     [Header("Middle of the turn")]
     [SerializeField] private Moment midday = new Moment
     {
-        elevation = 60f, azimuth = 150f, sun = new Color(1f, 0.98f, 0.94f), sunIntensity = 1.15f,
+        elevation = 62f, azimuth = 418f, sun = new Color(0.9150943f, 0.7907398f, 0.56545925f), sunIntensity = 0.9f,
         ambientSky = new Color(0.62f, 0.64f, 0.68f), ambientEquator = new Color(0.56f, 0.52f, 0.46f),
         ambientGround = new Color(0.32f, 0.29f, 0.25f), haze = new Color(0.76f, 0.83f, 0.90f),
         skyExposure = 1.05f, skyTint = new Color(0.5f, 0.5f, 0.5f),
@@ -88,7 +89,7 @@ public class M3TimeOfDay : MonoBehaviour
     [Header("End of the turn")]
     [SerializeField] private Moment afternoon = new Moment
     {
-        elevation = 24f, azimuth = 238f, sun = new Color(1f, 0.80f, 0.58f), sunIntensity = 1.0f,
+        elevation = 28f, azimuth = 506f, sun = new Color(1f, 0.75f, 0.50f), sunIntensity = 0.8f,
         ambientSky = new Color(0.60f, 0.57f, 0.55f), ambientEquator = new Color(0.56f, 0.46f, 0.36f),
         ambientGround = new Color(0.30f, 0.25f, 0.20f), haze = new Color(0.88f, 0.78f, 0.64f),
         skyExposure = 0.85f, skyTint = new Color(0.56f, 0.49f, 0.42f),
@@ -202,7 +203,7 @@ public class M3TimeOfDay : MonoBehaviour
         if (skyInstance.HasProperty(ExposureId)) skyInstance.SetFloat(ExposureId, m.skyExposure);
         if (skyInstance.HasProperty(TintId)) skyInstance.SetColor(TintId, m.skyTint);
         if (skyTurnsWithSun && skyInstance.HasProperty(RotationId))
-            skyInstance.SetFloat(RotationId, Mathf.Repeat(m.azimuth - midday.azimuth, 360f));
+            skyInstance.SetFloat(RotationId, Mathf.Repeat(m.azimuth - morning.azimuth, 360f));
     }
 
     private static Light FindSun()
