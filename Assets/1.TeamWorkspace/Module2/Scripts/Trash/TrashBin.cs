@@ -7,11 +7,16 @@ public class TrashBin : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Trash"))
+        if (!other.CompareTag("Trash")) return;
+
+        Destroy(other.gameObject);
+        // Was "M2Manager.Instance.score += score", which raised the total but never refreshed the
+        // HUD, so binning trash looked like it did nothing.
+        if (M2Manager.Instance != null)
         {
-            Destroy(other.gameObject);
-            M2Manager.Instance.score += score;
-            Debug.Log("Trash collected!");
+            M2Manager.Instance.UpdateScore(score);
+            M2Manager.Instance.NoteTrashBinned();
         }
+        Debug.Log("Trash collected!");
     }
 }

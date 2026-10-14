@@ -108,6 +108,7 @@ MonoBehaviour:
   BaseSpeed: 10
   Speed: 0
   isleft: 0
+  DeathMessage: Hit By Car
 --- !u!82 &1056565930225717058
 AudioSource:
   m_ObjectHideFlags: 0

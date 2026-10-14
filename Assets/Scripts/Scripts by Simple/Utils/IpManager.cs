@@ -66,7 +66,7 @@ public class IpManager : MonoBehaviour
         if (ready) {
             PlayerPrefs.SetString("IP", playerTextOutput.text);
             PlayerPrefs.Save();
-            SceneManager.LoadScene("Startup Menu");
+            SceneManager.LoadScene("Startup Menu_New");
         }
     }
 
@@ -74,7 +74,7 @@ public class IpManager : MonoBehaviour
 
         if (ready)
         {
-            SceneManager.LoadScene("Startup Menu");
+            SceneManager.LoadScene("Startup Menu_New");
         }
     }
     

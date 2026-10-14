@@ -104,6 +104,8 @@ GameObject:
   - component: {fileID: 3830661947699326526}
   - component: {fileID: 7187674528715032232}
   - component: {fileID: 4971576150492358720}
+  - component: {fileID: 3551148195525051081}
+  - component: {fileID: 2651333841638130617}
   m_Layer: 0
   m_Name: PF_TireWithWater
   m_TagString: Untagged
@@ -221,3 +223,33 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.21
   m_Center: {x: -0.00000011920929, y: 0.13063118, z: 0}
+--- !u!114 &3551148195525051081
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6610576867503992908}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b41e164b10da24295716e3657fbda2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractableObject
+--- !u!114 &2651333841638130617
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6610576867503992908}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 10
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
