@@ -15,37 +15,42 @@ public class MenuController : MonoBehaviour
 
     public void Start()
     {
+        // A menu may hide the IP text, the middleware toggle or the player id (Module 1's
+        // Startup Menu_New has all three switched off). FindGameObjectWithTag skips inactive
+        // objects, so each one can be missing; the IP and middleware defaults are still set.
+        textMP = Tagged<TextMeshProUGUI>("textIP");
+        m_Toggle = Tagged<Toggle>("useMiddleWare");
+        TextMeshProUGUI textPN = Tagged<TextMeshProUGUI>("textPN");
+        if (textPN != null) textPN.text = "Player id: " + StaticInformation.getId();
 
-        textMP = GameObject.FindGameObjectWithTag("textIP").GetComponent<TextMeshProUGUI>();
-        m_Toggle = GameObject.FindGameObjectWithTag("useMiddleWare").GetComponent<Toggle>();
-        GameObject ob = GameObject.FindGameObjectWithTag("textPN");
-        TextMeshProUGUI textPN = ob.GetComponent<TextMeshProUGUI>();
-        textPN.text = "Player id: " + StaticInformation.getId();
-       
         if (!PlayerPrefs.HasKey("MIDDLEWARE") || PlayerPrefs.GetString("MIDDLEWARE").Length == 0)
             PlayerPrefs.SetString("MIDDLEWARE", "N");
         useMiddleWare = PlayerPrefs.GetString("MIDDLEWARE").Equals("Y");
-        m_Toggle.SetIsOnWithoutNotify(useMiddleWare);
+        if (m_Toggle != null) m_Toggle.SetIsOnWithoutNotify(useMiddleWare);
 
         string port = useMiddleWare ? portWithMiddleware : portWithoutMiddleware;
-       
+
         string ip = PlayerPrefs.GetString("IP");
         if (ip.Length == 0)
         {
             ip = host;
             PlayerPrefs.SetString("IP", ip);
         }
-        textMP.text = "Current IP: " + ip + "/" + port;
+        if (textMP != null) textMP.text = "Current IP: " + ip + "/" + port;
+    }
 
-        
-
+    static T Tagged<T>(string tag) where T : Component
+    {
+        GameObject go = GameObject.FindGameObjectWithTag(tag);
+        return go != null ? go.GetComponent<T>() : null;
     }
 
     public void OnValueMiddleWare()
     {
+        if (m_Toggle == null) return;
         useMiddleWare = m_Toggle.isOn;
         string port = useMiddleWare ? portWithMiddleware : portWithoutMiddleware;
-        textMP.text = "Current IP: " + PlayerPrefs.GetString("IP") + ":" + port;
+        if (textMP != null) textMP.text = "Current IP: " + PlayerPrefs.GetString("IP") + ":" + port;
 
     }
     public void StartBtn()
