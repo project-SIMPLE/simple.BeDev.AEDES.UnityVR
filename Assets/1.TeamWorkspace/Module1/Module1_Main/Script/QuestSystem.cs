@@ -5,6 +5,9 @@ using UnityEngine;
 /// The four life-cycle quests: DrinkNectar -> Mating -> DrinkBlood -> LayEgg. Each one latches:
 /// once done it stays green and pays out once, even when a bar drains again later (nectar keeps
 /// draining, and laying eggs spends the blood).
+///
+/// Laying the full clutch of <see cref="EggsToLay"/> eggs is the win: it ends the run
+/// (GameManager.Victory).
 /// </summary>
 public class QuestSystem : MonoBehaviour
 {
@@ -74,6 +77,7 @@ public class QuestSystem : MonoBehaviour
                 if (i == 3 && !l)
                 {
                     l = true;
+                    GameManager.instance.Victory();
                 }
             }
             Quest_Text[i].text = (Done(i) ? "<color=\"green\">" : "<color=\"red\">") + QuestList[i] + "</color>";

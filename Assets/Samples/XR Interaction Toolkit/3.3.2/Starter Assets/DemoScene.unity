@@ -13,7 +13,11 @@ OcclusionCullingSettings:
 --- !u!104 &2
 RenderSettings:
   m_ObjectHideFlags: 0
+<<<<<<< HEAD
   serializedVersion: 10
+=======
+  serializedVersion: 9
+>>>>>>> e572707 (work iin pprogress)
   m_Fog: 0
   m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   m_FogMode: 3
@@ -42,8 +46,13 @@ RenderSettings:
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
+<<<<<<< HEAD
   serializedVersion: 13
   m_BakeOnSceneLoad: 0
+=======
+  serializedVersion: 12
+  m_GIWorkflowMode: 1
+>>>>>>> e572707 (work iin pprogress)
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -66,6 +75,12 @@ LightmapSettings:
     m_LightmapParameters: {fileID: 0}
     m_LightmapsBakeMode: 1
     m_TextureCompression: 1
+<<<<<<< HEAD
+=======
+    m_FinalGather: 0
+    m_FinalGatherFiltering: 1
+    m_FinalGatherRayCount: 256
+>>>>>>> e572707 (work iin pprogress)
     m_ReflectionCompression: 2
     m_MixedBakeMode: 2
     m_BakeBackend: 1
@@ -93,14 +108,22 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
+<<<<<<< HEAD
   m_LightingDataAsset: {fileID: 20201, guid: 0000000000000000f000000000000000, type: 0}
+=======
+  m_LightingDataAsset: {fileID: 112000000, guid: 8938f010b6d8ddb4aa5a1bee57205791, type: 2}
+>>>>>>> e572707 (work iin pprogress)
   m_LightingSettings: {fileID: 0}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
   m_ObjectHideFlags: 0
   m_BuildSettings:
+<<<<<<< HEAD
     serializedVersion: 3
+=======
+    serializedVersion: 2
+>>>>>>> e572707 (work iin pprogress)
     agentTypeID: 0
     agentRadius: 0.5
     agentHeight: 2
@@ -113,7 +136,11 @@ NavMeshSettings:
     cellSize: 0.16666667
     manualTileSize: 0
     tileSize: 256
+<<<<<<< HEAD
     buildHeightMesh: 0
+=======
+    accuratePlacement: 0
+>>>>>>> e572707 (work iin pprogress)
     maxJobWorkers: 0
     preserveTilesOutsideBounds: 0
     debug:
@@ -241,6 +268,10 @@ RectTransform:
   m_Children:
   - {fileID: 1247873231}
   m_Father: {fileID: 788111585}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
@@ -317,6 +348,10 @@ RectTransform:
   m_Children:
   - {fileID: 421848384}
   m_Father: {fileID: 788111585}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 1
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
@@ -366,7 +401,10 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+<<<<<<< HEAD
     serializedVersion: 3
+=======
+>>>>>>> e572707 (work iin pprogress)
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1565887663814566040, guid: 3e07eccb5e6f459d886de95044adb1d9, type: 3}
@@ -418,12 +456,21 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD:Assets/Samples/XR Interaction Toolkit/3.3.0/Starter Assets/DemoScene.unity
+=======
+>>>>>>> e572707 (work iin pprogress)
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 1565887663814566041, guid: 3e07eccb5e6f459d886de95044adb1d9, type: 3}
       insertIndex: -1
       addedObject: {fileID: 413882344}
     m_AddedComponents: []
+<<<<<<< HEAD
+=======
+>>>>>>> 5dea0a8 (Update Module 2:):Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/DemoScene.unity
+>>>>>>> e572707 (work iin pprogress)
   m_SourcePrefab: {fileID: 100100000, guid: 3e07eccb5e6f459d886de95044adb1d9, type: 3}
 --- !u!4 &208985961 stripped
 Transform:
@@ -457,6 +504,7 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 235184210}
   m_Material: {fileID: 0}
+<<<<<<< HEAD
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -468,6 +516,11 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
+=======
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+>>>>>>> e572707 (work iin pprogress)
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &235184212
@@ -487,11 +540,14 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+<<<<<<< HEAD
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
   m_ForceMeshLod: -1
   m_MeshLodSelectionBias: 0
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -513,11 +569,17 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+<<<<<<< HEAD
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
+=======
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!33 &235184213
 MeshFilter:
@@ -534,13 +596,20 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 235184210}
+<<<<<<< HEAD
   serializedVersion: 2
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 4, y: 0.625, z: -2.5}
   m_LocalScale: {x: 0.4, y: 1, z: 1.85}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 439588100}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 2
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &300194563
 GameObject:
@@ -717,6 +786,10 @@ RectTransform:
   m_Children:
   - {fileID: 196977305468683333}
   m_Father: {fileID: 604367606304239380}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 1
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
@@ -908,7 +981,10 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+<<<<<<< HEAD
     serializedVersion: 3
+=======
+>>>>>>> e572707 (work iin pprogress)
     m_TransformParent: {fileID: 208985961}
     m_Modifications:
     - target: {fileID: 268508938848858109, guid: 037ba65d346be2a48ad006b9a9a3873e, type: 3}
@@ -960,9 +1036,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+<<<<<<< HEAD
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_SourcePrefab: {fileID: 100100000, guid: 037ba65d346be2a48ad006b9a9a3873e, type: 3}
 --- !u!1 &421848383
 GameObject:
@@ -996,6 +1075,10 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 157733529}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -1081,7 +1164,10 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 439588099}
+<<<<<<< HEAD
   serializedVersion: 2
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -1098,13 +1184,20 @@ Transform:
   - {fileID: 1916378494740788999}
   - {fileID: 1917198434}
   m_Father: {fileID: 0}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 3
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &491722061
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+<<<<<<< HEAD
     serializedVersion: 3
+=======
+>>>>>>> e572707 (work iin pprogress)
     m_TransformParent: {fileID: 1139632663260518045}
     m_Modifications:
     - target: {fileID: 3774509235512974894, guid: 6b12f432fa58c224baf0d659706362be, type: 3}
@@ -1164,9 +1257,12 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 7995632351462671356}
     m_RemovedComponents: []
+<<<<<<< HEAD
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_SourcePrefab: {fileID: 100100000, guid: 6b12f432fa58c224baf0d659706362be, type: 3}
 --- !u!4 &491722062 stripped
 Transform:
@@ -1253,7 +1349,10 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+<<<<<<< HEAD
     serializedVersion: 3
+=======
+>>>>>>> e572707 (work iin pprogress)
     m_TransformParent: {fileID: 8588015448644617696}
     m_Modifications:
     - target: {fileID: 3774509235512974894, guid: 6b12f432fa58c224baf0d659706362be, type: 3}
@@ -1313,9 +1412,12 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1587582712625565825}
     m_RemovedComponents: []
+<<<<<<< HEAD
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_SourcePrefab: {fileID: 100100000, guid: 6b12f432fa58c224baf0d659706362be, type: 3}
 --- !u!4 &546959461 stripped
 Transform:
@@ -1354,6 +1456,10 @@ RectTransform:
   m_Children:
   - {fileID: 1021619524}
   m_Father: {fileID: 604367606304239380}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 3
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
@@ -1511,6 +1617,10 @@ RectTransform:
   - {fileID: 1740969851}
   - {fileID: 1807497890}
   m_Father: {fileID: 439588100}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 5
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -1595,7 +1705,10 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
+<<<<<<< HEAD
   m_UpdateRectTransformForStandalone: 0
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -1845,6 +1958,10 @@ RectTransform:
   m_Children:
   - {fileID: 1522956427}
   m_Father: {fileID: 604367606304239380}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 2
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
@@ -1894,7 +2011,10 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+<<<<<<< HEAD
     serializedVersion: 3
+=======
+>>>>>>> e572707 (work iin pprogress)
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 732877344778758187, guid: fd28f23af44f73f4a95e33435872ad15, type: 3}
@@ -2494,9 +2614,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+<<<<<<< HEAD
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_SourcePrefab: {fileID: 100100000, guid: fd28f23af44f73f4a95e33435872ad15, type: 3}
 --- !u!1 &928638470
 GameObject:
@@ -2605,6 +2728,10 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1807497890}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -2699,6 +2826,10 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 564796392}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -2895,6 +3026,10 @@ RectTransform:
   m_Children:
   - {fileID: 196977306215183538}
   m_Father: {fileID: 604367606304239380}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
@@ -3123,6 +3258,10 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 144254103}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -3312,6 +3451,10 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1740969851}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -3379,7 +3522,10 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+<<<<<<< HEAD
     serializedVersion: 3
+=======
+>>>>>>> e572707 (work iin pprogress)
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1060243933316379515, guid: 6821e1b7f44d8c44b8a2ba02f37309d5, type: 3}
@@ -3431,9 +3577,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+<<<<<<< HEAD
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_SourcePrefab: {fileID: 100100000, guid: 6821e1b7f44d8c44b8a2ba02f37309d5, type: 3}
 --- !u!1 &1522956426
 GameObject:
@@ -3467,6 +3616,10 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 874919885}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -3557,13 +3710,20 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1579013952}
+<<<<<<< HEAD
   serializedVersion: 2
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
   m_LocalPosition: {x: -1.5, y: 0.625, z: -4.5}
   m_LocalScale: {x: 0.4, y: 1, z: 1.85}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 439588100}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 6
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!65 &1579013954
 BoxCollider:
@@ -3573,6 +3733,7 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1579013952}
   m_Material: {fileID: 0}
+<<<<<<< HEAD
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -3584,6 +3745,11 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
+=======
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+>>>>>>> e572707 (work iin pprogress)
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1579013955
@@ -3603,11 +3769,14 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+<<<<<<< HEAD
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
   m_ForceMeshLod: -1
   m_MeshLodSelectionBias: 0
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -3629,11 +3798,17 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+<<<<<<< HEAD
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
+=======
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!33 &1579013956
 MeshFilter:
@@ -3690,6 +3865,10 @@ RectTransform:
   m_Children:
   - {fileID: 1743632700}
   m_Father: {fileID: 1917198434}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
@@ -3783,7 +3962,10 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+<<<<<<< HEAD
     serializedVersion: 3
+=======
+>>>>>>> e572707 (work iin pprogress)
     m_TransformParent: {fileID: 1139632664875193153}
     m_Modifications:
     - target: {fileID: 3774509235512974894, guid: 6b12f432fa58c224baf0d659706362be, type: 3}
@@ -3843,9 +4025,12 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 7995632350930126368}
     m_RemovedComponents: []
+<<<<<<< HEAD
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_SourcePrefab: {fileID: 100100000, guid: 6b12f432fa58c224baf0d659706362be, type: 3}
 --- !u!4 &1627520197 stripped
 Transform:
@@ -3889,6 +4074,10 @@ RectTransform:
   m_Children:
   - {fileID: 1486677402}
   m_Father: {fileID: 788111585}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 2
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
@@ -3964,6 +4153,10 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1589715510}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -4097,6 +4290,10 @@ RectTransform:
   m_Children:
   - {fileID: 967567312}
   m_Father: {fileID: 788111585}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 3
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
@@ -4243,14 +4440,24 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1815318735}
   m_Enabled: 1
+<<<<<<< HEAD
   serializedVersion: 12
   m_Type: 1
+=======
+  serializedVersion: 10
+  m_Type: 1
+  m_Shape: 0
+>>>>>>> e572707 (work iin pprogress)
   m_Color: {r: 1, g: 0.9450981, b: 0.85098046, a: 1}
   m_Intensity: 0.95
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
+<<<<<<< HEAD
   m_CookieSize2D: {x: 10, y: 10}
+=======
+  m_CookieSize: 10
+>>>>>>> e572707 (work iin pprogress)
   m_Shadows:
     m_Type: 2
     m_Resolution: -1
@@ -4294,12 +4501,17 @@ Light:
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
+<<<<<<< HEAD
   m_ForceVisible: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
+=======
+  m_ShadowRadius: 0
+  m_ShadowAngle: 0
+>>>>>>> e572707 (work iin pprogress)
 --- !u!4 &1815318737
 Transform:
   m_ObjectHideFlags: 0
@@ -4307,14 +4519,24 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1815318735}
+<<<<<<< HEAD
   serializedVersion: 2
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 439588100}
+<<<<<<< HEAD
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+=======
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+<<<<<<< HEAD:Assets/Samples/XR Interaction Toolkit/3.3.0/Starter Assets/DemoScene.unity
+=======
+>>>>>>> e572707 (work iin pprogress)
 --- !u!114 &1815318738
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4344,6 +4566,10 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
+<<<<<<< HEAD
+=======
+>>>>>>> 5dea0a8 (Update Module 2:):Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/DemoScene.unity
+>>>>>>> e572707 (work iin pprogress)
 --- !u!1 &1917198433
 GameObject:
   m_ObjectHideFlags: 0
@@ -4378,6 +4604,10 @@ RectTransform:
   m_Children:
   - {fileID: 1589715510}
   m_Father: {fileID: 439588100}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 9
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -4462,7 +4692,10 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
+<<<<<<< HEAD
   m_UpdateRectTransformForStandalone: 0
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -4492,13 +4725,20 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1959883322}
+<<<<<<< HEAD
   serializedVersion: 2
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_LocalRotation: {x: -0, y: 0.00000035762784, z: -0, w: 1}
   m_LocalPosition: {x: 4, y: 0.625, z: 2}
   m_LocalScale: {x: 0.4, y: 1, z: 1.85}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 439588100}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 7
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &1959883324
 BoxCollider:
@@ -4508,6 +4748,7 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1959883322}
   m_Material: {fileID: 0}
+<<<<<<< HEAD
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -4519,6 +4760,11 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
+=======
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+>>>>>>> e572707 (work iin pprogress)
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1959883325
@@ -4538,11 +4784,14 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+<<<<<<< HEAD
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
   m_ForceMeshLod: -1
   m_MeshLodSelectionBias: 0
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -4564,11 +4813,17 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+<<<<<<< HEAD
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
+=======
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!33 &1959883326
 MeshFilter:
@@ -5023,6 +5278,10 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 336426668}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -5082,6 +5341,10 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1202312659}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -5255,6 +5518,10 @@ RectTransform:
   - {fileID: 874919885}
   - {fileID: 564796392}
   m_Father: {fileID: 439588100}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 1
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -5280,7 +5547,10 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
+<<<<<<< HEAD
   m_UpdateRectTransformForStandalone: 0
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -5353,7 +5623,10 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+<<<<<<< HEAD
     serializedVersion: 3
+=======
+>>>>>>> e572707 (work iin pprogress)
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 670559718997833774, guid: 88246f8e9c3765d49be8da34eca3c630, type: 3}
@@ -5405,9 +5678,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+<<<<<<< HEAD
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_SourcePrefab: {fileID: 100100000, guid: 88246f8e9c3765d49be8da34eca3c630, type: 3}
 --- !u!33 &779980651013948996
 MeshFilter:
@@ -5453,7 +5729,10 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+<<<<<<< HEAD
     serializedVersion: 3
+=======
+>>>>>>> e572707 (work iin pprogress)
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 177564888636506461, guid: f5ee409d69254d64da7a3b74d31a5a40, type: 3}
@@ -5545,9 +5824,12 @@ PrefabInstance:
       value: -4.439
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+<<<<<<< HEAD
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_SourcePrefab: {fileID: 100100000, guid: f5ee409d69254d64da7a3b74d31a5a40, type: 3}
 --- !u!4 &1139632663260518045
 Transform:
@@ -5556,7 +5838,10 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2314411796325179382}
+<<<<<<< HEAD
   serializedVersion: 2
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0.5, y: 0.58, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
@@ -5564,6 +5849,10 @@ Transform:
   m_Children:
   - {fileID: 491722062}
   m_Father: {fileID: 5425234947219307409}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 3
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1139632664875193153
 Transform:
@@ -5572,7 +5861,10 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2314411796857723434}
+<<<<<<< HEAD
   serializedVersion: 2
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0.58, z: 0}
   m_LocalScale: {x: 0.2, y: 0.1, z: 0.2}
@@ -5580,6 +5872,10 @@ Transform:
   m_Children:
   - {fileID: 1627520197}
   m_Father: {fileID: 5425234947219307409}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 2
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1151741637178562996
 MonoBehaviour:
@@ -5740,7 +6036,10 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+<<<<<<< HEAD
     serializedVersion: 3
+=======
+>>>>>>> e572707 (work iin pprogress)
     m_TransformParent: {fileID: 5425234947219307409}
     m_Modifications:
     - target: {fileID: 6684695113594104824, guid: 4f7b6e4d9c721834e97d07d4cd95bf74, type: 3}
@@ -5756,11 +6055,19 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6684695113594104826, guid: 4f7b6e4d9c721834e97d07d4cd95bf74, type: 3}
+<<<<<<< HEAD
       propertyPath: 'm_GameObjectsToToggle.Array.data[0]'
       value: 
       objectReference: {fileID: 1196330705}
     - target: {fileID: 6684695113594104826, guid: 4f7b6e4d9c721834e97d07d4cd95bf74, type: 3}
       propertyPath: 'm_GameObjectsToToggle.Array.data[1]'
+=======
+      propertyPath: m_GameObjectsToToggle.Array.data[0]
+      value: 
+      objectReference: {fileID: 1196330705}
+    - target: {fileID: 6684695113594104826, guid: 4f7b6e4d9c721834e97d07d4cd95bf74, type: 3}
+      propertyPath: m_GameObjectsToToggle.Array.data[1]
+>>>>>>> e572707 (work iin pprogress)
       value: 
       objectReference: {fileID: 1196330704}
     - target: {fileID: 6684695113594104827, guid: 4f7b6e4d9c721834e97d07d4cd95bf74, type: 3}
@@ -5808,9 +6115,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+<<<<<<< HEAD
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_SourcePrefab: {fileID: 100100000, guid: 4f7b6e4d9c721834e97d07d4cd95bf74, type: 3}
 --- !u!1 &1916378493204061992
 GameObject:
@@ -5843,6 +6153,10 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1916378494239535985}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -5926,6 +6240,10 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1916378493546152093}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -6055,6 +6373,10 @@ RectTransform:
   m_Children:
   - {fileID: 1916378493434573436}
   m_Father: {fileID: 1916378494740788999}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 2
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
@@ -6083,6 +6405,10 @@ RectTransform:
   m_Children:
   - {fileID: 1916378495062814774}
   m_Father: {fileID: 1916378494740788999}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 3
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
@@ -6169,6 +6495,10 @@ RectTransform:
   m_Children:
   - {fileID: 1916378493204061993}
   m_Father: {fileID: 1916378494740788999}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
@@ -6283,6 +6613,10 @@ RectTransform:
   m_Children:
   - {fileID: 1916378494534005414}
   m_Father: {fileID: 1916378494740788999}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 1
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
@@ -6324,6 +6658,10 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1916378494261495167}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -6402,7 +6740,10 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
+<<<<<<< HEAD
   m_UpdateRectTransformForStandalone: 0
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -6502,6 +6843,10 @@ RectTransform:
   - {fileID: 1916378493546152093}
   - {fileID: 1916378493755419972}
   m_Father: {fileID: 439588100}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 8
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -6562,6 +6907,10 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1916378493755419972}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -6936,7 +7285,10 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+<<<<<<< HEAD
     serializedVersion: 3
+=======
+>>>>>>> e572707 (work iin pprogress)
     m_TransformParent: {fileID: 9014170783777442264}
     m_Modifications:
     - target: {fileID: 8429981633443581377, guid: 6c8af5c8012f01440af6cb2bc3eb987c, type: 3}
@@ -7248,10 +7600,16 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+<<<<<<< HEAD
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6c8af5c8012f01440af6cb2bc3eb987c, type: 3}
+=======
+  m_SourcePrefab: {fileID: 100100000, guid: 6c8af5c8012f01440af6cb2bc3eb987c, type: 3}
+<<<<<<< HEAD:Assets/Samples/XR Interaction Toolkit/3.3.0/Starter Assets/DemoScene.unity
+=======
+>>>>>>> e572707 (work iin pprogress)
 --- !u!1 &2285893100219490789
 GameObject:
   m_ObjectHideFlags: 0
@@ -7269,6 +7627,10 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+<<<<<<< HEAD
+=======
+>>>>>>> 5dea0a8 (Update Module 2:):Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/DemoScene.unity
+>>>>>>> e572707 (work iin pprogress)
 --- !u!135 &2314411796325179377
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -7277,6 +7639,7 @@ SphereCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2314411796325179382}
   m_Material: {fileID: 0}
+<<<<<<< HEAD
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -7288,6 +7651,11 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
+=======
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+>>>>>>> e572707 (work iin pprogress)
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2314411796325179382
@@ -7639,13 +8007,20 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3127728407676174909}
+<<<<<<< HEAD
   serializedVersion: 2
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 1
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3127728407676174909
 GameObject:
@@ -7743,13 +8118,20 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3127728408198131880}
+<<<<<<< HEAD
   serializedVersion: 2
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 2
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3312294332690663925
 MonoBehaviour:
@@ -8125,6 +8507,10 @@ RectTransform:
   m_Children:
   - {fileID: 3807310296080488667}
   m_Father: {fileID: 3807310296116640662}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 2
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
@@ -8153,6 +8539,10 @@ RectTransform:
   m_Children:
   - {fileID: 3807310295681469693}
   m_Father: {fileID: 3807310296116640662}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 3
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
@@ -8242,6 +8632,10 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3807310296483843619}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -8371,6 +8765,10 @@ RectTransform:
   m_Children:
   - {fileID: 3807310295959509738}
   m_Father: {fileID: 3807310296116640662}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
@@ -8465,6 +8863,10 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3807310295319535100}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -8492,6 +8894,10 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3807310295488059791}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -8638,6 +9044,10 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3807310294900035023}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -8663,7 +9073,10 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
+<<<<<<< HEAD
   m_UpdateRectTransformForStandalone: 0
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -8724,6 +9137,10 @@ RectTransform:
   - {fileID: 3807310294900035023}
   - {fileID: 3807310295319535100}
   m_Father: {fileID: 439588100}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 3
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -8839,6 +9256,10 @@ RectTransform:
   m_Children:
   - {fileID: 3807310295418403516}
   m_Father: {fileID: 3807310296116640662}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 1
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
@@ -8850,6 +9271,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+<<<<<<< HEAD
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
@@ -8859,6 +9281,16 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 842f1b88643f1bb458ba6243088e344e, type: 2}
     - target: {fileID: 3953970342014523578, guid: 2ea572d587ee60f44bd5baa3bc2d6503, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
+=======
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 566908114440589555, guid: 2ea572d587ee60f44bd5baa3bc2d6503, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 842f1b88643f1bb458ba6243088e344e, type: 2}
+    - target: {fileID: 3953970342014523578, guid: 2ea572d587ee60f44bd5baa3bc2d6503, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+>>>>>>> e572707 (work iin pprogress)
       value: 
       objectReference: {fileID: 2100000, guid: fc226930e8fad4c499969204cecfbc05, type: 2}
     - target: {fileID: 3953970342314940649, guid: 2ea572d587ee60f44bd5baa3bc2d6503, type: 3}
@@ -8910,6 +9342,7 @@ PrefabInstance:
       value: Climb Sample
       objectReference: {fileID: 0}
     - target: {fileID: 4216385758722005817, guid: 2ea572d587ee60f44bd5baa3bc2d6503, type: 3}
+<<<<<<< HEAD
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 842f1b88643f1bb458ba6243088e344e, type: 2}
@@ -8921,6 +9354,16 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
+=======
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 842f1b88643f1bb458ba6243088e344e, type: 2}
+    - target: {fileID: 7810350561350330887, guid: 2ea572d587ee60f44bd5baa3bc2d6503, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 842f1b88643f1bb458ba6243088e344e, type: 2}
+    m_RemovedComponents: []
+>>>>>>> e572707 (work iin pprogress)
   m_SourcePrefab: {fileID: 100100000, guid: 2ea572d587ee60f44bd5baa3bc2d6503, type: 3}
 --- !u!23 &4003532202278197727
 MeshRenderer:
@@ -8939,11 +9382,14 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+<<<<<<< HEAD
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
   m_ForceMeshLod: -1
   m_MeshLodSelectionBias: 0
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -8965,11 +9411,17 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+<<<<<<< HEAD
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
+=======
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!23 &4003532203893136387
 MeshRenderer:
@@ -8988,11 +9440,14 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+<<<<<<< HEAD
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
   m_ForceMeshLod: -1
   m_MeshLodSelectionBias: 0
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -9014,11 +9469,17 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+<<<<<<< HEAD
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
+=======
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!223 &4048699171957837738
 Canvas:
@@ -9119,11 +9580,14 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+<<<<<<< HEAD
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
   m_ForceMeshLod: -1
   m_MeshLodSelectionBias: 0
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -9145,11 +9609,17 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+<<<<<<< HEAD
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
+=======
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!33 &4581292472285887093
 MeshFilter:
@@ -9166,13 +9636,20 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4581292472285887089}
+<<<<<<< HEAD
   serializedVersion: 2
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
   m_LocalPosition: {x: 1.5, y: 0.625, z: -4.4199996}
   m_LocalScale: {x: 0.40000004, y: 1, z: 1.85}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 439588100}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 4
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!65 &4581292472285887095
 BoxCollider:
@@ -9182,6 +9659,7 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4581292472285887089}
   m_Material: {fileID: 0}
+<<<<<<< HEAD
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -9193,6 +9671,11 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
+=======
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+>>>>>>> e572707 (work iin pprogress)
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &4599554522994798086
@@ -9426,6 +9909,7 @@ MeshCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2314411796857723434}
   m_Material: {fileID: 0}
+<<<<<<< HEAD
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -9437,6 +9921,11 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
+=======
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+>>>>>>> e572707 (work iin pprogress)
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
@@ -9747,6 +10236,10 @@ RectTransform:
   m_Children:
   - {fileID: 5425234948269570529}
   m_Father: {fileID: 5425234947629669485}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
@@ -9786,7 +10279,10 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5425234947219307414}
+<<<<<<< HEAD
   serializedVersion: 2
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_LocalRotation: {x: -0, y: -0.70710677, z: -0, w: 0.7071068}
   m_LocalPosition: {x: 3.981, y: 0.663, z: 1.987}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -9798,6 +10294,10 @@ Transform:
   - {fileID: 1139632663260518045}
   - {fileID: 5425234947629669485}
   m_Father: {fileID: 0}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 5
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
 --- !u!1 &5425234947219307414
 GameObject:
@@ -9854,7 +10354,10 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
+<<<<<<< HEAD
   m_UpdateRectTransformForStandalone: 0
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -9895,6 +10398,10 @@ RectTransform:
   m_Children:
   - {fileID: 5425234946560511361}
   m_Father: {fileID: 5425234947219307409}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 4
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -9972,11 +10479,14 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+<<<<<<< HEAD
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
   m_ForceMeshLod: -1
   m_MeshLodSelectionBias: 0
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -9998,11 +10508,17 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+<<<<<<< HEAD
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
+=======
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!4 &5425234948032954013
 Transform:
@@ -10011,13 +10527,20 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5425234948032954002}
+<<<<<<< HEAD
   serializedVersion: 2
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8588015448644617696}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &5425234948032954015
 MeshFilter:
@@ -10074,6 +10597,10 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5425234946560511361}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -10231,11 +10758,14 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+<<<<<<< HEAD
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
   m_ForceMeshLod: -1
   m_MeshLodSelectionBias: 0
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -10257,11 +10787,17 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+<<<<<<< HEAD
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
+=======
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+>>>>>>> e572707 (work iin pprogress)
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &5792050238089414993
 GameObject:
@@ -10690,6 +11226,7 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6404252905800158347}
   m_Material: {fileID: 0}
+<<<<<<< HEAD
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -10701,6 +11238,11 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
+=======
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+>>>>>>> e572707 (work iin pprogress)
   m_Size: {x: 2, y: 2, z: 2}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6404252905800158347
@@ -11631,7 +12173,10 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6404252905800158347}
+<<<<<<< HEAD
   serializedVersion: 2
+=======
+>>>>>>> e572707 (work iin pprogress)
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0.5, y: 0.58, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
@@ -11640,6 +12185,10 @@ Transform:
   - {fileID: 5425234948032954013}
   - {fileID: 546959461}
   m_Father: {fileID: 5425234947219307409}
+<<<<<<< HEAD
+=======
+  m_RootOrder: 1
+>>>>>>> e572707 (work iin pprogress)
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8607546001299706207
 MonoBehaviour:
@@ -11791,7 +12340,10 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+<<<<<<< HEAD
     serializedVersion: 3
+=======
+>>>>>>> e572707 (work iin pprogress)
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1717954561962503725, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
@@ -11847,12 +12399,21 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD:Assets/Samples/XR Interaction Toolkit/3.3.0/Starter Assets/DemoScene.unity
+=======
+>>>>>>> e572707 (work iin pprogress)
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 1767192434, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1757842449}
     m_AddedComponents: []
+<<<<<<< HEAD
+=======
+>>>>>>> 5dea0a8 (Update Module 2:):Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/DemoScene.unity
+>>>>>>> e572707 (work iin pprogress)
   m_SourcePrefab: {fileID: 100100000, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
 --- !u!4 &9014170783777442264 stripped
 Transform:
@@ -11903,6 +12464,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b1e8c997df241c1a67045eeac79b41b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD:Assets/Samples/XR Interaction Toolkit/3.3.0/Starter Assets/DemoScene.unity
+=======
+>>>>>>> e572707 (work iin pprogress)
 --- !u!1 &9066750276781100463
 GameObject:
   m_ObjectHideFlags: 0
@@ -11921,6 +12487,10 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+<<<<<<< HEAD
+=======
+>>>>>>> 5dea0a8 (Update Module 2:):Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/DemoScene.unity
+>>>>>>> e572707 (work iin pprogress)
 --- !u!114 &9108292829394508247
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11955,6 +12525,11 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: Grab Interactable Objects
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD:Assets/Samples/XR Interaction Toolkit/3.3.0/Starter Assets/DemoScene.unity
+=======
+>>>>>>> e572707 (work iin pprogress)
 --- !u!222 &9120440600288887875
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -11980,3 +12555,7 @@ SceneRoots:
   - {fileID: 3953970342977539823}
   - {fileID: 8642073949028245297}
   - {fileID: 409579338}
+<<<<<<< HEAD
+=======
+>>>>>>> 5dea0a8 (Update Module 2:):Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/DemoScene.unity
+>>>>>>> e572707 (work iin pprogress)

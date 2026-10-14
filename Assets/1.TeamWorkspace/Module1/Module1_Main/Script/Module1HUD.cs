@@ -49,6 +49,9 @@ public class Module1HUD : MonoBehaviour
 
     // The blood warning was only ever a picture with the sentence painted in (Warning2 UI.png).
     const string BloodWarningText = "ຕ້ອງການໂປຣຕີນ (ເລືອດ) ດ່ວນ!";
+    // The win (GameManager.Won) had no screen in the scene: "mission complete", built on the quest
+    // card's own title ພາລະກິດ. It replaces the time-out title on the same score card.
+    const string WinTitle = "ພາລະກິດສຳເລັດ!";
     // Fallbacks, used only if the scene object they normally come from is missing.
     const string EnergyWord = "ພະລັງງານ";          // from PlayerMain.DeathMessage "ພະລັງງານໝົດ"
     const string BloodWord = "ເລືອດ";              // from the quest "ດື່ມເລືອດ"
@@ -321,6 +324,9 @@ public class Module1HUD : MonoBehaviour
         }
         if (showTimeOut)
         {
+            string title = gm.Won ? WinTitle : timeOutTitle ?? "";
+            if (timeOutTitleText.text != title) timeOutTitleText.text = title;
+            timeOutTitleText.color = gm.Won ? doneColor : warnColor;
             timeOutValuesText.text = gm.score + "\n" + gm.DrinkNectarScore + "\n" + gm.MatingScore + "\n" + gm.DrinkBloodScore + "\n" + gm.LayEggScore;
         }
         Fade(deathGroup, showDeath);

@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35c353276a4ef450ea7fafd49ece1108, type: 3}
+  m_Name: Module1SoundBank
+  m_EditorClassIdentifier: Assembly-CSharp::Module1SoundBank
+  Ambience: {fileID: 8300000, guid: 7625d2c5bf0124ddb9a2b45665d38970, type: 3}
+  AmbienceVolume: 0.4
+  AmbienceDuringRain: 0.5
+  RainVolume: 0.15
+  RainFade: 2.5
+  MaxDistance: 20
+  FrogCroaks:
+  - {fileID: 8300000, guid: 4ea2670b7359b46fe90e5e1ad347c806, type: 3}
+  - {fileID: 8300000, guid: 689bd36131da947a7b1f63a8f3c67cb4, type: 3}
+  - {fileID: 8300000, guid: ea2b40c287de5472ba188d58e7949656, type: 3}
+  FrogVolume: 0.35
+  FrogInterval: {x: 3, y: 9}
+  DragonflyWings: {fileID: 8300000, guid: f0d42812d762240c29eaf1f76803f249, type: 3}
+  DragonflyVolume: 0.6
+  DragonflyHuntVolume: 1
+  DragonflyHuntPitch: 1.25
+  SipNectar: {fileID: 8300000, guid: ed61ec17aa11f4da9b81e7a57e900f1f, type: 3}
+  SipNectarVolume: 0.16
+  DrinkBlood: {fileID: 8300000, guid: 280c8fc942a094ae691c366ebdef46d5, type: 3}
+  DrinkBloodVolume: 0.35
+  BloodFull: {fileID: 8300000, guid: eb51cf9fa74be4974b226adf0b96b569, type: 3}
+  BloodFullVolume: 0.5
+  Mate: {fileID: 8300000, guid: 1861b2646b10b46fc956267d7caebdbc, type: 3}
+  MateVolume: 0.32
+  LayEgg: {fileID: 8300000, guid: 13513896af5f344758c40e65cdb47aa6, type: 3}
+  LayEggVolume: 0.6
+  Danger: {fileID: 8300000, guid: 491ced7f01a774a41bb189b38446ab84, type: 3}
+  DangerVolume: 0.25
+  DeathHit: {fileID: 8300000, guid: 171e876adbbcf456699b9d70714d623f, type: 3}
+  DeathHitVolume: 0.5
+  DeathSting: {fileID: 8300000, guid: 8a31298407b9045c9a1ac26c36925b17, type: 3}
+  DeathStingVolume: 0.32

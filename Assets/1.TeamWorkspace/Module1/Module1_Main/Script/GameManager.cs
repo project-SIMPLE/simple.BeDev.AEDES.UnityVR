@@ -19,12 +19,16 @@ public class GameManager : MonoBehaviour
     public GameObject[] Human;
     public WaterContainer[] waterContainers;
     public bool IsRain;
+    /// <summary>True once the whole clutch is laid: the run is won and ends there (see <see cref="Victory"/>).</summary>
+    public bool Won;
     private void Awake()
     {
         instance = this;
         waterContainers = FindObjectsOfType<WaterContainer>();
         // The in-headset HUD (Module 2 style) is built from code; it hides and mirrors the scene's PlayerUI.
         if (GetComponent<Module1HUD>() == null) gameObject.AddComponent<Module1HUD>();
+        // Ambience, creatures and feedback sounds are added from code too (clips in Resources/Module1/Module1SoundBank).
+        if (GetComponent<Module1Sounds>() == null) gameObject.AddComponent<Module1Sounds>();
     }
 
     private void Start()
@@ -120,6 +124,26 @@ public class GameManager : MonoBehaviour
         DrinkBloodUI.text = DrinkBloodScore.ToString();
         DrinkNectarUI.text = DrinkNectarScore.ToString();
         Invoke("RestartAble", 1);
+    }
+
+    /// <summary>
+    /// The player completed the life cycle and laid the full clutch. Called by QuestSystem when the
+    /// egg quest latches, so the run ends there instead of leaving the player to fly around until the
+    /// clock runs out. Shows the time-out score card (Module1HUD swaps in a win title) and, like a
+    /// time-out, the next button press goes back to the start menu rather than into a new life.
+    /// </summary>
+    public void Victory()
+    {
+        if (Won || player.Death || player.RestartAble) return;
+        Won = true;
+        CancelInvoke("Settime");
+        if (SaveManager.instance != null && SaveManager.instance.a != null)
+        {
+            // PlayerMain's restart sends a saved time of 0 to the menu.
+            SaveManager.instance.a.time = 0;
+            SaveManager.SavePlayerData(SaveManager.instance.a);
+        }
+        TimeOut();
     }
     public void RestartAble()
     {
