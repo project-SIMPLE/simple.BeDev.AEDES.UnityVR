@@ -44,6 +44,7 @@ public class M3_Player : MonoBehaviour
         }
         currentNPC.GetInstruction(r);
         currentNPC.text.gameObject.SetActive(false);
+        //currentNPC.text.transform.parent.transform.LookAt(Camera.main.transform);
         currentNPC.text.text = "Hi";
         currentNPC.outline.enabled = false;
         Movement.moveSpeed = 2.5f;

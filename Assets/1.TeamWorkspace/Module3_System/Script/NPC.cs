@@ -12,13 +12,14 @@ public class NPC : MonoBehaviour
     public int BodyTmp;
     public bool Rash, Headache, BodyAche, StomachAche, Sick, Vormit, RedEyes, Tired;
     public string voiceLine;
-
+    public GameObject OBJ;
     public bool roaming, Interacted;
     public Vector2 RoamingRange;
     public NavMeshAgent Agent;
     public Outline outline;
     public TextMeshProUGUI text;
     public M3_Player player;
+    public Animator anim;
     public enum Result
     {
         ToHospital, ToHome, Fine
@@ -27,12 +28,14 @@ public class NPC : MonoBehaviour
 
     private void Awake()
     {
+        anim.SetBool("isWalk", false);
         outline = GetComponent <Outline>();
         outline.enabled = false;
         if(roaming)
         {
             StartCoroutine(Roaming());
         }
+
         SetResult();
         SetVoiceLine();
     }
@@ -80,6 +83,7 @@ public class NPC : MonoBehaviour
     }
     public IEnumerator Roaming()
     {
+        anim.SetBool("isWalk", true);
         Agent.SetDestination(new Vector3 (UnityEngine.Random.Range(RoamingRange.x*-1, RoamingRange.x), 0, UnityEngine.Random.Range(RoamingRange.y * -1, RoamingRange.y)));
         yield return new WaitUntil(() => Agent.remainingDistance<0.5f);
         StartCoroutine(Roaming());
@@ -92,13 +96,14 @@ public class NPC : MonoBehaviour
             {
                 if (player != this)
                 {
+                    transform.LookAt(new Vector3(player.transform.position.x, transform.position.y, player.transform.position.z));
                     outline.enabled = true;
                     player.Movement.moveSpeed = 0;
                     player.NPCInteracted(this);
                     player.ConversationUI.SetActive(true);
-                    Invoke("LookatPlayer", 0);
                     StopCoroutine("Roaming");
                     Agent.isStopped = true;
+                    anim.SetBool("isWalk", false);
                     Interacted = true;
                 }
             }
@@ -110,9 +115,9 @@ public class NPC : MonoBehaviour
         Agent.isStopped = false;
         switch (r)
         {
-            case Result.ToHospital: Agent.SetDestination(M3_Manager.instance.Hospital.position); StartCoroutine(GoInside()); break;
-            case Result.ToHome: Agent.SetDestination(M3_Manager.instance.House[UnityEngine.Random.Range(0, M3_Manager.instance.House.Length)].position); StartCoroutine(GoInside()); break;
-            case Result.Fine: if(roaming) StartCoroutine(Roaming()); break;
+            case Result.ToHospital: StartCoroutine(GoInside(M3_Manager.instance.Hospital.position)); break;
+            case Result.ToHome: StartCoroutine(GoInside(M3_Manager.instance.House[UnityEngine.Random.Range(0, M3_Manager.instance.House.Length)].position)); break;
+            case Result.Fine: if(roaming) StartCoroutine(Roaming()); text.gameObject.SetActive(false); break;
         }
         if(r == result)
         {
@@ -123,21 +128,16 @@ public class NPC : MonoBehaviour
             M3_Manager.instance.setScore(-10);
         }
     }
-    public IEnumerator GoInside()
+    public IEnumerator GoInside(Vector3 pos)
     {
-        yield return new WaitUntil(()=>Agent.remainingDistance<0.5f);
-        Destroy(gameObject);
+        Agent.SetDestination(pos);
+        anim.SetBool("isWalk", true);
+        transform.localRotation = Quaternion.identity;
+        yield return new WaitUntil(()=>Agent.remainingDistance>0.5f);
+        yield return new WaitUntil(() => Agent.remainingDistance < 0.5f);
+        Destroy(OBJ);
     }
 
-    public IEnumerator LookatPlayer()
-    {
-        while (M3_Manager.instance.player.currentNPC == this) 
-        {
-            transform.LookAt(new Vector3(player.transform.position.x, transform.position.y, player.transform.position.z));
-        }
-        yield return new WaitUntil(()=>player.currentNPC!= this);
-        CancelInvoke("LookatPlayer");
-    }
     public IEnumerator ShowText(string t)
     {
         string s = null;
