@@ -2,6 +2,7 @@ using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
@@ -9,12 +10,14 @@ using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 public class NPC : MonoBehaviour
 {
-    public int BodyTmp;
+    public float BodyTmp;
     public bool Rash, Headache, BodyAche, StomachAche, Sick, Vormit, RedEyes, Tired;
     public string voiceLine;
     public GameObject OBJ;
+    public GameObject[] Char;
     public bool roaming, Interacted;
-    public Vector2 RoamingRange;
+    public Vector2 MinRoamingRange;
+    public Vector2 MaxRoamingRange;
     public NavMeshAgent Agent;
     public Outline outline;
     public TextMeshProUGUI text;
@@ -28,6 +31,7 @@ public class NPC : MonoBehaviour
 
     private void Awake()
     {
+        setSymptoms();
         anim.SetBool("isWalk", false);
         outline = GetComponent <Outline>();
         outline.enabled = false;
@@ -37,6 +41,17 @@ public class NPC : MonoBehaviour
         }
 
         SetResult();
+
+        BodyTmp = UnityEngine.Random.Range(36.0f, 39.5f);
+        OBJ.transform.position = new Vector3(UnityEngine.Random.Range(MinRoamingRange.x, MaxRoamingRange.x), 0, UnityEngine.Random.Range(MinRoamingRange.y * -1, MaxRoamingRange.y));
+        int C = UnityEngine.Random.Range(0, Char.Length);
+        for (int i = 0; i < Char.Length; i++)
+        {
+            if(i!= C)
+            {
+                Destroy(Char[i]);
+            }
+        }
         SetVoiceLine();
     }
     private void Start()
@@ -45,12 +60,12 @@ public class NPC : MonoBehaviour
     }
     public void SetResult()
     {
-        if (Rash || Headache || BodyAche || StomachAche || Sick || Vormit || RedEyes || BodyTmp > 39)
+        if (Rash || Sick || Vormit || RedEyes || BodyTmp > 39)
         {
             result = Result.ToHospital;
             return;
         }
-        else if (Tired)
+        else if (Tired || Headache || BodyAche || StomachAche)
         {
             result = Result.ToHome;
             return;
@@ -62,10 +77,11 @@ public class NPC : MonoBehaviour
     }
     public void SetVoiceLine()
     {
-        string VL = null;
-        VL = "I've been Having";
-        if (Rash || Headache || BodyAche || StomachAche || Sick || Vormit || RedEyes || Tired)
+        string VL = "My Body Temp is" + BodyTmp ;
+
+        if (Rash || Headache || BodyAche || StomachAche || Sick || Vormit || RedEyes || Tired || BodyTmp > 39)
         {
+            VL += "I've been Having";
             if (Rash) VL += (" Rash,");
             if (Headache) VL += (" Headache,");
             if (BodyAche) VL += (" BodyAche,");
@@ -77,14 +93,14 @@ public class NPC : MonoBehaviour
         }
         else
         {
-            VL = ("I'm Fine");
+            VL += ("I'm Fine");
         }
         voiceLine = VL;
     }
     public IEnumerator Roaming()
     {
         anim.SetBool("isWalk", true);
-        Agent.SetDestination(new Vector3 (UnityEngine.Random.Range(RoamingRange.x*-1, RoamingRange.x), 0, UnityEngine.Random.Range(RoamingRange.y * -1, RoamingRange.y)));
+        Agent.SetDestination(new Vector3 (UnityEngine.Random.Range(MinRoamingRange.x, MaxRoamingRange.x), 0, UnityEngine.Random.Range(MinRoamingRange.y * -1, MaxRoamingRange.y)));
         yield return new WaitUntil(() => Agent.remainingDistance<0.5f);
         StartCoroutine(Roaming());
     }
@@ -135,6 +151,7 @@ public class NPC : MonoBehaviour
         transform.localRotation = Quaternion.identity;
         yield return new WaitUntil(()=>Agent.remainingDistance>0.5f);
         yield return new WaitUntil(() => Agent.remainingDistance < 0.5f);
+        GameManager.instance.Invoke("CheckNPC", 0.5f);
         Destroy(OBJ);
     }
 
@@ -148,5 +165,29 @@ public class NPC : MonoBehaviour
             yield return new WaitForSeconds(.1f);
         }
 
+    }
+
+    public void setSymptoms()
+    {
+        for (int i = 0; i < 8; i++)
+        {
+            float r = UnityEngine.Random.Range(0, 100);
+
+            if (r <= M3_Manager.instance.SickChance)
+            {
+                print(r);
+                switch (i)
+                {
+                    case 0: Rash = true;  break;
+                    case 1: Headache = true; break;
+                    case 2: BodyAche = true; break;
+                    case 3: StomachAche = true; break;
+                    case 4: Sick = true; break;
+                    case 5: Vormit = true; break;
+                    case 6: RedEyes = true; break;
+                    case 7: Tired = true; break;
+                }
+            }
+        }
     }
 }

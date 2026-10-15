@@ -2095,19 +2095,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NPC
   BodyTmp: 99
-  Rash: 1
-  Headache: 1
-  BodyAche: 1
-  StomachAche: 1
-  Sick: 1
-  Vormit: 1
-  RedEyes: 1
-  Tired: 1
+  Rash: 0
+  Headache: 0
+  BodyAche: 0
+  StomachAche: 0
+  Sick: 0
+  Vormit: 0
+  RedEyes: 0
+  Tired: 0
   voiceLine: 
   OBJ: {fileID: 9140945684645635909}
-  roaming: 0
+  Char:
+  - {fileID: 3945228948261427193}
+  - {fileID: 3513243342003409175}
+  - {fileID: 8091647148121672265}
+  roaming: 1
   Interacted: 0
-  RoamingRange: {x: 25, y: 25}
+  MinRoamingRange: {x: 166.7, y: 312}
+  MaxRoamingRange: {x: 290, y: 385}
   Agent: {fileID: 61239699452270483}
   outline: {fileID: 0}
   text: {fileID: 1196049827270202972}
