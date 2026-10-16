@@ -85,6 +85,7 @@ public class M2Manager : MonoBehaviour
 
     [Header("Sound Setting")]
     public AudioClip bgMusic;
+    public AudioClip hurtSound;
     private AudioSource _m_MusicSource;
 
     public Module2HUD hud { get; private set; }
@@ -462,8 +463,10 @@ public class M2Manager : MonoBehaviour
         if (Time.time - _lastBiteAt < CurrentBiteGrace) return;
 
         BiteCount++;
+
         _lastBiteAt = Time.time;
         Energy = Mathf.Clamp01(Energy - Mathf.Max(energyPerBite, 0f));
+        if (hurtSound != null) AudioSource.PlayClipAtPoint(hurtSound, Camera.main.transform.position);
 
         if (hud != null) hud.OnBitten(BiteCount, BiteLimit);
 
