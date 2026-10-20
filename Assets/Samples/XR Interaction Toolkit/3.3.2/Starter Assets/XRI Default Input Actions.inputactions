@@ -1,5 +1,4 @@
 {
-    "version": 1,
     "name": "XRI Default Input Actions",
     "maps": [
         {
@@ -3396,34 +3395,6 @@
                     "action": "Spawn Object",
                     "isComposite": false,
                     "isPartOfComposite": true
-                }
-            ]
-        },
-        {
-            "name": "Phettae",
-            "id": "edf017e3-debb-4bac-b2bd-98c121b85eaa",
-            "actions": [
-                {
-                    "name": "A Button",
-                    "type": "Button",
-                    "id": "74e831e8-9746-4b8e-a3e4-971c7316dada",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                }
-            ],
-            "bindings": [
-                {
-                    "name": "",
-                    "id": "33316ea4-7465-453a-9f3d-de11b6607f7e",
-                    "path": "<XRController>{RightHand}/{PrimaryButton}",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "A Button",
-                    "isComposite": false,
-                    "isPartOfComposite": false
                 }
             ]
         }

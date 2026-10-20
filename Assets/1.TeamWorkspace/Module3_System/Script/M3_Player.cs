@@ -47,6 +47,7 @@ public class M3_Player : MonoBehaviour
         //currentNPC.text.transform.parent.transform.LookAt(Camera.main.transform);
         currentNPC.text.text = "Hi";
         currentNPC.outline.enabled = false;
+        currentNPC.Agent.enabled = true;
         Movement.moveSpeed = 2.5f;
         currentNPC = null;
         FinallizeSymptomsUI.SetActive(false);

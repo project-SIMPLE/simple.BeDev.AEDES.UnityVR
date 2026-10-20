@@ -3,14 +3,17 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net;
 using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UIElements;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 public class NPC : MonoBehaviour
 {
     public float BodyTmp;
+    public float Dis = 3;
     public bool Rash, Headache, BodyAche, StomachAche, Sick, Vormit, RedEyes, Tired;
     public string voiceLine;
     public GameObject OBJ;
@@ -40,7 +43,7 @@ public class NPC : MonoBehaviour
             StartCoroutine(Roaming());
         }
 
-        SetResult();
+
 
         BodyTmp = UnityEngine.Random.Range(36.0f, 39.5f);
         OBJ.transform.position = new Vector3(UnityEngine.Random.Range(MinRoamingRange.x, MaxRoamingRange.x), 0, UnityEngine.Random.Range(MinRoamingRange.y * -1, MaxRoamingRange.y));
@@ -52,6 +55,7 @@ public class NPC : MonoBehaviour
                 Destroy(Char[i]);
             }
         }
+        SetResult();
         SetVoiceLine();
     }
     private void Start()
@@ -73,7 +77,12 @@ public class NPC : MonoBehaviour
         else
         {
             result = Result.Fine;
+            Invoke("fine", UnityEngine.Random.Range(45,90));
         }
+    }
+    public void fine()
+    {
+        StartCoroutine(GoInside(M3_Manager.instance.House[UnityEngine.Random.Range(0, M3_Manager.instance.House.Length)].position));
     }
     public void SetVoiceLine()
     {
@@ -81,7 +90,7 @@ public class NPC : MonoBehaviour
 
         if (Rash || Headache || BodyAche || StomachAche || Sick || Vormit || RedEyes || Tired || BodyTmp > 39)
         {
-            VL += "I've been Having";
+            VL += " I've been Having";
             if (Rash) VL += (" Rash,");
             if (Headache) VL += (" Headache,");
             if (BodyAche) VL += (" BodyAche,");
@@ -89,11 +98,11 @@ public class NPC : MonoBehaviour
             if (Sick) VL += (" been feeling Sick,");
             if (Vormit) VL += (" Vormit a lot,");
             if (RedEyes) VL += (" RedEyes,");
-            if (Tired) VL += (" Tired,");
+            if (Tired) VL += (" been feeling Tired,");
         }
         else
         {
-            VL += ("I'm Fine");
+            VL += (" I'm feeling well");
         }
         voiceLine = VL;
     }
@@ -110,22 +119,30 @@ public class NPC : MonoBehaviour
         {
             if (other.tag == "Player")
             {
-                if (player != this)
+                if (player.currentNPC == null)
                 {
+                    anim.SetBool("isWalk", false);
+                    Agent.enabled = true;
                     transform.LookAt(new Vector3(player.transform.position.x, transform.position.y, player.transform.position.z));
+                    text.transform.LookAt(new Vector3(player.transform.position.x, text.transform.position.y, player.transform.position.z));
                     outline.enabled = true;
                     player.Movement.moveSpeed = 0;
                     player.NPCInteracted(this);
                     player.ConversationUI.SetActive(true);
-                    StopCoroutine("Roaming");
+                    //StopCoroutine("Roaming");
+                    CreatedDis();
                     Agent.isStopped = true;
-                    anim.SetBool("isWalk", false);
                     Interacted = true;
                 }
             }
         }
     }
-
+    public void CreatedDis()
+    {
+        Vector3 pos = transform.position, tarpos = Camera.main.transform.position;
+        pos.y = 0; tarpos.y = 0;
+        OBJ.transform.position = transform.position + (pos - tarpos).normalized * Dis;
+    }
     public void GetInstruction(Result r)
     {
         Agent.isStopped = false;
@@ -175,7 +192,6 @@ public class NPC : MonoBehaviour
 
             if (r <= M3_Manager.instance.SickChance)
             {
-                print(r);
                 switch (i)
                 {
                     case 0: Rash = true;  break;

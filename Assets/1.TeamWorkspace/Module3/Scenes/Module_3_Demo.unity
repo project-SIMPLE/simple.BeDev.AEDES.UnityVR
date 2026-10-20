@@ -94,7 +94,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 112000000, guid: eb7d99d589193d647905c0af38d5c73f, type: 2}
-  m_LightingSettings: {fileID: 0}
+  m_LightingSettings: {fileID: 4890085278179872738, guid: 78151f5e58fb9f749bd5225f789faa27, type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -12679,6 +12679,9 @@ MonoBehaviour:
   primaryRightHandButton: {fileID: 0}
   player: {fileID: 1229811595}
   Ground: {fileID: 0}
+  img: {fileID: 0}
+  lastReceivedTime: 0
+  isConnected: 0
 --- !u!114 &757510181
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12706,8 +12709,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4074aba45a7d684cb4b6825524f83f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SaveManager
+  time_M: 0
+  time_S: 0
   a:
     Score: 0
+    time: 0
+    LayEggScore: 0
+    MatingScore: 0
+    DrinkBloodScore: 0
+    DrinkNectarScore: 0
 --- !u!114 &757510183
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12720,7 +12730,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44a30f7abeba01e44a89413465a66d94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::QuestSystem
+  QuestList: []
+  target: 
+  Quest_Text: []
   gm: {fileID: 757510184}
+  BloodWarning: {fileID: 0}
+  NecWarning: {fileID: 0}
 --- !u!114 &757510184
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12734,14 +12749,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   score: 0
-  time_M: 5
-  time_S: 0
+  LayEggScore: 0
+  MatingScore: 0
+  DrinkBloodScore: 0
+  DrinkNectarScore: 0
   time: 0
   Maxtime: 0
+  ScoreUI: {fileID: 0}
+  LayEggUI: {fileID: 0}
+  MatingUI: {fileID: 0}
+  DrinkBloodUI: {fileID: 0}
+  DrinkNectarUI: {fileID: 0}
+  scoretext: {fileID: 0}
+  TimeUI: {fileID: 0}
+  DeathText: {fileID: 0}
+  DangerUI: {fileID: 0}
+  DeathUI: {fileID: 0}
+  TimeOutUI: {fileID: 0}
+  questUI: {fileID: 0}
   Rain: {fileID: 117970603}
   player: {fileID: 1229811597}
   Human: []
+  waterContainers: []
   IsRain: 0
+  Won: 0
 --- !u!4 &757510185
 Transform:
   m_ObjectHideFlags: 0
@@ -15983,6 +16014,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27aa986be7d0bd14c927372bf55851db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Drink
+  player: {fileID: 0}
 --- !u!136 &1016043293
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -18630,13 +18662,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d9e8a4a066d7204b88fcc073e121669, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  BloodBar: {fileID: 0}
+  NectarBar: {fileID: 0}
   rb: {fileID: 0}
+  LayEggparti: {fileID: 0}
+  MateParti: {fileID: 0}
+  DrinkBloodParti: {fileID: 0}
+  DrinknectarParti: {fileID: 0}
   mainCamera: {fileID: 1207924242}
   CamRot: {fileID: 1782006729}
   termalcam: {fileID: 1641197991}
+  ui: {fileID: 0}
   Speed: 2.5
   FlyUpSpeed: 1.5
   CamRotSpeed: 1
+  PitchInfluence: 1
+  PitchDeadZone: 6
+  SkinWidth: 0.01
+  FallThroughY: -3
+  InteractionRange: 0.5
+  TouchRange: 0.2
+  InteractionAngle: 80
+  FeedingReachBonus: 0.3
+  PrimaryBufferTime: 0.3
   Current_Blood: 0
   Max_Blood: 10
   Current_Nec: 0
@@ -18656,10 +18704,18 @@ MonoBehaviour:
   isMate: 0
   Death: 0
   RestartAble: 0
+  ishungry: 0
+  testClick: 0
   EggLayed: 0
+  DeathMessage: 
   L_moveInput: {x: 0, y: 0}
   R_moveInput: {x: 0, y: 0}
   sr: {fileID: 0}
+  WC: []
+  SpawnSafeDistance: 1
+  checkreturn: 0
+  asd: 0
+  returnValue: 0
 --- !u!136 &1229811598
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -24625,7 +24681,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   termalobj: []
+  pat: []
   TermalLayer: 6
+  Range: 0
+  Multiply: 0
+  ps: {fileID: 0}
 --- !u!114 &1641197993
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27729,7 +27789,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!108 &1918123100
 Light:
@@ -27781,7 +27841,7 @@ Light:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingLayerMask: 1
-  m_Lightmapping: 4
+  m_Lightmapping: 1
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
