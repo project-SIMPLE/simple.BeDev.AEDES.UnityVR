@@ -85,7 +85,12 @@ public class M2Manager : MonoBehaviour
 
     [Header("Sound Setting")]
     public AudioClip bgMusic;
+    public AudioClip hurtSound;
+    [Range(0f, 1f)] public float hurtVolume = 1f;
     private AudioSource _m_MusicSource;
+    // Separate from the music source: that one is turned right down (0.1) for background music, and
+    // PlayOneShot scales by the source's volume, so a bite played through it would be barely audible.
+    private AudioSource _m_SfxSource;
 
     public Module2HUD hud { get; private set; }
 
@@ -183,6 +188,9 @@ public class M2Manager : MonoBehaviour
 
         hud = GetComponent<Module2HUD>();
         _m_MusicSource = GetComponent<AudioSource>();
+        _m_SfxSource = gameObject.AddComponent<AudioSource>();
+        _m_SfxSource.playOnAwake = false;
+        _m_SfxSource.spatialBlend = 0f; // 2D: the bite is on the player, so it should not pan or fade
         if (hud == null) hud = gameObject.AddComponent<Module2HUD>();
 
         if (GetComponent<Module2Interaction>() == null) gameObject.AddComponent<Module2Interaction>();
@@ -464,6 +472,9 @@ public class M2Manager : MonoBehaviour
         BiteCount++;
         _lastBiteAt = Time.time;
         Energy = Mathf.Clamp01(Energy - Mathf.Max(energyPerBite, 0f));
+        // PlayOneShot on a source we already own: no per-bite GameObject (PlayClipAtPoint makes one each
+        // time), and no Camera.main lookup that would throw before the HUD and bite-limit check below.
+        if (hurtSound != null) _m_SfxSource.PlayOneShot(hurtSound, hurtVolume);
 
         if (hud != null) hud.OnBitten(BiteCount, BiteLimit);
 
