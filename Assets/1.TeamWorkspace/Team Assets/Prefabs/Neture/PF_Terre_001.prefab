@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3519315704691801293}
   - component: {fileID: 6220903586475591578}
   m_Layer: 0
-  m_Name: SM_Terre_001
+  m_Name: PF_Terre_001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 671718645913886429}
   serializedVersion: 2
   m_LocalRotation: {x: -0.00000003774895, y: 0, z: -0, w: 1}
-  m_LocalPosition: {x: -2, y: 0.009713578, z: -57}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.19999999, y: 0.19999999, z: 0.19999999}
   m_ConstrainProportionsScale: 0
   m_Children: []

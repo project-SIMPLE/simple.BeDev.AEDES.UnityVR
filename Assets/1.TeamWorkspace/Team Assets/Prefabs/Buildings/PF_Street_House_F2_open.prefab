@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 689248940815435720}
   - component: {fileID: 729794882082122370}
   - component: {fileID: 3267845625488382508}
+  - component: {fileID: 2068906402388663918}
   m_Layer: 0
   m_Name: Street_House_F1_Open_mash
   m_TagString: Untagged
@@ -90,6 +91,28 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &2068906402388663918
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3627645770642108373}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 7677730711708006402, guid: be396830b8c0e6e418b4d9c0cd4d7d62, type: 3}
 --- !u!1 &6063206127608256229
 GameObject:
   m_ObjectHideFlags: 0
@@ -101,6 +124,7 @@ GameObject:
   - component: {fileID: 3203392856112074380}
   - component: {fileID: 7092337472858181900}
   - component: {fileID: 6448246301843902869}
+  - component: {fileID: 6943155636717278438}
   m_Layer: 0
   m_Name: Street_House_F2_open_mash
   m_TagString: Untagged
@@ -180,6 +204,28 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &6943155636717278438
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6063206127608256229}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4574152422130714289, guid: be396830b8c0e6e418b4d9c0cd4d7d62, type: 3}
 --- !u!1 &9086907219870813405
 GameObject:
   m_ObjectHideFlags: 0
@@ -189,7 +235,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2433353041555879964}
-  - component: {fileID: 4638283104762901210}
   m_Layer: 0
   m_Name: PF_Street_House_F2_open
   m_TagString: Untagged
@@ -214,25 +259,3 @@ Transform:
   - {fileID: 3203392856112074380}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!64 &4638283104762901210
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9086907219870813405}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 0}
