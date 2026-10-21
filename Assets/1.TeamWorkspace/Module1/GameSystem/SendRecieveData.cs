@@ -53,7 +53,7 @@ public class SendRecieveData : SimulationManager
             isConnected = false;
             if (img != null) img.color = Color.red;
         }
-        if (SceneManager.GetActiveScene().buildIndex!=0)
+        if (!SaveManager.InStartScene)
         {
             if (GameManager.instance == null)
             {
@@ -68,7 +68,7 @@ public class SendRecieveData : SimulationManager
                 SendScore(69);
             }
         }
-        else if(SceneManager.GetActiveScene().buildIndex==0)
+        else
         {
             SendScore(1);
         }
