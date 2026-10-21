@@ -7,16 +7,31 @@ public class SaveManager : MonoBehaviour
     public int time_M, time_S;
     public PlayerSavedData a;
     public static SaveManager instance;
+
+    /// <summary>
+    /// Module 1's start screen. A run begins there, so that is where the save is reset. This used to
+    /// test for build index 0, which stopped meaning the start screen once the module select menu
+    /// took that slot.
+    /// </summary>
+    public const string StartScene = "Startup Menu_New";
+    public static bool InStartScene => SceneManager.GetActiveScene().name == StartScene;
+
     private void Awake()
     {
         if (instance != null && instance != this)
         {
-            Destroy(gameObject);
-            return;
+            if (!InStartScene)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            // Back at the start screen with the last run's manager still alive: the player left
+            // that run through the module menu instead of playing it out. Start a fresh one.
+            Destroy(instance.gameObject);
         }
         instance = this;
         DontDestroyOnLoad(gameObject);
-        if (SceneManager.GetActiveScene().buildIndex == 0)
+        if (InStartScene)
         {
             a.time = (time_M) * 60 + time_S;
             deleteSave();
