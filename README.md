@@ -77,24 +77,30 @@ Two committed scripts cover the whole loop. There is no separate "make an APK" s
 Unity's player build *is* the APK, written signed and ready to sideload.
 
 ```bash
-Tools/build.sh  2            # build module 2 -> build/Android/AEDES-Module2.apk
-Tools/deploy.sh 2            # install it on the attached headset and launch it
+Tools/build.sh  app            # the whole app -> build/Android/AEDES.apk
+Tools/deploy.sh app            # install it on the attached headset and launch it
 
-Tools/build-and-deploy.sh 2  # both in one command
+Tools/build-and-deploy.sh app  # both in one command
 ```
 
 ### Modules
 
-Each module is built and deployed separately for now.
+`app` is what a class should get: it starts on the **Module Select** menu
+(`Assets/1.TeamWorkspace/MainMenu/`) and contains every module in the build list. Inside a
+module, holding **B** (or **Y**) for 1.5 s returns to the menu. If the build list gets
+scrambled, **AEDES > Rebuild Module Select Scene** puts it back.
 
-| Key | Module | Scene |
+The other keys build a single module on its own, which is quicker while working on it:
+
+| Key | Contents | Scenes |
 |---|---|---|
-| `1` | Play as the mosquito | `Module_1_MainScene` |
+| `app` | Module select menu + all modules | the enabled scenes in Build Settings |
+| `1` | Play as the mosquito | `Startup Menu_New`, `Main Scene` |
 | `2` | Household vector control | `Module_2_MainScene` |
 | `tut2` | Module 2 tutorial | `Tutorial_M2` |
 
-Scenes are located by filename, so moving or renaming their folders will not break the
-scripts. Build Settings are ignored: each build contains only that module's scene.
+Single-module scenes are located by filename, so moving or renaming their folders will not
+break the scripts, and Build Settings are ignored for them.
 
 > **Only one module can be installed at a time.** They all share the application id
 > `com.unity.template.vr`, so deploying module 2 replaces module 1 on the headset.

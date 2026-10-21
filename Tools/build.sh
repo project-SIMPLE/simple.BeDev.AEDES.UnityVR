@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Build an AEDES module into a sideloadable APK.
 #
-#   Tools/build.sh <1|2|tut2> [--clean]
+#   Tools/build.sh <app|1|2|tut2> [--clean]
 #
 # The player build IS the APK - Unity writes a signed .apk directly, so there is no
 # separate packaging step.
@@ -10,7 +10,7 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/aedes-common.sh"
 
 MODULE="${1:-}"
 CLEAN=""
-[ -z "$MODULE" ] && { echo "usage: Tools/build.sh <1|2|tut2> [--clean]" >&2; usage_modules; exit 1; }
+[ -z "$MODULE" ] && { echo "usage: Tools/build.sh <app|1|2|tut2> [--clean]" >&2; usage_modules; exit 1; }
 shift
 for arg in "$@"; do
   case "$arg" in
@@ -59,7 +59,7 @@ check_result() {
 }
 
 info "Building module $MODULE"
-info "  scene:  $SCENE"
+info "  scenes: ${SCENE:-(enabled scenes in the build list)}"
 info "  output: $APK"
 [ -n "$CLEAN" ] && info "  clean build (IL2CPP recompiles from scratch - several minutes)"
 

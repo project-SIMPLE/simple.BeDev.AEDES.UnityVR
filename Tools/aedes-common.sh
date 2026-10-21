@@ -26,24 +26,17 @@ warn() { printf '\033[33mwarning:\033[0m %s\n' "$*" >&2; }
 usage_modules() {
   cat >&2 <<'USAGE'
 modules:
-  1      Module 1 - play as the mosquito   (Module_1_MainScene)
+  app    The whole app: module select menu + every module in the build list
+  1      Module 1 - play as the mosquito   (Startup Menu_New + Main Scene)
   2      Module 2 - household vector control (Module_2_MainScene)
   tut2   Module 2 tutorial                 (Tutorial_M2)
 USAGE
 }
 
-# Map a module key to its scene file. Located by filename rather than a fixed path so
-# that folder reorganisations (GameTesting -> Module1, Phettae -> Module2) do not break it.
-module_scene() {
-  local key="$1" name
-  case "$key" in
-    1)    name="Module_1_MainScene" ;;
-    2)    name="Module_2_MainScene" ;;
-    tut2) name="Tutorial_M2" ;;
-    *)    usage_modules; die "unknown module '$key'" ;;
-  esac
-
-  local matches count
+# Locate one scene by filename under the team workspace, so that folder reorganisations
+# (GameTesting -> Module1, Phettae -> Module2) do not break the scripts.
+find_scene() {
+  local name="$1" matches count
   matches="$(cd "$REPO_ROOT" && find Assets/1.TeamWorkspace -name "$name.unity" -not -path '*/_Recovery/*')"
   count="$(printf '%s' "$matches" | grep -c . || true)"
 
@@ -55,8 +48,23 @@ module_scene() {
   printf '%s\n' "$matches" | head -1
 }
 
+# Map a module key to the scenes to build, ';'-separated. Empty means "the enabled scenes in
+# the build list", which is what AedesBuild falls back to.
+module_scene() {
+  case "$1" in
+    app)  printf '\n' ;;
+    # Module 1 starts on the team's start screen and returns there when time runs out, so a
+    # Module 1 build needs both scenes.
+    1)    printf '%s;%s\n' "$(find_scene 'Startup Menu_New')" "$(find_scene 'Main Scene')" ;;
+    2)    find_scene Module_2_MainScene ;;
+    tut2) find_scene Tutorial_M2 ;;
+    *)    usage_modules; die "unknown module '$1'" ;;
+  esac
+}
+
 module_apk() {
   case "$1" in
+    app)  printf 'build/Android/AEDES.apk\n' ;;
     1)    printf 'build/Android/AEDES-Module1.apk\n' ;;
     2)    printf 'build/Android/AEDES-Module2.apk\n' ;;
     tut2) printf 'build/Android/AEDES-TutorialM2.apk\n' ;;
