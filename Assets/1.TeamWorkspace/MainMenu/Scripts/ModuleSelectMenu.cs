@@ -32,7 +32,7 @@ public class ModuleSelectMenu : MonoBehaviour
     [Tooltip("Metres in front of the player.")]
     public float distance = 2.0f;
     [Tooltip("World metres per canvas unit. The layout below is authored in millimetres.")]
-    public float canvasScale = 0.0015f;
+    public float canvasScale = 0.0013f;
     [Tooltip("Degrees the player may turn away before the menu drifts back in front of them.")]
     public float recentreAngle = 40f;
     public float recentreSpeed = 2.5f;
@@ -92,6 +92,7 @@ public class ModuleSelectMenu : MonoBehaviour
     bool launching, placed;
     float fade;
     Vector3 targetPos;
+    float placedEyeY;
     string pendingScene;
 
     // ------------------------------------------------------------------ lifecycle
@@ -109,6 +110,8 @@ public class ModuleSelectMenu : MonoBehaviour
         BuildCanvas();
         BuildFader();
         SelectFirstAvailable();
+        // Hidden until it has been put in front of a tracked head; see Place.
+        root.gameObject.SetActive(false);
     }
 
     void Update()
@@ -116,6 +119,7 @@ public class ModuleSelectMenu : MonoBehaviour
         if (!ResolveCamera()) return;
         input.Update();
         Place();
+        if (!placed) return;
 
         if (launching)
         {
@@ -232,23 +236,33 @@ public class ModuleSelectMenu : MonoBehaviour
     /// <summary>
     /// World-locked, not head-locked: a panel welded to the eyes is unpleasant to read and would
     /// make gaze selection impossible. It only drifts back once the player has turned well away.
+    ///
+    /// On a headset the first frames come before the first tracked head pose: the camera still sits
+    /// at the rig origin, which on a floor-level rig is the floor. Placing the menu then put it in
+    /// the ground with only its top edge showing. So it waits for a tracked head, and it snaps
+    /// again whenever the head height jumps (tracking starting late, a recentre, sitting down).
     /// </summary>
     void Place()
     {
+        if (!placed && !HeadReady()) return;
+
         Vector3 forward = Flatten(cam.forward);
         Vector3 wanted = cam.position + forward * distance;
         wanted.y = cam.position.y - 0.12f;
 
-        if (!placed)
+        if (!placed || Mathf.Abs(cam.position.y - placedEyeY) > HeightJump)
         {
             targetPos = wanted;
             root.position = wanted;
             root.rotation = Quaternion.LookRotation(Flatten(wanted - cam.position), Vector3.up);
+            placedEyeY = cam.position.y;
+            if (!placed) root.gameObject.SetActive(true);
             placed = true;
         }
         else if (Vector3.Angle(forward, Flatten(targetPos - cam.position)) > recentreAngle)
         {
             targetPos = wanted;
+            placedEyeY = cam.position.y;
         }
 
         float t = 1f - Mathf.Exp(-recentreSpeed * Time.unscaledDeltaTime);
@@ -259,6 +273,24 @@ public class ModuleSelectMenu : MonoBehaviour
         // The fade-out quad rides just in front of the eyes.
         faderRoot.position = cam.position + cam.forward * 0.12f;
         faderRoot.rotation = cam.rotation;
+    }
+
+    const float HeightJump = 0.3f;
+
+    /// <summary>
+    /// True once the headset reports a tracked head, or straight away when there is no headset
+    /// (editor, desktop test) and the camera never gets a pose at all.
+    /// </summary>
+    bool HeadReady()
+    {
+        var head = UnityEngine.XR.InputDevices.GetDeviceAtXRNode(UnityEngine.XR.XRNode.Head);
+        float age = Time.unscaledTime - born;
+        if (!head.isValid) return age > 0.25f;
+        // Never wait forever: if tracking is never reported, show it anyway (the height-jump snap
+        // still corrects it once a real pose arrives).
+        if (age > 3f) return true;
+        return head.TryGetFeatureValue(UnityEngine.XR.CommonUsages.isTracked, out bool tracked) && tracked
+            && cam.localPosition.sqrMagnitude > 0.0001f;
     }
 
     static Vector3 Flatten(Vector3 v)
@@ -664,7 +696,7 @@ public static class ModuleSelectText
     public const string TutorialTitle = "Module 2 - Tutorial";
     public const string GamaTitle = "GAMA / IP setup";
 
-    public const string Hint = "Look at a module, then press  A        stick to move   |   hold  B  in game to come back here";
+    public const string Hint = "Look at a module, then press  A        |        in a module, press  MENU  twice to come back here";
     public const string HintDesktop = "Arrows to move, Space to start        desktop test mode - no headset detected";
     public const string NotInBuild = "Scene missing from the build list (File > Build Profiles)";
 }

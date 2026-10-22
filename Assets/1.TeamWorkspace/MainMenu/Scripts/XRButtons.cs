@@ -22,6 +22,7 @@ public class XRButtons
     // Held this frame (either hand).
     public bool Primary { get; private set; }      // A / X
     public bool Secondary { get; private set; }    // B / Y
+    public bool Menu { get; private set; }         // the left controller's menu button
     public bool Trigger { get; private set; }
     public bool Grip { get; private set; }
     public Vector2 Stick { get; private set; }
@@ -30,6 +31,7 @@ public class XRButtons
     public bool PrimaryDown { get; private set; }
     public bool TriggerDown { get; private set; }
     public bool SecondaryDown { get; private set; }
+    public bool MenuDown { get; private set; }
 
     /// <summary>Seconds B/Y has been held, or 0 when it is up.</summary>
     public float SecondaryHeld { get; private set; }
@@ -37,7 +39,7 @@ public class XRButtons
     public bool AnyInput { get; private set; }
     public bool HasControllers => left.isValid || right.isValid;
 
-    bool primaryLast, secondaryLast, triggerLast;
+    bool primaryLast, secondaryLast, triggerLast, menuLast;
 
     /// <summary>Stick flicks, debounced into discrete steps so a held stick does not race through a list.</summary>
     public int StepX { get; private set; }
@@ -56,6 +58,7 @@ public class XRButtons
 
         Primary = Button(CommonUsages.primaryButton);
         Secondary = Button(CommonUsages.secondaryButton);
+        Menu = Button(CommonUsages.menuButton);
         Trigger = Button(CommonUsages.triggerButton);
         Grip = Button(CommonUsages.gripButton);
         Stick = Axis(CommonUsages.primary2DAxis);
@@ -66,8 +69,9 @@ public class XRButtons
 
         PrimaryDown = Primary && !primaryLast;
         SecondaryDown = Secondary && !secondaryLast;
+        MenuDown = Menu && !menuLast;
         TriggerDown = Trigger && !triggerLast;
-        primaryLast = Primary; secondaryLast = Secondary; triggerLast = Trigger;
+        primaryLast = Primary; secondaryLast = Secondary; triggerLast = Trigger; menuLast = Menu;
 
         // Capped per frame: a hitch (a scene loading, a stutter) must not turn a tap into a long hold.
         SecondaryHeld = Secondary ? SecondaryHeld + Mathf.Min(Time.unscaledDeltaTime, MaxHoldStep) : 0f;
@@ -119,13 +123,14 @@ public class XRButtons
     }
 
 #if UNITY_EDITOR
-    // Left/right arrow or A/D to move, Space/Enter to confirm, Escape as B/Y.
+    // Left/right arrow or A/D to move, Space/Enter to confirm, Escape as B/Y, M as the menu button.
     void KeyboardFallback()
     {
         var kb = UnityEngine.InputSystem.Keyboard.current;
         if (kb == null) return;
         Primary = kb.spaceKey.isPressed || kb.enterKey.isPressed;
         Secondary = kb.escapeKey.isPressed;
+        Menu = kb.mKey.isPressed;
         Trigger = kb.leftCtrlKey.isPressed;
         float x = (kb.rightArrowKey.isPressed || kb.dKey.isPressed ? 1f : 0f)
                 - (kb.leftArrowKey.isPressed || kb.aKey.isPressed ? 1f : 0f);

@@ -365,7 +365,7 @@ MonoBehaviour:
   - {fileID: 2800000, guid: 9d4aec44cae8848019e0e5b106b69e7b, type: 3}
   - {fileID: 2800000, guid: 072659c261670478192bba1df123a40f, type: 3}
   distance: 2
-  canvasScale: 0.0015
+  canvasScale: 0.0013
   recentreAngle: 40
   recentreSpeed: 2.5
   inputGrace: 0.6
