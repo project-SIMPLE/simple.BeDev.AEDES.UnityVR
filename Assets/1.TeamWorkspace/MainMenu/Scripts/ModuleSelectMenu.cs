@@ -696,7 +696,7 @@ public static class ModuleSelectText
     public const string TutorialTitle = "Module 2 - Tutorial";
     public const string GamaTitle = "GAMA / IP setup";
 
-    public const string Hint = "Look at a module, then press  A        stick to move   |   hold  B  in game to come back here";
+    public const string Hint = "Look at a module, then press  A        |        in a module, press  MENU  twice to come back here";
     public const string HintDesktop = "Arrows to move, Space to start        desktop test mode - no headset detected";
     public const string NotInBuild = "Scene missing from the build list (File > Build Profiles)";
 }
