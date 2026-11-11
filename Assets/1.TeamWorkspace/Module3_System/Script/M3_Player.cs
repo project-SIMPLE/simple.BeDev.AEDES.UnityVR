@@ -4,53 +4,20 @@ using UnityEngine.XR.Interaction.Toolkit.Locomotion.Movement;
 
 public class M3_Player : MonoBehaviour
 {
-    public ContinuousMoveProvider Movement;
-    public NPC currentNPC;
-    public GameObject ConversationUI,FinallizeSymptomsUI;
-    public void NPCInteracted(NPC npc)
+    public GameObject DiagnoseUI;
+    public M3_Pataint Current_Pataint;
+    private void OnTriggerEnter(Collider other)
     {
-        currentNPC= npc;
-        currentNPC.text.gameObject.SetActive(true);
-        currentNPC.text.text = "Hello";
-    }
-    public void Ask_How_feeling()
-    {
-        currentNPC.StartCoroutine(currentNPC.ShowText(currentNPC.voiceLine));
-        print("Talk");
-    }
-    public void FinalizeSymptoms()
-    {
-        ConversationUI.SetActive(false);
-        Invoke("SetFinallizeSymptomsUIActive",1f);
-    }
-    public void SetFinallizeSymptomsUIActive()
-    {
-        FinallizeSymptomsUI.SetActive(true);
-    }
-    public void EndConversation(int i)
-    {
-        NPC.Result r = NPC.Result.ToHospital;
-        if (i == 0)
+        if (other.gameObject.GetComponent<M3_Pataint>())
         {
-            r = NPC.Result.ToHospital;
+            DiagnoseUI.SetActive(true);
         }
-        if (i == 1)
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.GetComponent<M3_Pataint>())
         {
-            r = NPC.Result.ToHome;
+            DiagnoseUI.SetActive(false);
         }
-        if (i == 2)
-        {
-            r = NPC.Result.Fine;
-        }
-        currentNPC.GetInstruction(r);
-        currentNPC.text.gameObject.SetActive(false);
-        //currentNPC.text.transform.parent.transform.LookAt(Camera.main.transform);
-        currentNPC.text.text = "Hi";
-        currentNPC.outline.enabled = false;
-        currentNPC.Agent.enabled = true;
-        Movement.moveSpeed = 2.5f;
-        currentNPC = null;
-        FinallizeSymptomsUI.SetActive(false);
-        print(r);
     }
 }
