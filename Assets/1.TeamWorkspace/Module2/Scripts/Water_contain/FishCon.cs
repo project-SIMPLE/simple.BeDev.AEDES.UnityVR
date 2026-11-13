@@ -4,13 +4,15 @@ public class FishCon : MonoBehaviour, IBreedingSite
 {
     public GameObject fishs;
     public int scoreValue = 10;
-
+    public AudioClip effectWaterSplash;
+    
+    private AudioSource audioSource;
     private bool _hasFish = false;
 
     private void Start()
     {
         if (fishs != null) fishs.SetActive(false);
-
+        audioSource = GetComponent<AudioSource>();
         if (M2Manager.Instance != null) M2Manager.Instance.RegisterBreedingSite(this);
     }
 
@@ -33,6 +35,7 @@ public class FishCon : MonoBehaviour, IBreedingSite
 
         _hasFish = true;
         if (fishs != null) fishs.SetActive(true);
+        audioSource.PlayOneShot(effectWaterSplash);
 
         if (M2Manager.Instance != null)
         {
