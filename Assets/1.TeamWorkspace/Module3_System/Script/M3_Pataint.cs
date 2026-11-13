@@ -1,3 +1,5 @@
+using System.Collections;
+using TMPro;
 using UnityEngine;
 
 public class M3_Pataint : MonoBehaviour
@@ -6,9 +8,18 @@ public class M3_Pataint : MonoBehaviour
     public float Body_Temp;
     public GameObject Rash;
     public GameObject[] Char;
+    public bool a = false;
+    public TextMeshProUGUI GM;
     private void Start()
     {
-
+        StartCoroutine(wait());
+    }
+    public IEnumerator wait()
+    {
+        yield return new WaitUntil(()=>a);
+        GameManager.instance.score++;
+        M3_Manager.instance.watch.ScoreText.text = "Score: "+ M3_Manager.instance.Score.ToString();
+        Diagnosed();
     }
     public void Sick()
     {
@@ -19,7 +30,6 @@ public class M3_Pataint : MonoBehaviour
         }
         Char[Random.Range(0, Char.Length)].SetActive(true);
         Set_Symptom();
-        Invoke("Diagnosed", 15);
     }
     public void Set_Symptom()
     {
@@ -36,6 +46,7 @@ public class M3_Pataint : MonoBehaviour
     }
     public void Diagnosed()
     {
+
         Spreading_Manager.Instanse.Current_Patiants_Index.Add(Patiant_Index);
         gameObject.SetActive(false);
     }

@@ -8,13 +8,14 @@ public class M3_Manager : MonoBehaviour
     public M3_Watch watch;
     public static M3_Manager instance;
     public M3_Player player;
-
+    public Camera cam;
 
     public int time = 300;
     private void Awake()
     {
         instance = this;
         InvokeRepeating("Set_Time",0,1);
+        cam = Camera.main;
     }
 
     public void setScore(int score)
@@ -24,8 +25,11 @@ public class M3_Manager : MonoBehaviour
     }
     public void Set_Time()
     {
-        if(time>0)
-        time--;
-        watch.TimeText.text = time.ToString();
+        if (time > 0)
+        {
+            time--;
+            int M = time/60, N = time% 60;
+            watch.TimeText.text = "Time:"+M.ToString()+":"+N.ToString();
+        }
     }
 }

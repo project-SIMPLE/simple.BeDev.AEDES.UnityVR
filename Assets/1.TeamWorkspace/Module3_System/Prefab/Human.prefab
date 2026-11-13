@@ -3560,6 +3560,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8203585535944795276}
   - component: {fileID: 9190065405277335416}
+  - component: {fileID: 9113556985645215597}
   m_Layer: 0
   m_Name: Human
   m_TagString: Untagged
@@ -3602,6 +3603,27 @@ MonoBehaviour:
   Char:
   - {fileID: 1667174552041738137}
   - {fileID: 3341354656352019000}
+--- !u!135 &9113556985645215597
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5964707517407784158}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 6
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6001546198871237140
 GameObject:
   m_ObjectHideFlags: 0
