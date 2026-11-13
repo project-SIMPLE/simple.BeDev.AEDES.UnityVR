@@ -37,8 +37,8 @@ TagManager:
   - Ground
   - Wall
   - WorldBoarder
-  - 
-  - 
+  - Ground
+  - Minimap_UI
   - 
   - 
   - 

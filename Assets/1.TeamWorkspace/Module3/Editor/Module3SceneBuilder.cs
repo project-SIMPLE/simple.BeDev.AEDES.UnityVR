@@ -1,0 +1,232 @@
+using System.Collections.Generic;
+using Aedes.Module3.Sim;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+/// <summary>
+/// Generates the Module 3 scene from scratch.
+///
+/// The scene is a build artefact, not something anybody hand-dresses. CLAUDE.md §9 and the roadmap
+/// both name Unity YAML merges as the likeliest thing to hurt this project - Module 1's main scene
+/// is about 38,000 lines and two people editing one conflict irreconcilably. So the scene contains
+/// four root objects and nothing else; the neighbourhood is laid out at runtime by
+/// M3NeighbourhoodBuilder from the simulation's own parameters.
+///
+/// Regenerating is how you change the scene. If you find yourself dragging things into it by hand,
+/// the change probably belongs in this file instead.
+/// </summary>
+public static class Module3SceneBuilder
+{
+    public const string ScenePath = "Assets/1.TeamWorkspace/Module3/Scenes/Module_3_MainScene.unity";
+
+    private const string House = "Assets/1.TeamWorkspace/Team Assets/Prefabs/Buildings/PF_Lao_House_One_FloorV2.prefab";
+    private const string Bed = "Assets/1.TeamWorkspace/Team Assets/Prefabs/PF_Bed.prefab";
+    private const string Villager = "Assets/1.TeamWorkspace/Team Assets/Prefabs/Character/PF_CharacterV1.prefab";
+    // Purpose-built child and elder bodies (Tools/Module3/make_villagers.py, Module3VillagerPrefabs.cs).
+    private const string Characters = "Assets/1.TeamWorkspace/Team Assets/Prefabs/Character/";
+    private const string ChildA = Characters + "PF_Villager_Child_A.prefab";
+    private const string ChildB = Characters + "PF_Villager_Child_B.prefab";
+    private const string Elder = Characters + "PF_Villager_Elder.prefab";
+    private const string Container = "Assets/1.TeamWorkspace/Team Assets/Prefabs/Props/PF_Jar.prefab";
+    private const string DebugOverlay = "Assets/Resources/Prefabs/Utils/Debug Overlay.prefab";
+    private const string LaoFont =
+        "Assets/1.TeamWorkspace/Team Assets/TextMesh Pro/Fonts/Lao/Lao_SomVang SDF_Custom.asset";
+
+    [MenuItem("AEDES/Module 3/Generate Main Scene")]
+    public static void Generate()
+    {
+        var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+
+        BuildLighting();
+        BuildGround();
+        BuildManagers();
+        BuildNeighbourhood();
+        BuildPlayer();
+        BuildSquadScreens();
+
+        System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(ScenePath));
+        EditorSceneManager.SaveScene(scene, ScenePath);
+        AssetDatabase.Refresh();
+
+        RegisterInBuildSettings();
+
+        Debug.Log($"Module 3: generated {ScenePath}. The neighbourhood itself is built at runtime, "
+                  + "so this scene stays small and two people can work on the module at once.");
+    }
+
+    // -------------------------------------------------------------------------------------
+
+    private static void BuildLighting()
+    {
+        var sun = new GameObject("Directional Light");
+        var light = sun.AddComponent<Light>();
+        light.type = LightType.Directional;
+        light.intensity = 1.1f;
+        light.shadows = LightShadows.Soft;
+        sun.transform.rotation = Quaternion.Euler(48f, 150f, 0f);
+    }
+
+    private static void BuildGround()
+    {
+        // A plain plane under the lanes. Real ground art is a later job; nothing binds to this.
+        var ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        ground.name = "Ground";
+        ground.transform.localScale = new Vector3(12f, 1f, 12f);
+        ground.transform.position = new Vector3(18f, 0f, 8f);
+        ground.isStatic = true;
+    }
+
+    private static void BuildManagers()
+    {
+        var managers = new GameObject("Managers");
+
+        // Localization first: everything else reads keys through it, and it is DontDestroyOnLoad.
+        managers.AddComponent<LocalizationManager>();
+
+        // Parameters before the session, so the session starts from whatever GAMA last sent.
+        managers.AddComponent<Module3Parameters>();
+        managers.AddComponent<M3Session>();
+
+        // Only ONE SimulationManager subclass may sit on a GameObject - Unity calls Awake on
+        // disabled components too and SimulationManager.Awake assigns the static Instance, so two
+        // of them race (CLAUDE.md §10.4). Module3GamaLink is therefore NOT added here: the module
+        // runs standalone, and turning the GAMA link on means adding that one component plus a
+        // ConnectionManager, deliberately, to this object.
+
+        var overlay = AssetDatabase.LoadAssetAtPath<GameObject>(DebugOverlay);
+        if (overlay != null)
+        {
+            var instance = (GameObject)PrefabUtility.InstantiatePrefab(overlay);
+            instance.name = "Debug Overlay";
+            instance.transform.SetParent(managers.transform, false);
+        }
+    }
+
+    private static void BuildNeighbourhood()
+    {
+        var root = new GameObject("Neighbourhood");
+        var builder = root.AddComponent<M3NeighbourhoodBuilder>();
+
+        var so = new SerializedObject(builder);
+        Assign(so, "housePrefab", House);
+        Assign(so, "bedPrefab", Bed);
+        Assign(so, "villagerPrefab", Villager);
+        AssignArray(so, "childPrefabs", ChildA, ChildB);
+        AssignArray(so, "elderPrefabs", Elder);
+        Assign(so, "containerPrefab", Container);
+        so.ApplyModifiedPropertiesWithoutUndo();
+
+        // Sky, paddies, tree line and hills, built at runtime around the neighbourhood.
+        var surroundings = new SerializedObject(root.AddComponent<M3Surroundings>());
+        surroundings.FindProperty("skybox").objectReferenceValue =
+            AssetDatabase.LoadAssetAtPath<Material>(SkyboxMaterial);
+        AssignArray(surroundings, "nearTrees", CoconutTree, BananaTree, CoconutTree);
+        AssignArray(surroundings, "farTrees", BroadTree, CoconutTree, Bush1, Bush2, BroadTree);
+        surroundings.ApplyModifiedPropertiesWithoutUndo();
+    }
+
+    private const string Nature = "Assets/1.TeamWorkspace/Team Assets/Prefabs/Neture/";
+    private const string CoconutTree = Nature + "PF_CoconutTree.prefab";
+    private const string BananaTree = Nature + "PF_BananaTree.prefab";
+    private const string BroadTree = Nature + "PF_Tree.prefab";
+    private const string Bush1 = Nature + "PF_Bush_1.prefab";
+    private const string Bush2 = Nature + "PF_Bush_2.prefab";
+    private const string SkyboxMaterial = "Assets/Packages/Fantasy Skybox FREE/Panoramics/FS002/FS002_Day.mat";
+
+    private static void AssignArray(SerializedObject so, string field, params string[] assetPaths)
+    {
+        var prop = so.FindProperty(field);
+        if (prop == null) return;
+        prop.arraySize = assetPaths.Length;
+        for (int i = 0; i < assetPaths.Length; i++)
+        {
+            var asset = AssetDatabase.LoadAssetAtPath<GameObject>(assetPaths[i]);
+            if (asset == null) Debug.LogWarning($"Module 3: no prefab at {assetPaths[i]}; '{field}' entry left empty.");
+            prop.GetArrayElementAtIndex(i).objectReferenceValue = asset;
+        }
+    }
+
+    private static void BuildPlayer()
+    {
+        var player = new GameObject("Player");
+        player.transform.position = new Vector3(0f, 1.6f, -4f);
+
+        var camera = player.AddComponent<Camera>();
+        camera.nearClipPlane = 0.05f;
+        camera.farClipPlane = 200f;
+        player.AddComponent<AudioListener>();
+        player.tag = "MainCamera";
+
+        // Keyboard driver so a whole session can be played without a headset. It compiles out of
+        // a release build, so leaving it in the scene costs nothing.
+        player.AddComponent<M3DebugDriver>();
+
+        // The Pilot in the headset. At runtime this swaps the plain camera above for the XR rig
+        // and turns each turn's clock over to the person wearing it; the camera stays as the
+        // desktop fallback if the rig prefab is ever missing.
+        var xr = new SerializedObject(player.AddComponent<M3XRPlayer>());
+        var rig = AssetDatabase.LoadAssetAtPath<GameObject>(XRRigPrefab);
+        if (rig == null) Debug.LogWarning($"Module 3: no XR rig at {XRRigPrefab}; the scene will run on the desktop camera.");
+        xr.FindProperty("rigPrefab").objectReferenceValue = rig;
+        xr.ApplyModifiedPropertiesWithoutUndo();
+
+        // The conversation panel and the "walking in counts as a visit" tracker.
+        var pilot = new GameObject("Pilot Interaction");
+        pilot.AddComponent<M3PersonPanel>();
+        pilot.AddComponent<M3VisitTracker>();
+    }
+
+    private const string XRRigPrefab =
+        "Assets/Samples/XR Interaction Toolkit/3.3.2/Starter Assets/Prefabs/XR Origin (XR Rig).prefab";
+
+    private static void BuildSquadScreens()
+    {
+        // The Coach and the Analyst watch the cast, not the headset (section 9), so this is a
+        // screen-space overlay rather than anything in world space.
+        var squad = new GameObject("Squad Screens");
+        var hud = squad.AddComponent<M3Hud>();
+        squad.AddComponent<M3JournalWriter>();
+
+        // One font for English and Lao: the Lao face is a dynamic atlas and carries all 95
+        // printable ASCII as well as the Lao block, so nothing needs a fallback.
+        var so = new SerializedObject(hud);
+        var font = so.FindProperty("font");
+        var asset = AssetDatabase.LoadAssetAtPath<TMPro.TMP_FontAsset>(LaoFont);
+        if (asset == null) Debug.LogWarning($"Module 3: no font at {LaoFont}; the HUD will use the TMP default.");
+        if (font != null) font.objectReferenceValue = asset;
+        so.ApplyModifiedPropertiesWithoutUndo();
+    }
+
+    private static void Assign(SerializedObject so, string field, string assetPath)
+    {
+        var prop = so.FindProperty(field);
+        if (prop == null) return;
+
+        var asset = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+        if (asset == null) Debug.LogWarning($"Module 3: no prefab at {assetPath}; '{field}' left empty.");
+        prop.objectReferenceValue = asset;
+    }
+
+    private static void RegisterInBuildSettings()
+    {
+        var scenes = new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
+        foreach (var s in scenes)
+        {
+            if (s.path == ScenePath) { s.enabled = true; EditorBuildSettings.scenes = scenes.ToArray(); return; }
+        }
+
+        scenes.Add(new EditorBuildSettingsScene(ScenePath, true));
+        EditorBuildSettings.scenes = scenes.ToArray();
+
+        // SaveManager wipes the save file when the active scene's build index is 0 or 1
+        // (CLAUDE.md §10). Worth knowing where Module 3 landed before relying on persistence.
+        int index = scenes.Count - 1;
+        if (index <= 1)
+        {
+            Debug.LogWarning($"Module 3 is at build index {index}. SaveManager deletes the save file at "
+                             + "index 0 or 1, so anything carried over from Module 2 will be wiped.");
+        }
+    }
+}
