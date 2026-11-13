@@ -218,7 +218,7 @@ Transform:
   m_GameObject: {fileID: 6146545557941269323}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.928, y: 0.32, z: -5.081}
+  m_LocalPosition: {x: 0, y: 0.32, z: -5.081}
   m_LocalScale: {x: 0.098438, y: 0.098438, z: 0.098438}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -244,6 +244,13 @@ MonoBehaviour:
   minHeight: 0
   maxDirection: {x: 1, y: 1, z: 1}
   spawnBoundaryRadius: 1
+  attractRadius: 4
+  seekStrength: 0.55
+  biteDistance: 0.35
+  biteCooldown: 4
+  firstBiteDelay: 3
+  retireSeconds: 2.5
+  retireSpeedFactor: 1.5
 --- !u!135 &731061134773742785
 SphereCollider:
   m_ObjectHideFlags: 0
