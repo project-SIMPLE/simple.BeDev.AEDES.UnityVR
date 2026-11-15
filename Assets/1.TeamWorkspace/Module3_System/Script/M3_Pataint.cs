@@ -13,6 +13,7 @@ public class M3_Pataint : MonoBehaviour
     private void Start()
     {
         StartCoroutine(wait());
+
     }
     public IEnumerator wait()
     {

@@ -10,11 +10,11 @@ public class M3_Player : MonoBehaviour
     {
         if(Current_Pataint.Rash == b)
         {
-            M3_Manager.instance.Score += 1;
+            M3_Manager.instance.setScore(1);
         }
         else
         {
-            M3_Manager.instance.Score -= 1;
+            M3_Manager.instance.setScore(-1);
         }
         Current_Pataint.Diagnosed();
         Current_Pataint = null;
