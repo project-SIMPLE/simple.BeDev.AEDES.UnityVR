@@ -3,6 +3,7 @@ using System.Data;
 using System.Drawing;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using WebSocketSharp;
 
 public class GameManager : MonoBehaviour
@@ -55,9 +56,17 @@ public class GameManager : MonoBehaviour
     {
         questUI.SetActive(player.L_gripValue);
     }
+    public void reload()
+    {
+        SceneManager.LoadScene(0);
+    }
     public void Settime()
     {
         time -= 1;
+        if (time <= 1)
+        {
+            Invoke("reload",5);
+        }
         if(SaveManager.instance!= null)
         {
             SaveManager.instance.a.time = time;
