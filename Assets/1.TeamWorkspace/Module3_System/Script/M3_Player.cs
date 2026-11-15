@@ -6,15 +6,15 @@ public class M3_Player : MonoBehaviour
 {
     public GameObject DiagnoseUI;
     public M3_Pataint Current_Pataint;
-    public void Finallize_Dengue(bool B)
+    public void Finallize(bool b)
     {
-        if(Current_Pataint.Rash == B)
+        if(Current_Pataint.Rash == b)
         {
-            GameManager.instance.setscore(1);
+            M3_Manager.instance.Score += 1;
         }
         else
         {
-            GameManager.instance.setscore(-1);
+            M3_Manager.instance.Score -= 1;
         }
         Current_Pataint.Diagnosed();
         Current_Pataint = null;
