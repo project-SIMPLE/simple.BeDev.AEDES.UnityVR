@@ -68,7 +68,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/1.TeamWorkspace/Module3_System/Scene/M3_MainScene.unity
     guid: 474f454101c12314ab15f7c6a2d9ba8a
-  - enabled: 0
+  - enabled: 1
     path: Assets/1.TeamWorkspace/Module3/Scenes/Module_3_MainScene.unity
     guid: 040e1520071c948c698619f43ea0e298
   m_configObjects:

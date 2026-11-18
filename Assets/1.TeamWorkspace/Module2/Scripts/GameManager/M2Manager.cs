@@ -702,12 +702,14 @@ public class M2Manager : MonoBehaviour
 
         if (RestartConfirmPressed())
         {
-            int index = SceneManager.GetActiveScene().buildIndex;
-            Debug.Log($"[M2] Restart pressed - reloading scene index {index}");
-            s_skipIntroOnLoad = true;
+            //int index = SceneManager.GetActiveScene().buildIndex;
+            //Debug.Log($"[M2] Restart pressed - reloading scene index {index}");
+            //s_skipIntroOnLoad = true;
             // Reloading the scene rebuilds the manager and its references; no need to reset
             // fields on an instance that is about to be destroyed.
-            SceneManager.LoadScene(index);
+
+            //Go back to the main menu scene
+            SceneManager.LoadScene(0);
         }
     }
     #endregion
